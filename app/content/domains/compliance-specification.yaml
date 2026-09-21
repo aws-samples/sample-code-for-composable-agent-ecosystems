@@ -1,0 +1,34 @@
+domain: compliance-specification
+name: Compliance & Spec Generation
+description: 'Durable building blocks for generating compliance/spec artifacts (e.g. AWS Kiro specs): control frameworks and controls, AWS resource types, and reusable rule/spec templates.'
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: control-framework
+  key: '{framework}'
+  description: A control framework — structure, control families, durable mapping.
+  status: active
+- type: control
+  key: '{framework}-{control_id}'
+  description: A specific control — intent, implementation guidance, evidence.
+  status: active
+- type: aws-resource-type
+  key: '{service}-{resource}'
+  description: An AWS resource type — durable config/compliance considerations.
+  status: active
+- type: rule-template
+  key: '{template_id}'
+  description: A reusable rule/spec template for generating compliant artifacts.
+  status: active
+conclusions_never_cataloged:
+- the generated spec file for a specific request (run artifact)
+seeded_from: &id001
+- kiro-spec-forge
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: bottom-up validated across belonging ecosystems (2026-06-30)

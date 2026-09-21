@@ -1,0 +1,43 @@
+domain: responsible-ai
+name: Responsible AI Principles (cross-cutting)
+description: "A cross-cutting Responsible-AI principle catalog with a CROSSWALK: each principle (Australia's AI Ethics Principles, aligned to NIST AI RMF and the AWS Responsible-AI dimensions) maps to the enterprise non-financial-risk (NFR) domains and the assessing lenses that evidence it. This lets an ecosystem roll existing lens findings up into a principle-level Responsible-AI coverage view WITHOUT re-assessing — the same one-control-many-obligations pattern used by ai-governance-conformity. A specific system's per-principle pass/fail for a run is a CONCLUSION — never cataloged. Authored as reliable static data (the crosswalk is derived knowledge); ingest is declarative + blue/green-versioned (domains/responsible-ai/catalog.yaml)."
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: rai-principle
+  key: '{principle_id}'
+  description: "A Responsible-AI principle + its crosswalk to the NFR domains and assessing lenses that evidence it (AU AI Ethics Principles / NIST AI RMF / AWS RAI)."
+  status: active
+conclusions_never_cataloged:
+- a specific system's per-principle Responsible-AI pass/fail or score for a run
+- a Responsible-AI remediation plan for a specific system
+- board memo / recommendation for a specific matter
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: "declarative ingest domain — 1 cross-cutting type (rai-principle) carrying the 8 Australian AI Ethics Principles + a crosswalk (nfr_domains + evidencing_lenses) aligned to NIST AI RMF and AWS RAI. Static source (deterministic, reliable). synthesis: none. Consumed by the enterprise-risk-board responsible_ai_mapper to produce a cited RAI coverage view from existing lens findings."
+catalog:
+  view:
+    default:
+      title:
+      - name
+      subtitle:
+      - principle_id
+      summary:
+      - description
+    rai-principle:
+      title: name
+      subtitle: principle_id
+      summary: description
+  ingestion:
+    schedule: rate(90 days)
+    sources:
+    - id: au-ai-ethics-principles
+      mode: agent
+      produces:
+      - rai-principle
+      authoritative_url: https://www.industry.gov.au/publications/australias-artificial-intelligence-ethics-principles
+      status: active

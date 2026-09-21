@@ -1,0 +1,260 @@
+# Declarative, versioned ingest for the au-financial-advice domain.
+# Same shape + blue/green versioning as domains/cyber-security-risk/catalog.yaml:
+# the generic ingest engine builds a fresh GREEN version into
+# /tessera/catalog/<version>/<type>/<key>, validates, and atomically promotes
+# (VER#/ACTIVE pointer). Reads resolve the active version. No per-domain code.
+#
+# ALL sources are LIVE (no static/curated builders): structured feeds (ABS API,
+# RBA CSV) use their transports; unstructured .gov.au content uses the agentic
+# normalizer (schema-driven + grounded). Client data (fact-find, portfolio) is a
+# RUN INPUT and is never ingested; conclusions (SoA/advice record) are never
+# cataloged (see domains/au-financial-advice.yaml).
+ingest:
+  sources:
+    # ── regulatory-figure (caps, rates, thresholds) ─────────────────────────────
+    - name: ato-super-rates
+      produces: [regulatory-figure]
+      fetch: {transport: http_html, url: https://www.ato.gov.au/tax-rates-and-codes/key-superannuation-rates-and-thresholds, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: regulatory-figure
+        key: "{measure}-{fy}"
+        key_field: figure_key
+        guidance: >-
+          Emit one record per rate/threshold: measure (kebab-case, e.g. concessional-cap,
+          non-concessional-cap, super-guarantee-rate, transfer-balance-cap, preservation-age),
+          fy (e.g. 2026-27), value (verbatim incl. $/%/units), unit, effective_date if stated.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [ato]}
+    - name: ato-income-tax-rates
+      produces: [regulatory-figure]
+      fetch: {transport: http_html, url: https://www.ato.gov.au/tax-rates-and-codes/tax-rates-australian-residents, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: regulatory-figure
+        key: "{measure}-{fy}"
+        key_field: figure_key
+        guidance: >-
+          Emit one record per tax bracket / rate / threshold (resident marginal rates,
+          tax-free threshold, Medicare levy, Division 293 threshold): measure (kebab-case),
+          fy, value (verbatim), unit, effective_date if stated.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [ato]}
+    - name: services-australia-age-pension
+      produces: [regulatory-figure]
+      fetch: {transport: http_html, url: https://www.servicesaustralia.gov.au/how-much-age-pension-you-can-get, timeout: 90}
+      normalize:
+        mode: agent
+        entity_type: regulatory-figure
+        key: "{measure}-{fy}"
+        key_field: figure_key
+        guidance: >-
+          Emit one record per Age Pension figure: measure (kebab-case, e.g. age-pension-max-single,
+          income-test-free-area-single, assets-test-threshold-homeowner-couple, income-taper-rate),
+          fy or effective period, value (verbatim), unit, effective_date if stated.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [services-australia]}
+
+    # ── advice-obligation (statutory + Code obligations) ────────────────────────
+    - name: asic-code-of-ethics
+      produces: [advice-obligation]
+      fetch: {transport: http_html, url: https://asic.gov.au/for-finance-professionals/afs-licensees/professional-standards-for-financial-advisers/code-of-ethics-and-compliance-scheme/, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: advice-obligation
+        key: "{obligation_id}"
+        key_field: obligation_id
+        guidance: >-
+          Emit one record per named standard/obligation: obligation_id (e.g. code-standard-2),
+          title, description, framework (code-of-ethics), administered_by, governing_provision if stated,
+          status (current unless the page says otherwise).
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [asic]}
+    - name: asic-advice-obligations
+      produces: [advice-obligation]
+      fetch: {transport: http_html, url: https://www.asic.gov.au/regulatory-resources/financial-services/giving-financial-product-advice/, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: advice-obligation
+        key: "{obligation_id}"
+        key_field: obligation_id
+        guidance: >-
+          Emit one record per adviser conduct/disclosure obligation: obligation_id (e.g.
+          best-interests-duty-s961b, appropriate-advice-s961g, priority-of-client-s961j,
+          fsg-provision, conflicted-remuneration-ban, ongoing-fee-consent, ddo). title,
+          description, framework (corporations-act|bid|dbfo), governing_provision, administered_by,
+          status. Note where DBFO reform modifies or removes the obligation.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [asic, corporations-act]}
+    - name: asic-dbfo
+      produces: [advice-obligation]
+      fetch: {transport: http_html, url: https://www.asic.gov.au/regulatory-resources/financial-services/regulatory-reforms/delivering-better-financial-outcomes-dbfo-package/, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: advice-obligation
+        key: "{obligation_id}"
+        key_field: obligation_id
+        guidance: >-
+          Emit one record per DBFO reform change affecting an obligation (modernised best
+          interests duty, removal of safe-harbour steps, new client advice record replacing the
+          SoA, ongoing-fee consent streamlining, insurance-commission consent, new class of adviser):
+          obligation_id, title, description, framework (dbfo), status (proposed|in-force|commenced),
+          effective_date if stated, supersedes if it changes a prior obligation.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [asic, treasury]}
+
+    # ── regulatory-guidance (ASIC RGs) ──────────────────────────────────────────
+    - name: asic-regulatory-guides
+      produces: [regulatory-guidance]
+      fetch: {transport: http_html, url: https://asic.gov.au/regulatory-resources/find-a-document/regulatory-guides/, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: regulatory-guidance
+        key: "{rg_id}"
+        key_field: rg_id
+        guidance: >-
+          Emit one record per advice-relevant Regulatory Guide (e.g. rg-175, rg-90, rg-244,
+          rg-246, rg-274): rg_id, title, summary, administered_by (ASIC), status
+          (current|updated|withdrawn — note DBFO-driven updates/withdrawals), reference URL.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [asic]}
+
+    # ── advice-strategy (reusable strategy patterns) ────────────────────────────
+    - name: ato-super-strategies
+      produces: [advice-strategy]
+      fetch: {transport: http_html, url: https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/super/growing-and-keeping-track-of-your-super, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: advice-strategy
+        key: "{strategy_id}"
+        key_field: strategy_id
+        guidance: >-
+          Emit one record per contribution/super strategy described (salary-sacrifice,
+          personal-deductible-contributions, contribution-splitting, downsizer-contribution,
+          spouse-contribution, government-co-contribution, recontribution): strategy_id, name,
+          description, when_appropriate, key_considerations, related_figures (measures it depends on),
+          risks. This is durable how-it-works knowledge, NOT a client recommendation.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [ato]}
+    - name: moneysmart-strategies
+      produces: [advice-strategy]
+      fetch: {transport: http_html, url: https://moneysmart.gov.au/grow-your-super, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: advice-strategy
+        key: "{strategy_id}"
+        key_field: strategy_id
+        guidance: >-
+          Emit one record per strategy described (e.g. transition-to-retirement, account-based-pension,
+          debt-recycling, insurance-inside-vs-outside-super): strategy_id, name, description,
+          when_appropriate, key_considerations, related_figures, risks.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [moneysmart]}
+
+    # ── product-type (product categories + characteristics) ─────────────────────
+    - name: moneysmart-products
+      produces: [product-type]
+      fetch: {transport: http_html, url: https://moneysmart.gov.au/how-to-invest, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: product-type
+        key: "{product_type_id}"
+        key_field: product_type_id
+        guidance: >-
+          Emit one record per product CATEGORY (super-accumulation, super-pension, managed-fund,
+          etf, shares, term-deposit, annuity, life-insurance, tpd-insurance, income-protection,
+          smsf, investment-bond, managed-account): product_type_id, name, description,
+          typical_use, key_features, key_risks. Categories only - not specific products.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [moneysmart]}
+
+    # ── disclosure-document (advice document types + rules) ─────────────────────
+    - name: asic-disclosure-documents
+      produces: [disclosure-document]
+      fetch: {transport: http_html, url: https://www.asic.gov.au/regulatory-resources/financial-services/giving-financial-product-advice/, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: disclosure-document
+        key: "{doc_type_id}"
+        key_field: doc_type_id
+        guidance: >-
+          Emit one record per advice document type (fsg, soa, client-advice-record, roa, pds, tmd,
+          fee-consent, opt-in): doc_type_id, name, purpose, mandatory_content (list),
+          governing_provision, status (note where DBFO replaces the SoA with the new client
+          advice record). reference URL.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [asic, corporations-act]}
+
+    # ── determination-precedent (ASIC / FSCP outcomes) ──────────────────────────
+    # NOTE: AFCA (afca.org.au) WAF-blocks automated fetches (HTTP 403), so AFCA
+    # determinations are not ingested here yet — add later if a non-WAF feed/export
+    # is available. ASIC enforcement + FSCP outcomes cover this type for now.
+    - name: asic-enforcement
+      produces: [determination-precedent]
+      fetch: {transport: http_html, url: https://asic.gov.au/about-asic/news-centre/find-a-media-release/, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: determination-precedent
+        key: "{determination_id}"
+        key_field: determination_id
+        guidance: >-
+          Emit one record per advice-related enforcement or FSCP outcome: determination_id
+          (asic-<ref>), body (ASIC|FSCP), date, party, issue, outcome, lesson.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [asic]}
+
+    # ── market-indicator (ABS API + RBA) ────────────────────────────────────────
+    - name: abs-cpi
+      produces: [market-indicator]
+      fetch:
+        transport: sdmx
+        url: "https://data.api.abs.gov.au/rest/data/ABS,CPI,2.0.0/all?lastNObservations=1&dimensionAtObservation=AllDimensions"
+        timeout: 60
+      normalize:
+        mode: agent
+        entity_type: market-indicator
+        key: "{indicator}-{as_at}"
+        key_field: indicator_key
+        guidance: >-
+          From the ABS CPI SDMX-JSON, emit the headline All-groups CPI, Australia:
+          indicator (cpi-annual and cpi-index), as_at (observation period, ISO date),
+          value (verbatim), unit (percent|index), source_release (ABS CPI + reference period).
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [abs]}
+    - name: rba-cash-rate
+      produces: [market-indicator]
+      fetch: {transport: http_html, url: https://www.rba.gov.au/statistics/cash-rate/, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: market-indicator
+        key: "{indicator}-{as_at}"
+        key_field: indicator_key
+        guidance: >-
+          Emit the current RBA cash rate target: indicator (rba-cash-rate), as_at (effective date, ISO),
+          value (e.g. 3.85%), unit (percent), source_release (RBA cash rate).
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [rba]}
+
+    # ── planning-assumption (projection inputs) ─────────────────────────────────
+    - name: moneysmart-assumptions
+      produces: [planning-assumption]
+      fetch: {transport: http_html, url: https://moneysmart.gov.au/retirement-income/retirement-planner, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: planning-assumption
+        key: "{assumption}-{as_at}"
+        key_field: assumption_key
+        guidance: >-
+          Emit one record per default projection assumption stated (investment-return, inflation,
+          wage-growth, fees): assumption, as_at (ISO date of the page/version), value, unit,
+          source_release (ASIC MoneySmart calculator). Only assumptions the page actually states.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [moneysmart]}
+
+  refresh:
+    schedule: "rate(30 days)"
+    sanity_drop: 0.5
+  # No synthesized types — the AU advice catalog holds only ingested reference
+  # entities. (validate_version therefore gates promotion on deterministic
+  # reproduction of the source-produced types only.)
+  synthesis: none

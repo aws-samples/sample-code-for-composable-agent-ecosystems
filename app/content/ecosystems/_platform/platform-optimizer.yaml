@@ -1,0 +1,492 @@
+ecosystem:
+  name: "platform-optimizer"
+  description: |
+    Tessera optimising Tessera. Profiles a target ecosystem's last N runs
+    (AWS Step Functions telemetry, per-agent durations, tool calls, output sizes,
+    challenger findings, retries) plus its YAML, then produces a patch
+    proposal across three lenses — quality, time/latency, cost. User
+    reviews via a 3-tab dashboard with side-by-side diff and per-change
+    approve toggles; on approval, the patch-applier writes v{N+1}.
+  version: "1.0"
+
+# Repo-managed platform ecosystem. The save-ecosystem Lambda's API write
+# path REJECTS any write that would create or modify an ecosystem with
+# platform:true. The only way to update this file is via:
+#   bash scripts/deploy-platform-ecosystems.sh
+# (which uploads YAML directly to S3 + triggers ASL recompile).
+platform: true
+
+strategy: orchestrated
+report: true
+
+quality:
+  challenger: true
+  grounding: false       # Optimizer reasons over its own platform's
+                         # telemetry — no external claims to ground.
+
+# Inputs surfaced in the launch UI. The /api/optimize-ecosystem Lambda
+# pre-bundles the telemetry into the mission text before starting the
+# SFN execution, so target_ecosystem_id is the only operator-facing
+# field.
+inputs:
+  - id: target_ecosystem_id
+    type: text
+    label: "Target ecosystem ID (e.g. fsi-anz-personas-painpoints-tessera)"
+    required: true
+  - id: max_runs
+    type: text
+    label: "How many recent runs to analyse (default 5)"
+    required: false
+    default: "5"
+
+entry_point: telemetry_loader
+
+memory:
+  strategies: [semantic]
+  shared_namespaces:
+    - name: "target_telemetry"
+      write: [all]
+      read: [all]
+    - name: "quality_findings"
+      write: [all]
+      read: [all]
+    - name: "time_findings"
+      write: [all]
+      read: [all]
+    - name: "cost_findings"
+      write: [all]
+      read: [all]
+    - name: "patch_proposal"
+      write: [all]
+      read: [all]
+
+agents:
+
+  # --------------------------------------------------------------------
+  # LAYER 0: Telemetry loader
+  # --------------------------------------------------------------------
+  - id: telemetry_loader
+    name: "Target Ecosystem Telemetry Loader"
+    registry_id: "tessera/telemetry_loader"
+    swarm: research
+    tools: [memory_read, memory_write, code_interpreter]
+    prompt: |
+      PRIMARY DELIVERABLE: persist a structured telemetry bundle to
+      `/tessera/target_telemetry` describing the target ecosystem's
+      YAML and last N runs.
+
+      The /api/optimize-ecosystem Lambda has pre-bundled the telemetry
+      into the input context as a JSON object with these keys:
+        target_ecosystem_id, target_yaml, runs[], catalog_optimization_patterns[]
+      where runs[i] = {
+        session_id, status, started_at, ended_at, duration_seconds,
+        agents[]: {
+          agent_id, started_at, ended_at, duration_seconds,
+          output_size_bytes, has_structured_findings,
+          memory_read_count, memory_write_count, code_interpreter_count,
+          generate_ui_count, web_search_count, http_request_count,
+          tool_results_size_bytes, retry_count, output_text_excerpt
+        },
+        challenger_findings_excerpt
+      }
+
+      STEP 1: Use code_interpreter to parse the input JSON and validate
+        all expected keys are present. If keys are missing, write a
+        single STRUCTURED FINDINGS block flagging the gap and STOP.
+
+      STEP 2: Use code_interpreter to compute per-agent aggregates across
+        all N runs:
+          - mean / p50 / p95 duration
+          - mean output_size_bytes
+          - rate of has_structured_findings = true
+          - rate of memory_write_count > 0 (persistence rate)
+          - rate of generate_ui_count > 0 (UI render rate)
+          - mean memory_read_count, code_interpreter_count
+          - retry rate
+        Persist the aggregates as JSON to /tessera/target_telemetry under
+        key `per_agent_aggregates`.
+
+      STEP 3: Persist the raw runs[] list to /tessera/target_telemetry
+        under key `runs` (chunked if > 100 KB per memory_write).
+
+      STEP 4: Persist the target_yaml string to /tessera/target_telemetry
+        under key `target_yaml`.
+
+      STEP 5: memory_read /tessera/target_telemetry and confirm the
+        three keys are present. If not, retry the writes.
+
+      STEP 6: Emit a short STRUCTURED FINDINGS block listing:
+        - target ecosystem id
+        - number of runs ingested
+        - obvious red flags from aggregates (zero memory_writes for any
+          synthesizer; zero generateUI for any agent that should render;
+          retry rate > 30%; mean duration > 10 min for any single agent)
+
+      Do not analyse — that's downstream lanes (quality / time / cost).
+      Your job is to LAND THE DATA reliably for the analysts to read.
+
+  # --------------------------------------------------------------------
+  # LAYER 1: Three parallel analysts (Q / T / C)
+  # --------------------------------------------------------------------
+  - id: quality_analyst
+    name: "Quality Optimization Analyst"
+    registry_id: "tessera/quality_analyst"
+    swarm: research
+    depends_on: [telemetry_loader]
+    tools: [memory_read, memory_write, code_interpreter]
+    prompt: |
+      PRIMARY DELIVERABLE: persist a structured quality findings list to
+      `/tessera/quality_findings`. Each finding has:
+        { id, agent_id, severity (HIGH/MED/LOW), category, evidence,
+          proposed_patch (concrete YAML/prompt diff sketch), confidence,
+          rollback_risk }
+
+      STEP 1: memory_read /tessera/target_telemetry — pull
+        per_agent_aggregates, runs, target_yaml.
+
+      STEP 2: For EACH agent in the target eco, look for these quality
+        anti-patterns and produce findings where they appear:
+
+        PERSIST_INTENT_NO_ACTION:
+          Agent's output text excerpt contains intent phrases ("Now let
+          me build...", "I'll persist...", "Let me write...") but
+          memory_write_count == 0. The agent stated intent and stopped.
+          Patch: rewrite prompt to use STEP 1/2/3 imperative structure
+          with code_interpreter as MANDATORY first action; add a
+          verification gate (memory_read after write to confirm count).
+
+        MISSING_GENERATE_UI:
+          Prompt mandates generateUI but generate_ui_count == 0 across
+          all runs. Patch: hoist the generateUI call to the FIRST output
+          action, before STRUCTURED FINDINGS.
+
+        UNBOUNDED_ENUMERATION:
+          Prompt asks for a list of N >= 50 items. Output is incomplete.
+          Patch: split into K parallel sub-synthesizers or lower N to
+          a realistic single-turn target with explicit tier markers.
+
+        VERBOSE_DISCLAIMERS:
+          Prompt contains > 50 words of "you do NOT..." disclaimers.
+          Patch: replace with a single one-line footer ("Lane discipline:
+          do not regenerate upstream artifacts; cite via [per <agent>:...]").
+
+        MISSING_CITATION:
+          Synthesizer agent's output excerpt lacks `[per <agent>:` tokens.
+          Patch: add explicit citation requirement to prompt + reject-clause.
+
+        CHALLENGER_BLOCKER_AS_AMBER:
+          Run's challenger_findings_excerpt logged a BLOCKER but verdict
+          was AMBER or GREEN. Logical inconsistency. Patch: prompt
+          enforcement that any open BLOCKER forces RED.
+
+        MISSING_OUTPUT_KIND:
+          Agent's role is clearly a drafter/reporter/creative (produces
+          a document, chart, playbook, report, or file) but has no
+          `output_kind` field or defaults to `analyst`. Evidence: prompt
+          mentions "build", "render", "produce", "generate", "create"
+          a deliverable. Patch: add `output_kind: drafter` (or reporter/
+          creative as appropriate).
+
+        MISSING_OUTPUT_FORMAT:
+          Agent should produce a typed file (HTML, PDF, CSV, YAML, JSON)
+          but has no `output_format` field. Evidence: prompt mentions
+          specific file types, or the ecosystem's purpose implies a
+          downloadable deliverable. Patch: add `output_format: { type:
+          html|csv|yaml|json, save_as: <filename>, validate: true }`.
+          Use `type: html` for rich documents/playbooks/charts (most
+          versatile — renders inline + downloadable). Use `type: csv`
+          for tabular data. Use `type: yaml` for config/schema outputs.
+
+        MISSING_OUTCOME_DECLARATION:
+          Ecosystem produces a clear deliverable (document, file, chart,
+          playbook) but has no top-level `outcome` field. Without it,
+          the platform can't tell operators what the run produced or
+          offer downloads. Patch: add `outcome: { kind: file_artifact,
+          artifacts: [{ id: <artifact_id>, agent: <producer_agent_id>,
+          format: <type>, save_as: <filename>, download_label: <human
+          label> }] }` at the ecosystem top level.
+
+        UPSTREAM_DEP_NOT_HONORED:
+          Agent has depends_on but its output ignores upstream content
+          (no memory_reads OR memory_reads but no [per upstream:...]
+          citations in output).
+          Patch: tighten depends_on; add precondition gate that halts
+          the agent if upstream namespace is empty.
+
+      STEP 3: Use code_interpreter to deduplicate and rank findings by
+        severity then by confidence.
+
+      STEP 4: memory_write the findings list to /tessera/quality_findings
+        as a single JSON record with keys {findings: [...], summary,
+        target_eco_id}.
+
+      STEP 5: memory_read to confirm the write landed.
+
+      STEP 6: STRUCTURED FINDINGS block summarises top 3-5 findings;
+        the full list lives in memory.
+
+      Cite the telemetry as [per telemetry_loader: <evidence>].
+
+  - id: time_analyst
+    name: "Time/Latency Optimization Analyst"
+    registry_id: "tessera/time_analyst"
+    swarm: research
+    depends_on: [telemetry_loader]
+    tools: [memory_read, memory_write, code_interpreter]
+    prompt: |
+      PRIMARY DELIVERABLE: persist a structured time findings list to
+      `/tessera/time_findings`. Each finding has the same shape as
+      quality (id, agent_id, severity, category, evidence, proposed_patch,
+      confidence, rollback_risk).
+
+      STEP 1: memory_read /tessera/target_telemetry.
+
+      STEP 2: For each agent, look for these time anti-patterns:
+
+        SLOW_AGENT:
+          Agent's mean duration > 5 min OR p95 > 10 min. Identify the
+          dominant cause: tool retries, web_search timeouts,
+          code_interpreter heavy compute, model latency.
+          Patch: reduce tool budget where unused, add timeout, split
+          into sub-agents, or downgrade model if simple.
+
+        SERIAL_DEP_COULD_BE_PARALLEL:
+          Agents depending on the same upstream are serialised when
+          they could run in parallel (depends_on chain analysis from
+          target_yaml). Patch: rewire depends_on to share upstream.
+
+        UPSTREAM_BOTTLENECK:
+          One synthesizer's duration > sum of all leaves it depends on.
+          Patch: split synthesizer into N parallel sub-synthesizers
+          per segment / dimension, then a thin merger.
+
+        UNUSED_TOOL_BUDGET:
+          tool_budget for web_search or http_request = X but actual
+          usage averaged over runs is < X/3. Patch: reduce budget to
+          actual P95 + 1 (saves time on cold-start tool init).
+
+        RETRY_STORM:
+          retry_count > 1 across multiple runs for same agent. Likely
+          flaky tool call. Patch: tighten timeout; add structured
+          error handling.
+
+      STEP 3: Use code_interpreter to deduplicate + rank.
+
+      STEP 4: memory_write to /tessera/time_findings.
+
+      STEP 5: Verification memory_read.
+
+      STEP 6: STRUCTURED FINDINGS block summarises top 3-5.
+
+      Cite as [per telemetry_loader: <evidence>].
+
+  - id: cost_analyst
+    name: "Cost Optimization Analyst"
+    registry_id: "tessera/cost_analyst"
+    swarm: research
+    depends_on: [telemetry_loader]
+    tools: [memory_read, memory_write, code_interpreter]
+    prompt: |
+      PRIMARY DELIVERABLE: persist a structured cost findings list to
+      `/tessera/cost_findings`. Same finding shape as quality / time.
+
+      Tessera tier model: synthesizers (depends_on != []) run on the
+      synthesizer model (currently Claude Sonnet 4.5); leaves run on
+      the leaf model (currently Claude Sonnet 4.5 too — there's room
+      to downgrade simple leaves).
+
+      STEP 1: memory_read /tessera/target_telemetry.
+
+      STEP 2: For each agent, look for cost anti-patterns:
+
+        OVERSIZED_MODEL:
+          Leaf agent that does pure data lookup (web_search + format)
+          with no synthesis-heavy reasoning, running on Sonnet. Patch:
+          downgrade to Haiku via per-agent model override (when model
+          tiering supports per-agent override; today this is a roadmap
+          item — patch should still flag the opportunity).
+
+        UNDERSIZED_MODEL:
+          Synthesizer that's hitting low quality (challenger BLOCKERs)
+          potentially because it's compute-starved. Patch: keep on
+          Sonnet 4.5 OR upgrade to Opus 4.7 for highest-stakes
+          synthesizers.
+
+        EXCESSIVE_TOOL_BUDGET:
+          tool_budget allocates 20+ web_searches but only 3-5 are used
+          on average. Wasted reservations. Patch: reduce to actual
+          P95 + 1.
+
+        REDUNDANT_UPSTREAM_READS:
+          Agent calls memory_read on the same namespace > 3 times in
+          a single run. Patch: read once into local var.
+
+        DUPLICATE_SCRAPE:
+          Multiple agents independently web_search the same query.
+          Patch: hoist to a single upstream "researcher" leaf and
+          have downstream consume from memory.
+
+      STEP 3: Use code_interpreter to compute estimated cost-per-run
+        savings if all proposed patches are applied. Use a rough cost
+        model:
+          - Sonnet 4.5: $3/M input, $15/M output tokens
+          - Haiku: $0.80/M input, $4/M output
+          - Tool calls: web_search $0.005/call, http_request free,
+            code_interpreter free
+          - Approx tokens-per-agent: ~5K input + ~5K output for leaves;
+            ~15K input + ~10K output for synthesizers
+        Output a `total_estimated_savings_per_run_usd` summary number.
+
+      STEP 4: memory_write to /tessera/cost_findings.
+
+      STEP 5: Verification memory_read.
+
+      STEP 6: STRUCTURED FINDINGS block summarises top 3-5 + total
+        estimated savings.
+
+      Cite as [per telemetry_loader: <evidence>].
+
+  # --------------------------------------------------------------------
+  # LAYER 2: Patch synthesizer (consolidates Q/T/C into a unified patch)
+  # --------------------------------------------------------------------
+  - id: patch_synthesizer
+    name: "Patch Proposal Synthesizer"
+    registry_id: "tessera/patch_synthesizer"
+    swarm: research
+    depends_on: [quality_analyst, time_analyst, cost_analyst]
+    tools: [memory_read, memory_write, code_interpreter, generateUI]
+    # Phase 5e: typed YAML output. The patch_synthesizer's primary deliverable
+    # is a YAML-formatted patch_proposal that downstream apply-eco-patch
+    # consumes. Declaring output_format: yaml means:
+    #   - Runtime appends "emit a fenced ```yaml ... ``` block" instruction.
+    #   - Validator parses + schema-validates the YAML; failures reject.
+    #   - Storage saves output.yaml alongside output.txt with the parsed
+    #     payload (re-serialised cleanly, sort_keys=False).
+    #   - The apply panel can read the typed artifact directly via
+    #     /api/runs/{sessionId}/artifacts/proposed_yaml (Phase 5f) instead
+    #     of operator-paste from markdown.
+    output_kind: synthesizer
+    output_format:
+      type: yaml
+      file_extension: .yaml
+      save_as: proposed_patch.yaml
+      template_id: ecosystem_yaml_v1
+      validate: true
+    prompt: |
+      PRIMARY DELIVERABLE: a unified patch proposal at
+      `/tessera/patch_proposal` AND a 3-tab generateUI surface for the
+      operator to review.
+
+      STEP 1: memory_read all four upstream namespaces:
+        - /tessera/target_telemetry (target_yaml + aggregates)
+        - /tessera/quality_findings
+        - /tessera/time_findings
+        - /tessera/cost_findings
+
+      STEP 2: Use code_interpreter to merge findings into a structured
+        patch proposal:
+
+        patch_proposal = {
+          target_eco_id: str,
+          target_eco_current_version: int,
+          proposed_version: int,
+          changes: [
+            {
+              id: "C001",
+              category: "Q" | "T" | "C",
+              agent_id: str,
+              kind: "prompt_edit" | "tool_budget" | "model_override"
+                  | "depends_on" | "split_agent" | "delete_agent"
+                  | "add_agent" | "output_kind" | "output_format"
+                  | "outcome",
+              before: str,         # current YAML/prompt snippet
+              after: str,          # proposed replacement
+              rationale: str,      # why
+              confidence: "HIGH" | "MED" | "LOW",
+              expected_impact: {
+                quality_delta: str,    # e.g. "fixes missing memory_writes"
+                latency_delta_seconds: int | null,
+                cost_delta_usd_per_run: float | null
+              },
+              rollback_risk: "LOW" | "MED" | "HIGH",
+              source_findings: ["quality_analyst:F003", ...]
+            }, ...
+          ],
+          summary: {
+            total_changes: int,
+            by_category: { Q: int, T: int, C: int },
+            estimated_quality_uplift: str,
+            estimated_latency_savings_seconds: int,
+            estimated_cost_savings_usd_per_run: float
+          }
+        }
+
+      STEP 3: Resolve conflicts. If the time_analyst proposes "downgrade
+        agent_X model" and quality_analyst proposes "agent_X is
+        producing weak output", the cost change is contraindicated —
+        flag a conflict and prefer quality.
+
+      STEP 3b: For output_kind / output_format / outcome changes:
+        - When adding `output_kind` to an agent, set it on the agent
+          dict directly (same level as `id`, `name`, `prompt`).
+        - When adding `output_format` to an agent, set it as a dict:
+          `output_format: { type: html|csv|yaml|json, save_as: <file>,
+          validate: true }`.
+        - When adding `outcome` to the ecosystem, set it at the TOP
+          LEVEL of the YAML (same level as `ecosystem`, `agents`,
+          `swarms`):
+          `outcome: { kind: file_artifact, artifacts: [{ id: <id>,
+          agent: <agent_id>, format: <type>, save_as: <filename>,
+          download_label: <human label> }] }`
+        The final YAML you emit in the ```yaml block MUST include ALL
+        of these fields merged into the target YAML — not just the
+        diff. The apply-eco-patch Lambda writes the YAML verbatim.
+
+      STEP 4: memory_write the full patch_proposal to /tessera/patch_proposal.
+
+      STEP 4b: CRITICAL — the fenced ```yaml block you emit (per your
+        output_format declaration) must be the COMPLETE, VALID ecosystem
+        YAML for the target — not a diff, not a partial. Start from the
+        target_yaml you read in STEP 1, apply ALL approved changes
+        (prompt edits, output_kind additions, output_format additions,
+        outcome additions, tool_budget changes, etc.), and emit the
+        full result. The apply-eco-patch Lambda writes this verbatim
+        as the new version.
+
+      STEP 5: Render the 3-tab dashboard via generateUI:
+        - Tab "Quality" (red/orange icons): quality findings + their proposed changes
+        - Tab "Time" (purple icons): time findings + proposed changes
+        - Tab "Cost" (green icons): cost findings + proposed changes
+        - Each row: agent_id, kind, rationale, expected impact, approve toggle
+        - Footer: aggregate summary (total changes, est. uplift)
+        Use a Card layout per change with side-by-side before/after.
+
+      STEP 6: Render a side-by-side YAML diff via generateUI showing
+        the full proposed v{N+1} YAML next to the current YAML.
+
+      STEP 7: STRUCTURED FINDINGS:
+        claim: "Patch proposal contains <N> changes (Q=q, T=t, C=c)
+        with estimated savings of X seconds latency and $Y per run."
+        evidence: cite each upstream analyst's findings via
+        [per quality_analyst: ...] etc.
+
+      Cite all upstream agents. Standalone synthesis without
+      [per <agent>: ...] tokens will be REJECTED.
+
+# --------------------------------------------------------------------
+# Auto-injected: challenger_agent (red-teams the patch) + report_agent
+# (final synthesis). These are added by save-ecosystem at compile time.
+# --------------------------------------------------------------------
+
+swarms:
+  research:
+    agents:
+      - telemetry_loader
+      - quality_analyst
+      - time_analyst
+      - cost_analyst
+      - patch_synthesizer
+    strategy: graph
+
+triggers:
+  - type: manual

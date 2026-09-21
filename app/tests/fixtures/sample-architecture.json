@@ -1,0 +1,20 @@
+{
+  "project": "payments-platform",
+  "description": "Online payments processing platform handling credit card transactions",
+  "services": [
+    {"name": "API Gateway", "role": "ingress", "public": true, "data": "request-routing"},
+    {"name": "Lambda", "role": "compute", "data": "payment-processing", "functions": ["process-payment", "validate-card", "generate-receipt"]},
+    {"name": "DynamoDB", "role": "data-store", "data": "transaction-records", "records": "12M"},
+    {"name": "S3", "role": "archive", "data": "payment-history", "records": "4.2M", "sensitivity": "PCI"},
+    {"name": "Cognito", "role": "auth", "data": "user-identities", "users": "850K"},
+    {"name": "KMS", "role": "encryption", "data": "key-management"},
+    {"name": "CloudTrail", "role": "audit", "data": "api-logs"}
+  ],
+  "connections": [
+    {"from": "API Gateway", "to": "Lambda", "protocol": "HTTPS"},
+    {"from": "Lambda", "to": "DynamoDB", "protocol": "SDK"},
+    {"from": "Lambda", "to": "S3", "protocol": "SDK"},
+    {"from": "Lambda", "to": "KMS", "protocol": "SDK"},
+    {"from": "Cognito", "to": "API Gateway", "protocol": "JWT"}
+  ]
+}

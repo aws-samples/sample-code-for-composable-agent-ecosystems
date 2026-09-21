@@ -1,0 +1,1551 @@
+[
+  {
+    "eco_id": "advisor-client-conversation",
+    "name": "advisor-client-conversation",
+    "purpose": "Generate a live, in-meeting conversation guide (questions, prompts, next steps) tailored to a client's fact-find to support meaningful advisor\u2013client discussion",
+    "problem_solved": "Generate a live, in-meeting conversation guide (questions, prompts, next steps) tailored to a client's fact-find to support meaningful advisor\u2013client discussion",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "html artifact: advisor_client_conversation_guide.html",
+    "domains_mounted": [],
+    "agents": [
+      "factfind_parser",
+      "gap_analyst",
+      "question_designer",
+      "next_steps_planner",
+      "guide_drafter"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "hitl_gate",
+      "provenance"
+    ],
+    "maturity": "demo",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:advisor-client-conversation",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "agentic-ai-sirs",
+    "name": "agentic-ai-sirs",
+    "purpose": "Prepares and produces a complete Security Incident Response Simulation (SIRS) workshop package focused on Agentic AI threats.",
+    "problem_solved": "Prepares and produces a complete Security Incident Response Simulation (SIRS) workshop package focused on Agentic AI threats.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "html artifact: sirs-execution-plan.html",
+    "domains_mounted": [
+      "cyber-security-risk"
+    ],
+    "agents": [
+      "threat_landscape_analyst",
+      "scenario_designer",
+      "infra_architect",
+      "facilitator_planner",
+      "workshop_assembler",
+      "presentation_drafter"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "external_grounding",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "cut",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:agentic-ai-sirs",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "ai-acquisition-war-room",
+    "name": "ai-acquisition-war-room",
+    "purpose": "Pre-acquisition cyber + AI-safety due diligence exercise.",
+    "problem_solved": "Pre-acquisition cyber + AI-safety due diligence exercise.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "html artifact: acquisition-memo.html",
+    "domains_mounted": [
+      "cyber-security-risk"
+    ],
+    "agents": [
+      "attack_surface_analyst",
+      "breach_history_analyst",
+      "tech_stack_auditor",
+      "regulatory_exposure_analyst",
+      "ai_risk_analyst",
+      "supply_chain_analyst",
+      "deal_breaker_synthesizer",
+      "integration_cost_modeler",
+      "regulatory_trigger_analyst",
+      "ciso_recommendation",
+      "drafter"
+    ],
+    "quality_posture": "challenger:True, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "external_grounding",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "product",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:ai-acquisition-war-room",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "ai-governance-conformity",
+    "name": "ai-governance-conformity",
+    "purpose": "AI Governance Conformity Desk \u2014",
+    "problem_solved": "AI Governance Conformity Desk \u2014",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "html artifact: ai-conformity-dossier.html",
+    "domains_mounted": [
+      "cyber-security-risk"
+    ],
+    "agents": [
+      "system_intake_analyst",
+      "regulatory_tier_classifier",
+      "regulatory_obligation_mapper",
+      "nist_ai_rmf_mapper",
+      "genai_owasp_mapper",
+      "ai_threat_mapper",
+      "control_map_harmonizer",
+      "conformity_grade_synthesizer",
+      "conformity_dossier_composer"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "external_grounding",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "product",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:ai-governance-conformity",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "au-fishing-spot-finder",
+    "name": "au-fishing-spot-finder",
+    "purpose": "A multi-agent ecosystem that recommends a really good fishing spot in Australia for a user.",
+    "problem_solved": "A multi-agent ecosystem that recommends a really good fishing spot in Australia for a user.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "au-recreational-fishing"
+    ],
+    "agents": [
+      "species-seasonality",
+      "location-scout",
+      "conditions-forecaster",
+      "regs-safety",
+      "spot-ranker",
+      "devils-advocate",
+      "trip-planner"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "versioned_catalog"
+    ],
+    "maturity": "cut",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:au-fishing-spot-finder",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "buyerside-premium",
+    "name": "buyerside-premium",
+    "purpose": "Premium property due diligence with visual intelligence.",
+    "problem_solved": "Premium property due diligence with visual intelligence.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "pdf artifact: visual_assets.pdf",
+    "domains_mounted": [
+      "residential-property-au"
+    ],
+    "agents": [
+      "property_intake_analyst",
+      "suburb_intelligence_analyst",
+      "comparable_sales_analyst",
+      "flood_fire_environmental_analyst",
+      "development_pipeline_analyst",
+      "building_forensic_analyst",
+      "strata_or_easement_analyst",
+      "auction_intelligence_analyst",
+      "contract_reviewer",
+      "valuation_synthesizer",
+      "auction_strategy_advisor",
+      "risk_synthesizer",
+      "visual_asset_generator",
+      "buyer_brief_composer"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "external_grounding",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "product",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:buyerside-premium",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "buyerside",
+    "name": "buyerside",
+    "purpose": "The first true buyer's-side AI for Australian property.",
+    "problem_solved": "The first true buyer's-side AI for Australian property.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "pdf artifact: buyers_report.pdf",
+    "domains_mounted": [
+      "residential-property-au"
+    ],
+    "agents": [
+      "property_intake_analyst",
+      "suburb_intelligence_analyst",
+      "comparable_sales_analyst",
+      "flood_fire_environmental_analyst",
+      "development_pipeline_analyst",
+      "building_forensic_analyst",
+      "strata_or_easement_analyst",
+      "auction_intelligence_analyst",
+      "contract_reviewer",
+      "valuation_synthesizer",
+      "auction_strategy_advisor",
+      "risk_synthesizer",
+      "buyer_brief_composer"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "external_grounding",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "product",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:buyerside",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "car-ad-optimizer",
+    "name": "car-ad-optimizer",
+    "purpose": "Given a car listing URL, research comparable historical and current ads, analyze copy and photos, and produce a polished HTML report with an optimized ad (copy + edited photos embedded) plus ranked placement channels with tailored per-channel copy variants.",
+    "problem_solved": "Given a car listing URL, research comparable historical and current ads, analyze copy and photos, and produce a polished HTML report with an optimized ad (copy + edited photos embedded) plus ranked placement channels with tailored per-channel copy variants.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "html artifact: car_ad_optimized.html",
+    "domains_mounted": [],
+    "agents": [
+      "listing_ingest",
+      "comp_current",
+      "comp_historical",
+      "copy_analyst",
+      "photo_analyst",
+      "channel_scout",
+      "ad_drafter"
+    ],
+    "quality_posture": "challenger:False, grounding:True",
+    "capabilities_used": [
+      "grounding",
+      "hitl_gate",
+      "provenance"
+    ],
+    "maturity": "cut",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:car-ad-optimizer",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "car-insurance-compare-au",
+    "name": "car-insurance-compare-au",
+    "purpose": "Compare car insurance options across coverage quality and cost, personalized to the user's vehicle and driver profile, for the Australian market",
+    "problem_solved": "Compare car insurance options across coverage quality and cost, personalized to the user's vehicle and driver profile, for the Australian market",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "au-insurance"
+    ],
+    "agents": [
+      "profile_intake",
+      "insurer_researcher",
+      "coverage_analyst",
+      "quote_estimator",
+      "comparison_synthesizer"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "hitl_gate",
+      "versioned_catalog"
+    ],
+    "maturity": "cut",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:car-insurance-compare-au",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "catalog-agent-ingest",
+    "name": "catalog-agent-ingest",
+    "purpose": "Agentic ingestion of authoritative security taxonomies that have no clean machine-readable feed.",
+    "problem_solved": "Agentic ingestion of authoritative security taxonomies that have no clean machine-readable feed.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "cyber-security-risk"
+    ],
+    "agents": [
+      "catalog_ingestor",
+      "ingest_validator"
+    ],
+    "quality_posture": "challenger:True, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "versioned_catalog"
+    ],
+    "maturity": "experimental",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:catalog-agent-ingest",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "commodity-trading-ecosystem",
+    "name": "commodity_trading_ecosystem",
+    "purpose": "Specialized multi-agent ecosystem for commodity trading analysis and strategy",
+    "problem_solved": "Specialized multi-agent ecosystem for commodity trading analysis and strategy",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "markets-and-investing"
+    ],
+    "agents": [
+      "commodity_data_collector",
+      "fundamental_analyst",
+      "technical_analyst",
+      "seasonality_expert",
+      "macro_economist",
+      "risk_manager",
+      "supply_chain_analyst",
+      "strategy_synthesizer"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "versioned_catalog"
+    ],
+    "maturity": "demo",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:commodity-trading-ecosystem",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "conference-submission-optimizer",
+    "name": "conference-submission-optimizer",
+    "purpose": "Maximizes acceptance probability for conference session proposals.",
+    "problem_solved": "Maximizes acceptance probability for conference session proposals.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "html artifact: optimized-submission.html",
+    "domains_mounted": [
+      "tech-conferences-cfp"
+    ],
+    "agents": [
+      "selection_pattern_analyst",
+      "audience_psychology_analyst",
+      "competitive_positioning_analyst",
+      "demo_impact_analyst",
+      "submission_strategist",
+      "submission_writer",
+      "rejection_simulator",
+      "final_submission_composer",
+      "presentation_deck_composer"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "external_grounding",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "cut",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:conference-submission-optimizer",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "conference-submission-scout",
+    "name": "conference-submission-scout",
+    "purpose": "Given the user's artifacts and mission, research a conference (its past accepted talks, open CFPs, acceptance criteria, committee), find the highest-odds opportunities, generate three tailored submission ideas with form-ready inputs, and produce a bundle containing an HTML report (acceptance odds + gaps) plus per-idea form files.",
+    "problem_solved": "Given the user's artifacts and mission, research a conference (its past accepted talks, open CFPs, acceptance criteria, committee), find the highest-odds opportunities, generate three tailored submission ideas with form-ready inputs, and produce a bundle containing an HTML report (acceptance odds + gaps) plus per-idea form files.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "bundle artifact: conference_submission_scout.zip",
+    "domains_mounted": [
+      "tech-conferences-cfp"
+    ],
+    "agents": [
+      "intake",
+      "conf_researcher",
+      "program_analyst",
+      "committee_profiler",
+      "fit_scorer",
+      "ideator",
+      "form_filler",
+      "gap_analyst",
+      "drafter"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "hitl_gate",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "cut",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:conference-submission-scout",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "consultant-client-meeting-prep",
+    "name": "consultant-client-meeting-prep",
+    "purpose": "For a senior consultant onboarding a new customer, research the customer org, its senior stakeholders, past/current projects, and competitors \u2014",
+    "problem_solved": "For a senior consultant onboarding a new customer, research the customer org, its senior stakeholders, past/current projects, and competitors \u2014",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "html artifact: meeting_brief.html",
+    "domains_mounted": [],
+    "agents": [
+      "company_researcher",
+      "stakeholder_researcher",
+      "projects_researcher",
+      "competitor_analyst",
+      "meeting_strategist",
+      "brief_drafter"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "hitl_gate",
+      "provenance"
+    ],
+    "maturity": "demo",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:consultant-client-meeting-prep",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "da-navigator",
+    "name": "da-navigator",
+    "purpose": "Development Application feasibility + submission intelligence for NSW residential renovation and subdivision.",
+    "problem_solved": "Development Application feasibility + submission intelligence for NSW residential renovation and subdivision.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "residential-property-au"
+    ],
+    "agents": [
+      "site_profiler",
+      "access_analyst",
+      "topography_analyst",
+      "constraint_mapper",
+      "rule_extractor",
+      "precedent_researcher",
+      "yield_analyst",
+      "neighbour_impact",
+      "basix_estimator",
+      "financial_feasibility",
+      "compliance_checker",
+      "cost_timeline",
+      "submission_strategist"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "external_grounding",
+      "versioned_catalog"
+    ],
+    "maturity": "product",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:da-navigator",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "enterprise-risk-board",
+    "name": "enterprise-risk-board",
+    "purpose": "Board-grade risk interrogation of a proposed decision.",
+    "problem_solved": "Board-grade risk interrogation of a proposed decision.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "html artifact: board-risk-memo.html",
+    "domains_mounted": [
+      "financial-regulatory-risk",
+      "cyber-security-risk",
+      "privacy-au",
+      "fcc-au",
+      "conduct-people-au",
+      "accounting-tax-au",
+      "responsible-ai"
+    ],
+    "agents": [
+      "initiative_intake",
+      "regulatory_lens",
+      "cyber_tech_lens",
+      "privacy_data_lens",
+      "financial_crime_lens",
+      "conduct_lens",
+      "people_lens",
+      "accounting_tax_lens",
+      "regulators_eye_challenger",
+      "accountability_mapper",
+      "responsible_ai_mapper",
+      "risk_board_synthesizer",
+      "board_memo_composer"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "external_grounding",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "product",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:enterprise-risk-board",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "fsi-anz-personas-painpoints-tessera",
+    "name": "fsi-anz-personas-painpoints-tessera",
+    "purpose": "AU/NZ Financial Services persona intelligence.",
+    "problem_solved": "AU/NZ Financial Services persona intelligence.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "pdf artifact: visual_assets.pdf",
+    "domains_mounted": [
+      "fsi-market-intelligence"
+    ],
+    "agents": [
+      "fsi_segment_mapper",
+      "regulatory_pressure_scanner",
+      "tech_friction_scout",
+      "persona_synthesizer",
+      "painpoint_decomposer_banking",
+      "painpoint_decomposer_insurance",
+      "painpoint_decomposer_cross",
+      "tessera_solution_mapper",
+      "visual_asset_generator",
+      "playbook_composer"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "hitl_gate",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "demo",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:fsi-anz-personas-painpoints-tessera",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "hedge-fund-trading-desk",
+    "name": "hedge-fund-trading-desk",
+    "purpose": "Hedge fund trading desk simulation \u2014",
+    "problem_solved": "Hedge fund trading desk simulation \u2014",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "markets-and-investing"
+    ],
+    "agents": [
+      "quant",
+      "fundamental",
+      "sentiment",
+      "macro",
+      "risk_manager",
+      "contrarian",
+      "portfolio_manager"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "hitl_gate",
+      "versioned_catalog"
+    ],
+    "maturity": "demo",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:hedge-fund-trading-desk",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "incident-war-room",
+    "name": "incident-war-room",
+    "purpose": "Live security incident response simulation \u2014",
+    "problem_solved": "Live security incident response simulation \u2014",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "cyber-security-risk"
+    ],
+    "agents": [
+      "triage",
+      "forensics",
+      "containment",
+      "comms",
+      "recovery",
+      "lessons_learned"
+    ],
+    "quality_posture": "challenger:per_level",
+    "capabilities_used": [
+      "challenger",
+      "versioned_catalog"
+    ],
+    "maturity": "product",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:incident-war-room",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "insurance-pds-navigator",
+    "name": "Insurance PDS Nuance Navigator",
+    "purpose": "Independent, commission-free home/contents/landlord insurance analysis for the Australian market \u2014",
+    "problem_solved": "Independent, commission-free home/contents/landlord insurance analysis for the Australian market \u2014",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "residential-property-au",
+      "au-insurance"
+    ],
+    "agents": [
+      "property_profiler",
+      "needs_profiler",
+      "pds_researcher_a",
+      "pds_researcher_b",
+      "pds_researcher_c",
+      "nuance_extractor",
+      "cost_risk_analyst",
+      "claim_simulator",
+      "gap_challenger",
+      "independent_advisor"
+    ],
+    "quality_posture": "challenger:True, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "external_grounding",
+      "versioned_catalog"
+    ],
+    "maturity": "product",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:insurance-pds-navigator",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "iress-adviser-copilot",
+    "name": "iress-adviser-copilot",
+    "purpose": "Adviser copilot for IRESS Xplan wealth advisers.",
+    "problem_solved": "Adviser copilot for IRESS Xplan wealth advisers.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "html artifact: adviser-meeting-pack.html",
+    "domains_mounted": [
+      "au-financial-advice"
+    ],
+    "agents": [
+      "document_intake_parser",
+      "portfolio_analyst",
+      "life_events_scanner",
+      "compliance_guardrail",
+      "nba_recommender",
+      "advice_script_writer",
+      "advice_pack_composer"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "hitl_gate",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "product",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:iress-adviser-copilot",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "kiro-spec-forge",
+    "name": "kiro-spec-forge",
+    "purpose": "Generate AWS Kiro spec files (Markdown) from user requirements and a chosen profile (min security baseline, enterprise-grade, AWS Well-Architected), with rules mapped to controls, and validate via generated CloudFormation that conforms.",
+    "problem_solved": "Generate AWS Kiro spec files (Markdown) from user requirements and a chosen profile (min security baseline, enterprise-grade, AWS Well-Architected), with rules mapped to controls, and validate via generated CloudFormation that conforms.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "bundle artifact: kiro-spec-forge-bundle.zip",
+    "domains_mounted": [
+      "compliance-specification"
+    ],
+    "agents": [
+      "profile_analyst",
+      "framework_selector",
+      "rule_author",
+      "control_mapper",
+      "cfn_generator",
+      "conformance_tester",
+      "bundle_drafter"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "hitl_gate",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "product",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:kiro-spec-forge",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "model-risk-continuous-review",
+    "name": "model-risk-continuous-review",
+    "purpose": "Continuous, multi-perspective review of an AI/ML model in production at a financial institution.",
+    "problem_solved": "Continuous, multi-perspective review of an AI/ML model in production at a financial institution.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "financial-regulatory-risk"
+    ],
+    "agents": [
+      "model_intake_analyst",
+      "documentation_reviewer",
+      "performance_drift_analyst",
+      "fairness_bias_auditor",
+      "failure_mode_imaginator",
+      "integration_risk_analyst",
+      "regulatory_mapper",
+      "model_risk_grade_synthesizer",
+      "remediation_prioritizer"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "external_grounding",
+      "versioned_catalog"
+    ],
+    "maturity": "product",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:model-risk-continuous-review",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "operational-resilience-war-room",
+    "name": "operational-resilience-war-room",
+    "purpose": "Operational resilience tabletop exercise designed for regulated entities.",
+    "problem_solved": "Operational resilience tabletop exercise designed for regulated entities.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "financial-regulatory-risk"
+    ],
+    "agents": [
+      "scenario_architect",
+      "business_impact_analyst",
+      "customer_impact_analyst",
+      "financial_loss_modeler",
+      "regulatory_obligation_analyst",
+      "communications_strategist",
+      "recovery_planner",
+      "incident_commander",
+      "regulatory_report_drafter"
+    ],
+    "quality_posture": "challenger:True, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "external_grounding",
+      "versioned_catalog"
+    ],
+    "maturity": "product",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:operational-resilience-war-room",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "personal-finance-advisor",
+    "name": "Personal Finance Advisor",
+    "purpose": "A multi-agent ecosystem that ingests personal financial documents (bank statements, loan statements, stock portfolios) along with a user-defined mission (investment, buy, sell, savings opportunity) and produces a comprehensive, personalized financial advisory report.",
+    "problem_solved": "A multi-agent ecosystem that ingests personal financial documents (bank statements, loan statements, stock portfolios) along with a user-defined mission (investment, buy, sell, savings opportunity) and produces a comprehensive, personalized financial advisory report.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "pdf artifact: financial_advisory_report.pdf",
+    "domains_mounted": [
+      "personal-finance"
+    ],
+    "agents": [
+      "document_parser",
+      "cashflow_analyst",
+      "debt_analyst",
+      "portfolio_analyst",
+      "risk_profiler",
+      "financial_advisor",
+      "financial_report_composer"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "demo",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:personal-finance-advisor",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "phase-test",
+    "name": "phase-test",
+    "purpose": "Minimal regression-test ecosystem exercising every Phase 1-4.5 feature in under 3 minutes with a single Tavily call.",
+    "problem_solved": "Minimal regression-test ecosystem exercising every Phase 1-4.5 feature in under 3 minutes with a single Tavily call.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [],
+    "agents": [
+      "writer",
+      "cross_writer",
+      "reader",
+      "composer",
+      "budget_tester",
+      "platform_tools_tester"
+    ],
+    "quality_posture": "challenger:False, grounding:True",
+    "capabilities_used": [
+      "grounding"
+    ],
+    "maturity": "experimental",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:phase-test",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "piano-band-songbook-builder",
+    "name": "piano-band-songbook-builder",
+    "purpose": "A multi-agent ecosystem that curates a working songbook for piano performers in popular band configurations.",
+    "problem_solved": "A multi-agent ecosystem that curates a working songbook for piano performers in popular band configurations.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "json artifact: repertoire.json",
+    "domains_mounted": [
+      "music-performance"
+    ],
+    "agents": [
+      "repertoire_curator",
+      "key_tempo_specialist",
+      "chord_progression_specialist",
+      "lyrics_specialist",
+      "catalog_synthesizer",
+      "chart_designer",
+      "challenger_agent",
+      "report_agent"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "cut",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:piano-band-songbook-builder",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "platform-optimizer",
+    "name": "platform-optimizer",
+    "purpose": "Tessera optimising Tessera.",
+    "problem_solved": "Tessera optimising Tessera.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "yaml artifact: proposed_patch.yaml",
+    "domains_mounted": [],
+    "agents": [
+      "telemetry_loader",
+      "quality_analyst",
+      "time_analyst",
+      "cost_analyst",
+      "patch_synthesizer"
+    ],
+    "quality_posture": "challenger:True, grounding:False",
+    "capabilities_used": [
+      "challenger",
+      "provenance"
+    ],
+    "maturity": "experimental",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:platform-optimizer",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "political-debate-consensus",
+    "name": "political_debate_consensus",
+    "purpose": "Multi-agent ecosystem for political debate and consensus building across different ideological camps",
+    "problem_solved": "Multi-agent ecosystem for political debate and consensus building across different ideological camps",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "political-discourse"
+    ],
+    "agents": [
+      "debate_moderator",
+      "progressive_advocate",
+      "conservative_advocate",
+      "libertarian_advocate",
+      "anarchist_dissenter",
+      "fact_checker",
+      "voter_maria",
+      "voter_james",
+      "voter_priya",
+      "voter_robert",
+      "voter_zara",
+      "consensus_builder",
+      "policy_drafter"
+    ],
+    "quality_posture": "challenger:per_level",
+    "capabilities_used": [
+      "challenger",
+      "versioned_catalog"
+    ],
+    "maturity": "cut",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:political-debate-consensus",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "red-vs-blue",
+    "name": "red-vs-blue",
+    "purpose": "Autonomous Red Team vs Blue Team \u2014",
+    "problem_solved": "Autonomous Red Team vs Blue Team \u2014",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "cyber-security-risk"
+    ],
+    "agents": [
+      "recon",
+      "injector",
+      "exfiltrator",
+      "watcher",
+      "responder",
+      "adapter"
+    ],
+    "quality_posture": "challenger:per_level",
+    "capabilities_used": [
+      "challenger",
+      "versioned_catalog"
+    ],
+    "maturity": "product",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:red-vs-blue",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "researcher-smoketest",
+    "name": "Researcher Smoke Test",
+    "purpose": "Validate the first-class researcher agent type end-to-end.",
+    "problem_solved": "Validate the first-class researcher agent type end-to-end.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [],
+    "agents": [
+      "listing_ingest",
+      "comp_researcher"
+    ],
+    "quality_posture": "none",
+    "capabilities_used": [],
+    "maturity": "experimental",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:researcher-smoketest",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "risk-assessment",
+    "name": "risk-assessment",
+    "purpose": "Comprehensive architecture risk assessment with 13 specialized threat analysts, control mapping to frameworks (NIST CSF, ISO 27001, CPS 234), FAIR scoring, and progressive catalog enrichment.",
+    "problem_solved": "Comprehensive architecture risk assessment with 13 specialized threat analysts, control mapping to frameworks (NIST CSF, ISO 27001, CPS 234), FAIR scoring, and progressive catalog enrichment.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "html artifact: visual_assets.html",
+    "domains_mounted": [
+      "cyber-security-risk"
+    ],
+    "agents": [
+      "architecture_intake",
+      "network_infra_threat_analyst",
+      "application_threat_analyst",
+      "data_threat_analyst",
+      "identity_access_threat_analyst",
+      "cloud_config_threat_analyst",
+      "insider_threat_analyst",
+      "operational_resilience_analyst",
+      "regulatory_compliance_analyst",
+      "physical_social_engineering_analyst",
+      "cryptographic_threat_analyst",
+      "api_integration_threat_analyst",
+      "ai_agentic_threat_analyst",
+      "supply_chain_threat_analyst",
+      "catalog_enricher",
+      "control_mapper",
+      "risk_scorer",
+      "visual_asset_generator",
+      "risk_aggregator",
+      "report_composer"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "hitl_gate",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "product",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:risk-assessment",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "risk-reasoning",
+    "name": "risk-reasoning",
+    "purpose": "Builds authoritative risk catalog from ATT&CK + OWASP Agentic sources",
+    "problem_solved": "Builds authoritative risk catalog from ATT&CK + OWASP Agentic sources",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "cyber-security-risk"
+    ],
+    "agents": [
+      "ingestion",
+      "matcher"
+    ],
+    "quality_posture": "challenger:per_level",
+    "capabilities_used": [
+      "challenger",
+      "versioned_catalog"
+    ],
+    "maturity": "experimental",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:risk-reasoning",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "risk-synthesis",
+    "name": "risk-synthesis",
+    "purpose": "Synthesises authoritative risk catalog entries for the cyber-security-risk domain.",
+    "problem_solved": "Synthesises authoritative risk catalog entries for the cyber-security-risk domain.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "cyber-security-risk"
+    ],
+    "agents": [
+      "risk_synthesizer",
+      "risk_validator"
+    ],
+    "quality_posture": "challenger:True, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "versioned_catalog"
+    ],
+    "maturity": "experimental",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:risk-synthesis",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "sale-ready",
+    "name": "sale-ready",
+    "purpose": "Pre-sale strategy intelligence for property vendors.",
+    "problem_solved": "Pre-sale strategy intelligence for property vendors.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "pdf artifact: visual_assets.pdf",
+    "domains_mounted": [
+      "residential-property-au"
+    ],
+    "agents": [
+      "property_profiler",
+      "market_position_analyst",
+      "comparable_sales_analyst",
+      "suburb_demand_analyst",
+      "presentation_strategist",
+      "pricing_strategist",
+      "campaign_planner",
+      "risk_disclosure_analyst",
+      "visual_asset_generator",
+      "vendor_pack_composer"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "cut",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:sale-ready",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "saturn-metals-dd-bundle",
+    "name": "saturn-metals-dd-bundle",
+    "purpose": "Produce an alpha-oriented due-diligence bundle on Saturn Metals (ASX:STN) identifying mispricing, catalysts, and asymmetric risk/reward over a 6\u201324 month horizo",
+    "problem_solved": "Produce an alpha-oriented due-diligence bundle on Saturn Metals (ASX:STN) identifying mispricing, catalysts, and asymmetric risk/reward over a 6\u201324 month horizo",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "bundle artifact: saturn-metals-dd-bundle.zip",
+    "domains_mounted": [],
+    "agents": [
+      "company_profile",
+      "project_asset",
+      "financials",
+      "market_macro",
+      "catalysts",
+      "valuation",
+      "risk",
+      "synthesizer",
+      "drafter"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "hitl_gate",
+      "provenance"
+    ],
+    "maturity": "product",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:saturn-metals-dd-bundle",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "stage",
+    "name": "stage",
+    "purpose": "A multi-agent presentation studio.",
+    "problem_solved": "A multi-agent presentation studio.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "html artifact: presentation.html",
+    "domains_mounted": [
+      "presentation-studio"
+    ],
+    "agents": [
+      "presentation_intake_analyst",
+      "webapp_explorer",
+      "audience_analyst",
+      "subject_researcher",
+      "narrative_architect",
+      "evidence_curator",
+      "visual_director",
+      "competitive_context_analyst",
+      "objection_mapper",
+      "style_calibrator",
+      "slide_outline_synthesizer",
+      "speaker_notes_synthesizer",
+      "qa_rehearsal_simulator",
+      "presentation_finalizer",
+      "presentation_drafter"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "external_grounding",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "cut",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:stage",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "telco-customer-service",
+    "name": "telco-customer-service",
+    "purpose": "Answer a customer query by routing to the single best telco department specialist (billing, account, troubleshooting, plans, or outages) and returning one conso",
+    "problem_solved": "Answer a customer query by routing to the single best telco department specialist (billing, account, troubleshooting, plans, or outages) and returning one conso",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "customer-service"
+    ],
+    "agents": [
+      "triage",
+      "billing",
+      "account",
+      "troubleshooting",
+      "plans",
+      "outages",
+      "synthesizer"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "hitl_gate",
+      "versioned_catalog"
+    ],
+    "maturity": "cut",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:telco-customer-service",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "tessera-concierge",
+    "name": "tessera-concierge",
+    "purpose": "The front door.",
+    "problem_solved": "The front door.",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "report",
+    "domains_mounted": [
+      "tessera-self"
+    ],
+    "agents": [
+      "need_analyst",
+      "capability_matcher",
+      "honesty_gate",
+      "concierge_responder"
+    ],
+    "quality_posture": "challenger:final, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "hitl_gate",
+      "versioned_catalog"
+    ],
+    "maturity": "demo",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:tessera-concierge",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "eco_id": "trip-planner",
+    "name": "trip-planner",
+    "purpose": "Plan an end-to-end trip from user inputs (origin, destination, dates, duration, preferences, budget) \u2014",
+    "problem_solved": "Plan an end-to-end trip from user inputs (origin, destination, dates, duration, preferences, budget) \u2014",
+    "inputs_accepted": [
+      "operator mission",
+      "uploaded documents"
+    ],
+    "deliverable": "pdf artifact: trip_dossier.pdf",
+    "domains_mounted": [
+      "travel-planning"
+    ],
+    "agents": [
+      "destination_researcher",
+      "flight_scout",
+      "stay_scout",
+      "experience_curator",
+      "itinerary_planner",
+      "pretrip_checklist",
+      "dossier_drafter"
+    ],
+    "quality_posture": "challenger:per_level, grounding:True",
+    "capabilities_used": [
+      "challenger",
+      "grounding",
+      "hitl_gate",
+      "versioned_catalog",
+      "provenance"
+    ],
+    "maturity": "cut",
+    "deploy_status": "deployed",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:trip-planner",
+      "confidence": "medium",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  }
+]

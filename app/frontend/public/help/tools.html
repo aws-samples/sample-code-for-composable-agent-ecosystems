@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tessera Help — Tool Catalog</title>
+<meta name="description" content="Register, manage, and test custom tools for Tessera agents including Lambda, OpenAPI, and MCP Server targets." />
+<link rel="stylesheet" href="help.css" />
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Tool Catalog</h1>
+  <p class="subtitle">Register, manage, and test custom tools that agents can use.</p>
+</header>
+
+<nav class="nav-bar">
+  <a href="index.html">Overview</a>
+  <a href="ecosystems.html">Ecosystems</a>
+  <a href="running.html">Running</a>
+  <a href="builder.html">Builder</a>
+  <a href="tools.html" class="active">Tool Catalog</a>
+  <a href="quality.html">Quality</a>
+  <a href="agent-types.html">Agent Types</a>
+  <a href="quality-gates.html">Quality Gates</a>
+  <a href="files.html">Files</a>
+  <a href="faq.html">FAQ</a>
+</nav>
+
+<section>
+  <h2>System Tools</h2>
+  <p>These system tools are available to agents without registration:</p>
+  <table>
+    <thead><tr><th>Tool</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>web_search</code></td><td>Search the web for current information (via web search provider)</td></tr>
+      <tr><td><code>generateUI</code></td><td>Generate rich UI components (charts, cards, tables) in agent output</td></tr>
+      <tr><td><code>memory_read</code></td><td>Read from shared memory namespaces</td></tr>
+      <tr><td><code>memory_write</code></td><td>Write to shared memory namespaces</td></tr>
+      <tr><td><code>calculator</code></td><td>Perform mathematical calculations</td></tr>
+      <tr><td><code>current_time</code></td><td>Get the current date and time</td></tr>
+      <tr><td><code>http_request</code></td><td>Make HTTP requests to external APIs</td></tr>
+      <tr><td><code>code_interpreter</code></td><td>Run Python code for data analysis</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Custom Tools</h2>
+  <p>You can register additional tools backed by three target types:</p>
+  <div class="grid grid-3">
+    <div class="card">
+      <div class="card-title">Lambda ARN</div>
+      <div class="card-desc">Point to an AWS Lambda function. The agent invokes it directly via the Gateway.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">OpenAPI Spec</div>
+      <div class="card-desc">Provide an OpenAPI 3.0 spec (JSON or YAML). The Gateway auto-generates tool operations from the spec.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">MCP Server</div>
+      <div class="card-desc">Connect to a remote Model Context Protocol server. The Gateway proxies tool calls to the MCP endpoint.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Registering a Tool</h2>
+  <ol class="steps">
+    <li>Choose <strong>+ Add Tool</strong> in the top-right</li>
+    <li>Enter a <strong>name</strong> (must match what agents reference in their tool list)</li>
+    <li>Enter a <strong>description</strong></li>
+    <li>Select the <strong>target type</strong> (Lambda, OpenAPI, or MCP Server)</li>
+    <li>Provide the target configuration based on your target type: Lambda ARN, OpenAPI specification, or MCP Server URL</li>
+    <li>(Optional) Configure credentials by entering the API key and header name</li>
+    <li>To verify connectivity, choose <strong>Test</strong></li>
+    <li>To register the tool, choose <strong>Save</strong></li>
+  </ol>
+  <div class="tip">The tool name must exactly match what's declared in ecosystem YAML agent tool lists. Use snake_case.</div>
+</section>
+
+<section>
+  <h2>Credentials</h2>
+  <p>If your tool requires authentication, configure an API key credential:</p>
+  <ul class="feature-list">
+    <li><strong>Credential name</strong> — identifier for the credential provider</li>
+    <li><strong>API key</strong> — the secret key (stored securely in AgentCore Identity Token Vault, never in code)</li>
+    <li><strong>Header name</strong> — which HTTP header carries the key (default: <code>X-API-Key</code>)</li>
+  </ul>
+  <div class="warn">API keys are stored in AgentCore Identity and never exposed in the UI after saving. To rotate, edit the tool and provide a new key.</div>
+</section>
+
+<section>
+  <h2>Testing Tools</h2>
+  <p>Two ways to test:</p>
+  <ul class="feature-list">
+    <li><strong>During registration</strong> — the Test button in the add/edit modal verifies the endpoint is reachable and credentials work</li>
+    <li><strong>From the catalog table</strong> — choose Test on any registered tool to check its current status and credential configuration</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Unregistered Tools</h2>
+  <p>The bottom section shows tools that are <strong>declared in ecosystem YAMLs but not yet registered</strong>. These appear with:</p>
+  <ul class="feature-list">
+    <li><strong>Expected purpose</strong> — inferred from the ecosystem context</li>
+    <li><strong>Fallback behavior</strong> — agents improvise using system tools until the custom tool is registered</li>
+    <li><strong>Used by</strong> — which ecosystems/agents reference this tool</li>
+    <li><strong>Register button</strong> — opens the registration form pre-filled with the tool name</li>
+  </ul>
+  <div class="tip">Ecosystems work without custom tools registered — agents improvise. But registering the actual tool gives them real data instead of approximations.</div>
+</section>
+
+<section>
+  <h2>Editing & Deleting</h2>
+  <p>From the registered tools table:</p>
+  <ul class="feature-list">
+    <li><strong>Edit</strong> — update description or credentials (target type cannot be changed after creation)</li>
+    <li><strong>Delete</strong> — removes the tool registration. Agents referencing it will fall back to improvisation.</li>
+  </ul>
+</section>
+
+<div class="footer">
+  <a href="index.html">← Back to Help Overview</a>
+</div>
+
+</div>
+</body>
+</html>

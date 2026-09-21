@@ -1,0 +1,361 @@
+domain: cyber-security-risk
+name: Cyber & AI Security Risk
+description: Authoritative, reusable security knowledge shared across risk cataloguing, architecture assessment, agentic-AI threats, M&A cyber DD and incident/adversarial sims. Reference entities (techniques, CVEs, controls) are org-wide and compound everywhere.
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: attack-technique
+  key: '{technique_id}'
+  description: An adversary technique (MITRE ATT&CK / OWASP Agentic) — tactic, detections, mitigations.
+  status: active
+- type: risk
+  key: '{risk_id}'
+  description: A catalogued risk — description, likelihood/impact basis, mapped techniques.
+  status: active
+- type: vulnerability
+  key: '{cve_or_ref}'
+  description: A vulnerability/weakness — affected products, severity, exploitation, fixes.
+  status: active
+- type: security-control
+  key: '{control_id}'
+  description: A control/safeguard — what it mitigates, implementation, framework mapping.
+  status: active
+- type: agentic-threat
+  key: '{threat_id}'
+  description: An agentic-AI threat — tool misuse, prompt injection, memory poisoning.
+  status: active
+- type: breach
+  key: '{org}-{date}'
+  description: A historical breach/incident — vector, impact, root cause, lessons.
+  status: active
+- type: cyber-target-profile
+  key: '{company}'
+  description: A target/entity's durable cyber posture — stack, exposure, prior findings.
+  status: active
+- type: vendor
+  key: '{name}'
+  description: A third-party vendor's security posture (for supply-chain / DD reuse).
+  status: active
+- type: indicator-of-compromise
+  key: '{ioc_value}'
+  description: An IoC — hash/domain/IP/pattern with context.
+  status: active
+- type: asset
+  key: '{asset_id}'
+  description: An asset of record — system/service with owner, criticality, exposure.
+  status: active
+- type: defense-pattern
+  key: '{pattern_id}'
+  description: A reusable defensive pattern/playbook proven against techniques.
+  status: active
+- type: trust-boundary
+  key: '{boundary_id}'
+  description: A trust boundary between components — what crosses it, controls.
+  status: active
+- type: org-profile
+  key: '{org}'
+  description: An assessed organisation's durable profile — FAIR params, jurisdiction, size, data types; reused across its assessments.
+  status: active
+- type: risk-method-profile
+  key: '{risk_type}'
+  description: Framework-weighting profile per risk type (e.g. tail-risk → Taleb + Pre-Mortem primary; linear → FAIR).
+  status: active
+- type: threat-event
+  label: NIST 800-30 Threat Events
+- type: gai-risk
+  label: Generative-AI Risks
+- type: ai-attack-technique
+  label: AI Adversarial Techniques (ATLAS)
+- type: regulatory-obligation
+  key: '{obligation_id}'
+  description: A discrete AI regulatory/standard obligation (EU AI Act article, etc.).
+  status: active
+- type: ai-governance-control
+  key: '{control_id}'
+  description: An AI governance safeguard/control (NIST AI RMF GOVERN/MAP/MEASURE/MANAGE).
+  status: active
+- type: ai-incident
+  key: '{incident_id}'
+  description: A documented real-world AI harm incident used as an exemplar.
+  status: active
+- type: framework-crosswalk
+  key: '{crosswalk_id}'
+  description: Cross-framework mapping (EU AI Act / NIST AI RMF / AI 600-1 / OWASP / ATLAS).
+  status: active
+- type: agentic-lens-control
+  key: '{control_id}'
+  description: An AWS Well-Architected Agentic AI Lens Security-pillar focus area (AGENTSEC01-09) used as a durable control anchor for agentic-AI security reviews.
+  status: active
+conclusions_never_cataloged:
+- risk score/rating for an assessment run
+- remediation/prioritized action list
+- incident containment decision
+- red-vs-blue exercise outcome
+- acquisition go/no-go memo
+seeded_from: &id001
+- risk-reasoning
+- risk-assessment
+- ai-acquisition-war-room
+- agentic-ai-sirs
+- incident-war-room
+- red-vs-blue
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: bottom-up validated across belonging ecosystems (2026-06-30)
+catalog:
+  view:
+    default:
+      title:
+      - title
+      - name
+      subtitle:
+      - risk_id
+      - technique_id
+      - control_id
+      - cve_or_ref
+      summary:
+      - threat_narrative
+      - description
+    risk:
+      title: title
+      subtitle: risk_id
+      summary: threat_narrative
+      badge:
+        field: severity_default
+        scale:
+          CRITICAL: red
+          HIGH: red
+          MEDIUM: amber
+          LOW: green
+      rating:
+        field: severity_default
+        scale:
+          CRITICAL: 5
+          HIGH: 4
+          MEDIUM: 3
+          LOW: 2
+      tabs:
+      - id: Overview
+        render: overview
+      - id: Threat Path
+        render: attack_paths
+        field: attack_paths
+      - id: Mitigation
+        render: mitigation
+        field: mitigation
+      - id: Board
+        render: board
+        field: board_framing
+      - id: Frameworks
+        render: frameworks
+        field: frameworks
+      - id: Controls
+        render: controls
+        field: mapped_controls
+      - id: Taleb
+        render: kv
+        field: methodology.taleb
+      - id: Bow-Tie
+        render: bowtie
+        field: methodology.bow_tie
+      - id: Decision Tree
+        render: options
+        field: methodology.decision_tree
+      - id: Pre-Mortem
+        render: failures
+        field: methodology.pre_mortem
+    attack-technique:
+      title:
+      - name
+      subtitle:
+      - technique_id
+      summary:
+      - description
+      tabs:
+      - id: Details
+        render: auto
+      - id: Mitigating Controls
+        render: linked
+        field: mitigations
+        resolve: security-control
+    security-control:
+      title:
+      - name
+      subtitle:
+      - control_id
+      summary:
+      - description
+      tabs:
+      - id: Details
+        render: auto
+      - id: Mitigates Techniques
+        render: linked
+        field: mitigates
+        resolve: attack-technique
+        link: https://attack.mitre.org/techniques/{id}/
+    vulnerability:
+      title: name
+      subtitle: cve_or_ref
+      summary: description
+      badge:
+        field: known_ransomware
+        scale:
+          'true': red
+    regulatory-obligation:
+      title:
+      - title
+      - name
+      subtitle:
+      - article
+      - obligation_id
+    ai-governance-control:
+      title:
+      - name
+      subtitle:
+      - function
+      - control_id
+    ai-incident:
+      title:
+      - name
+      subtitle:
+      - incident_id
+    framework-crosswalk:
+      title:
+      - name
+      subtitle:
+      - category
+      - crosswalk_id
+  ingestion:
+    sources:
+    - id: mitre-attack
+      normalizer: attack_stix
+      produces:
+      - attack-technique
+      - security-control
+      status: active
+      label: MITRE ATT&CK (STIX 2.1)
+      mode: fetch
+    - id: nist-800-53
+      normalizer: nist_80053
+      produces:
+      - security-control
+      status: active
+      label: NIST SP 800-53 Rev5 (OSCAL)
+      mode: fetch
+    - id: cisa-kev
+      normalizer: cisa_kev
+      produces:
+      - vulnerability
+      status: active
+      label: CISA KEV
+      mode: fetch
+    - id: owasp
+      normalizer: owasp
+      produces:
+      - agentic-threat
+      status: active
+      label: OWASP LLM/Agentic (Top-10 + ASI)
+      mode: agent
+      authoritative_url: https://genai.owasp.org/llm-top-10/
+      key_field: threat_id
+      id_scheme: threat_id EXACTLY one of LLM01..LLM10 or ASI01..ASI10 — uppercase, no year suffix, use ASI (not AGT) for agentic
+      scope: OWASP Top 10 for LLM Applications 2025 (LLM01-LLM10) AND the OWASP Agentic Security Initiative Top 10 (ASI01-ASI10, https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/). Emit exactly 20 records; threat_id must be the official id with NO suffix.
+    - id: veris-vcdb
+      normalizer: veris
+      produces:
+      - breach
+      status: active
+      label: VERIS / VCDB (9k+ incidents)
+      mode: fetch
+    - id: nist-ai-rmf
+      normalizer: nist
+      produces:
+      - risk-method-profile
+      status: active
+      label: NIST AI RMF
+      mode: agent
+      authoritative_url: https://airc.nist.gov/airmf-resources/airmf/3-sec-characteristics/
+      key_field: risk_type
+      id_scheme: one record per NIST AI RMF trustworthiness characteristic (ai-valid-reliable, ai-safe, ai-secure-resilient, ai-accountable-transparent, ai-explainable-interpretable, ai-privacy-enhanced, ai-fair-bias-managed)
+      scope: The 7 characteristics of trustworthy AI in NIST AI RMF section 3.
+    - id: wiz-cvdb
+      normalizer: wiz
+      produces:
+      - vulnerability
+      status: active
+      label: Wiz Cloud VDB
+      mode: fetch
+    - id: attack-cri
+      normalizer: attack_cri
+      produces:
+      - security-control
+      status: active
+      label: ATT&CK x CRI (FSI mappings)
+      mode: agent
+      authoritative_url: https://cyberriskinstitute.org/the-profile/
+      key_field: control_id
+      id_scheme: control_id = CRI-<function>.<category> style id from the CRI Profile (e.g. CRI-GV.RM, CRI-PR.AC); uppercase, no spaces
+      scope: The Cyber Risk Institute (CRI) Profile v2.x control families/categories for the financial sector (Govern/Identify/Protect/Detect/Respond/Recover functions and their categories). Emit one record per CRI category with its ATT&CK relevance where stated. If exact CRI category ids cannot be confirmed from the source, OMIT rather than invent.
+    - id: enisa
+      normalizer: enisa
+      produces:
+      - breach
+      status: active
+      label: ENISA Threat Landscape (PDF)
+      mode: agent
+      authoritative_url: https://www.enisa.europa.eu/topics/cyber-threats/threats-and-trends
+      key_field: breach_key
+      id_scheme: breach_key = enisa-<slug-of-prime-threat> (e.g. enisa-ransomware, enisa-ddos)
+      scope: The ENISA Threat Landscape 'prime threats' (e.g. Ransomware, Malware, Social engineering, Threats against data, Threats against availability/DDoS, Internet threats, Information manipulation, Supply-chain attacks). Emit one record per prime threat with a faithful description and its year-over-year trend if stated.
+    - id: nist-800-30
+      mode: agent
+      produces:
+      - threat-event
+      status: planned
+      label: NIST SP 800-30 Threat Events
+      authoritative_url: https://csrc.nist.gov/pubs/sp/800/30/r1/final
+      key_field: threat_event_id
+      id_scheme: threat_event_id = TE-NN sequential (e.g. TE-01)
+      scope: 'The representative ADVERSARIAL threat events enumerated in NIST SP 800-30 Rev1 Appendix E, Table E-2 (there are ~50, grouped by the attack lifecycle: reconnaissance, weaponization, delivery, exploitation, control, execute, maintain). Emit ONE fenced json record PER threat event — do NOT summarise into prose or a single blob. Each record: threat_event_id (TE-01, TE-02, ...), name (the threat event text), description, framework ''nist-800-30''. Aim for 40+ records.'
+    - id: nist-ai-600-1
+      mode: agent
+      produces:
+      - gai-risk
+      status: active
+      label: NIST AI 600-1 (Generative AI Profile)
+      authoritative_url: https://airc.nist.gov/airmf-resources/airmf/appendices/
+      key_field: gai_risk_id
+      id_scheme: 'gai_risk_id EXACTLY one of: cbrn, confabulation, dangerous-violent-content, data-privacy, environmental, harmful-bias, human-ai-configuration, information-integrity, information-security, intellectual-property, obscene-content, value-chain'
+      scope: The 12 Generative AI risks defined in NIST AI 600-1 (the Generative AI Profile of the NIST AI RMF). Emit exactly 12 records, one per GAI risk, with a faithful description.
+    - id: mitre-atlas
+      mode: fetch
+      normalizer: atlas
+      produces:
+      - ai-attack-technique
+      status: active
+      label: MITRE ATLAS (AI adversarial)
+    - id: aws-agentic-ai-lens
+      mode: agent
+      produces:
+      - agentic-lens-control
+      status: active
+      label: AWS Well-Architected Agentic AI Lens (Security pillar)
+      authoritative_url: https://docs.aws.amazon.com/wellarchitected/latest/agentic-ai-lens/security.html
+      key_field: control_id
+      id_scheme: control_id EXACTLY one of AGENTSEC01..AGENTSEC09 (uppercase, no suffix) — one record per Security-pillar focus area
+      scope: 'The AWS Well-Architected Agentic AI Lens SECURITY pillar focus areas — AGENTSEC01 Secure agent memory and state; AGENTSEC02 Secure agent tool usage; AGENTSEC03 Agent identity and permission management; AGENTSEC04 Agent goal alignment and manipulation prevention; AGENTSEC05 Agent observability and non-repudiation; AGENTSEC06 Secure multi-agent orchestration; AGENTSEC07 Human oversight protection and agent containment; AGENTSEC08 Secure agent inputs and outputs; AGENTSEC09 Agent vulnerability scanning and penetration testing. Read the security.html index and each agentsecNN.html page. Emit EXACTLY 9 records, one per focus area: name = the focus-area title, framework = "AWS Well-Architected Agentic AI Lens - Security", description = a faithful summary of the focus area intent and its key best practices, references = the focus-area page URL. Do not invent focus areas beyond AGENTSEC01-09.'
+    schedule: rate(7 days)
+  synthesis:
+  - produces: risk
+    from:
+    - attack-technique
+    - security-control
+    - vulnerability
+    - breach
+    cluster_by: tactic
+    method: risk-synthesis

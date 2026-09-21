@@ -1,0 +1,40 @@
+domain: au-insurance
+name: Australian Insurance
+description: 'Durable AU general-insurance knowledge — home/contents/landlord and motor: the policies/PDS whose nuances decide claims, the insurers behind them, coverage features and premium benchmarks. Composes with residential-property-au for the insured asset.'
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: insurer
+  key: '{name}'
+  description: An insurer/underwriter — product range, claims behaviour, financial strength.
+  status: active
+- type: insurance-product
+  key: '{insurer}-{product}'
+  description: An insurance product (home/contents/landlord/motor) — cover shape, common gaps.
+  status: active
+- type: pds
+  key: '{insurer}-{product}-{version}'
+  description: A Product Disclosure Statement — exclusions, sub-limits, claim triggers, definitions.
+  status: active
+- type: coverage-feature
+  key: '{feature}'
+  description: A durable coverage feature/definition reusable across product comparisons.
+  status: active
+- type: premium-benchmark
+  key: '{product}-{cohort}'
+  description: A durable premium benchmark by product/cohort for comparison.
+  status: active
+conclusions_never_cataloged:
+- policy recommendation/ranking for a customer
+- coverage-gap verdict for a property
+seeded_from: &id001
+- insurance-pds-navigator
+- car-insurance-compare-au
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: bottom-up validated across belonging ecosystems (2026-06-30)

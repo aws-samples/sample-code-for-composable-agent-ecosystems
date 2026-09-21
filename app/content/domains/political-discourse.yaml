@@ -1,0 +1,38 @@
+domain: political-discourse
+name: Political Discourse & Consensus
+description: 'Durable reference knowledge for multi-perspective political debate: ideological positions, policy claims and their fact-checks, voter archetypes, and recurring consensus patterns reused across debates.'
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: political-position
+  key: '{ideology}-{topic}'
+  description: A durable ideological position on a topic — premises, framing.
+  status: active
+- type: policy-claim
+  key: '{claim_id}'
+  description: A policy claim — its basis, evidence, common rebuttals.
+  status: active
+- type: fact-check-result
+  key: '{claim_id}'
+  description: A durable fact-check verdict for a recurring claim, with sources.
+  status: active
+- type: voter-archetype
+  key: '{archetype}'
+  description: A voter archetype — values, priorities, persuasion levers.
+  status: active
+- type: consensus-pattern
+  key: '{topic}'
+  description: A recurring cross-camp consensus/compromise pattern for a topic.
+  status: active
+conclusions_never_cataloged:
+- the debate synthesis / consensus output for a run
+seeded_from: &id001
+- political-debate-consensus
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: bottom-up validated across belonging ecosystems (2026-06-30)

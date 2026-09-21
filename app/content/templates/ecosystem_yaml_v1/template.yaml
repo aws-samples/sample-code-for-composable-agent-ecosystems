@@ -1,0 +1,110 @@
+# Tessera Ecosystem YAML — canonical template
+#
+# Use this template when producing a new or revised ecosystem YAML. The
+# fields below are the ones the Tessera compiler validates and the runtime
+# consumes. Square brackets mark required choices; curly braces mark
+# placeholders to fill in.
+
+ecosystem:
+  name: "{ecosystem-id}"
+  description: |
+    {one-or-two-paragraph description of what this ecosystem does,
+     who it serves, and what the operator gets out of a successful run}
+  version: "{semver, e.g. 1.0 or 1.1}"
+
+# --- Top-level platform settings ---
+strategy: orchestrated     # orchestrated | choreography
+report: true               # auto-injects report_agent
+quality:
+  challenger: true         # auto-injects challenger_agent
+  grounding: true          # internal + external grounding checks
+
+# --- Optional: declared inputs (surfaced in the launch UI) ---
+inputs:
+  - id: {input_id}
+    type: text             # text | file | select
+    label: "{Operator-facing label}"
+    required: true
+    # default: "{default value if any}"
+
+# --- Entry point (the agent SFN starts on) ---
+entry_point: {agent_id}
+
+# --- Memory namespaces (shared between agents in this ecosystem) ---
+memory:
+  strategies: [semantic]   # add 'episodic' for chronological recall
+  shared_namespaces:
+    - name: "{namespace_name}"
+      write: [all]         # or list specific agent ids
+      read: [all]
+
+# --- Agents ---
+# Each agent declares: id, name, registry_id, swarm, prompt, tools,
+# depends_on (for synthesizers), output_kind (Phase 5e), and optionally
+# output_format (Phase 5e) for typed artifacts.
+agents:
+
+  - id: {leaf_agent_id}
+    name: "{Display Name}"
+    registry_id: "tessera/{leaf_agent_id}"
+    swarm: research
+    tools: [web_search, memory_read, memory_write, current_time]
+    tool_budget:
+      web_search: 12
+    output_kind: analyst   # analyst | synthesizer | challenger | reporter
+                           # | drafter | creative | chat | operator
+    prompt: |
+      Your specific contribution: {one-paragraph description of what THIS
+      agent uniquely produces — what no other agent in the pipeline can
+      provide. Avoid generic "do good work" language; be concrete.}
+
+      Persist findings to `{namespace_name}` so downstream synthesizers can
+      build on your work. Cite tool results inline as [source: tool_name].
+
+  - id: {synthesizer_agent_id}
+    name: "{Synthesizer Display Name}"
+    registry_id: "tessera/{synthesizer_agent_id}"
+    swarm: synthesis
+    depends_on: [{leaf_agent_id}, {other_leaf_id}]
+    tools: [memory_read, memory_write, code_interpreter, generateUI]
+    output_kind: synthesizer
+    # Optional: declare typed output for downstream consumers / downloads
+    # output_format:
+    #   type: yaml             # markdown (default) | json | yaml | html
+    #   file_extension: .yaml
+    #   save_as: my_output.yaml
+    #   template_id: {template_id}      # when filling a versioned template
+    #   schema_id: {schema_id}          # when output must match a JSON Schema
+    prompt: |
+      Your specific contribution: reconcile the upstream specialist findings
+      into a single canonical record. Use code_interpreter for any
+      cross-source validation (bar-counts, schemas, totals).
+
+      You do NOT: re-research the upstream domain (the leaf agents handle
+      that). Your job is reconciliation, validation, and producing the
+      typed output the downstream consumer needs.
+
+      Cite each upstream agent as [per <agent_id>: <upstream finding>] for
+      every claim that derives from them. Use [novel — <reason>] for any
+      claim with no upstream basis. Standalone synthesis without citations
+      will be REJECTED.
+
+# --- Auto-injected platform agents ---
+# challenger_agent and report_agent are added by the compiler when
+# quality.challenger=true and report=true (both default true). They
+# automatically have output_kind: challenger and output_kind: reporter
+# applied — do NOT redefine them in agents[].
+
+# --- Swarms (optional grouping for parallel execution) ---
+swarms:
+  research:
+    agents: [{leaf_agent_id}, {other_leaf_id}]
+    strategy: graph
+  synthesis:
+    agents: [{synthesizer_agent_id}]
+    strategy: graph
+
+parallel_swarms: [research, synthesis]
+
+triggers:
+  - type: manual

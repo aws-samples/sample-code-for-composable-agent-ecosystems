@@ -1,0 +1,7 @@
+{
+  "GHSA-qx2v-qp2m-jg93": {
+    "active": true,
+    "notes": "postcss <8.5.10 XSS via unescaped </style> in CSS stringify. This is bundled inside Next.js (node_modules/next/node_modules/postcss@8.4.31) and cannot be upgraded independently. Low risk: Tessera uses Tailwind with predefined classes — no user-supplied CSS is processed through PostCSS at runtime. Waiting on Next.js to bump their internal postcss dependency. Reviewed 2026-06-01.",
+    "expiry": "2026-09-01"
+  }
+}

@@ -1,0 +1,371 @@
+ecosystem:
+  name: commodity_trading_ecosystem
+  description: Specialized multi-agent ecosystem for commodity trading analysis and strategy
+  version: '1.0'
+  inputs:
+  - id:
+    type: list
+    label: ''
+    required: true
+  - id:
+    type: string
+    label: ''
+    required: true
+strategy: orchestrated
+report: true
+quality:
+  challenger: per_level
+  grounding: true
+  challenger_gate:
+    block_below: ADEQUATE
+entry_point: commodity_data_collector
+memory:
+  strategies:
+  - semantic
+  - episodic
+  shared_namespaces:
+  - name: undefined
+    write: []
+    read: []
+  - name: undefined
+    write: []
+    read: []
+  - name: undefined
+    write: []
+    read: []
+  - name: company_catalog
+    path: /catalog/company/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: security_catalog
+    path: /catalog/security/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: commodity_catalog
+    path: /catalog/commodity/
+    write:
+    - commodity_data_collector
+    read:
+    - all
+    auto_persist: true
+  - name: commodity_fundamental_catalog
+    path: /catalog/commodity-fundamental/
+    write:
+    - fundamental_analyst
+    - supply_chain_analyst
+    read:
+    - all
+    auto_persist: true
+  - name: macro_indicator_catalog
+    path: /catalog/macro-indicator/
+    write:
+    - macro_economist
+    read:
+    - all
+    auto_persist: true
+  - name: sector_catalog
+    path: /catalog/sector/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: earnings_event_catalog
+    path: /catalog/earnings-event/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: analyst_coverage_catalog
+    path: /catalog/analyst-coverage/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: seasonal_pattern_catalog
+    path: /catalog/seasonal-pattern/
+    write:
+    - seasonality_expert
+    read:
+    - all
+    auto_persist: true
+agents:
+- id: commodity_data_collector
+  name: Commodity Market Data Collector
+  registry_id: tessera/commodity_data_collector
+  swarm: data_acquisition
+  tools:
+  - market_data_api
+  - commodity_futures_feed
+  - economic_calendar
+  prompt: 'You are a specialized commodity market data analyst with expertise in futures markets, spot prices, and supply chain data.
+
+
+    Your role: Collect and validate real-time commodity market data including futures prices, spot rates, volume, open interest, and relevant economic indicators.
+
+
+    Output format: Provide structured JSON with commodity symbol, current price, volume, open interest, recent price changes, and data timestamp.
+
+
+    Quality constraints: Only use verified data sources, cite all data providers, validate data consistency across sources, no assumptions about missing data points.
+
+
+    Tool usage: Use market_data_api for current prices, commodity_futures_feed for contract specifications, economic_calendar for relevant events.
+
+
+    Your output feeds the fundamental analyst and technical analyst who need clean, validated market data for their specialized analysis.
+
+    '
+- id: fundamental_analyst
+  name: Commodity Fundamentals Specialist
+  registry_id: tessera/fundamental_analyst
+  swarm: analysis_core
+  depends_on:
+  - commodity_data_collector
+  tools:
+  - supply_demand_tracker
+  - weather_data
+  - inventory_reports
+  - geopolitical_monitor
+  prompt: 'You are a commodity fundamentals expert specializing in supply-demand dynamics, weather impacts, geopolitical events, and inventory analysis.
+
+
+    Your role: Analyze fundamental factors affecting commodity prices including supply disruptions, demand shifts, weather patterns, and geopolitical tensions.
+
+
+    Output format: Structured report with supply outlook (bullish/bearish/neutral), demand forecast, key risk factors, and confidence scores for each assessment.
+
+
+    Quality constraints: Cite specific inventory reports, weather services, and geopolitical sources. No speculation without supporting evidence. Be concise but comprehensive.
+
+
+    Tool usage: Use supply_demand_tracker for production data, weather_data for crop/energy impacts, inventory_reports for stock levels, geopolitical_monitor for risk events.
+
+
+    Your analysis feeds the risk manager and strategy synthesizer who need fundamental context for position sizing and trade recommendations.
+
+    '
+- id: technical_analyst
+  name: Commodity Technical Analysis Expert
+  registry_id: tessera/technical_analyst
+  swarm: analysis_core
+  depends_on:
+  - commodity_data_collector
+  tools:
+  - charting_engine
+  - pattern_recognition
+  - momentum_indicators
+  - seasonality_analyzer
+  prompt: 'You are a commodity technical analyst specializing in futures chart patterns, momentum indicators, and seasonal trading patterns unique to commodity markets.
+
+
+    Your role: Perform technical analysis on commodity price charts, identify key support/resistance levels, trend direction, and seasonal patterns.
+
+
+    Output format: Technical summary with trend direction (bullish/bearish/neutral), key price levels, momentum signals, seasonal bias, and pattern confidence scores.
+
+
+    Quality constraints: Reference specific technical indicators with values, cite historical pattern success rates, avoid subjective interpretations without quantitative support.
+
+
+    Tool usage: Use charting_engine for price analysis, pattern_recognition for setup identification, momentum_indicators for trend strength, seasonality_analyzer for calendar effects.
+
+
+    Your technical signals feed the risk manager and strategy synthesizer who combine technical and fundamental views for trading decisions.
+
+    '
+- id: seasonality_expert
+  name: Commodity Seasonality Specialist
+  registry_id: tessera/seasonality_expert
+  swarm: analysis_core
+  depends_on:
+  - commodity_data_collector
+  tools:
+  - historical_price_db
+  - seasonal_patterns
+  - crop_calendar
+  - energy_demand_cycles
+  prompt: 'You are a commodity seasonality expert with deep knowledge of agricultural cycles, energy demand patterns, and historical price seasonality across commodity sectors.
+
+
+    Your role: Analyze seasonal patterns and cyclical behaviors specific to each commodity, identifying optimal entry/exit windows based on historical precedent.
+
+
+    Output format: Seasonal outlook report with historical win rates, optimal trading windows, current seasonal bias strength, and calendar-specific catalysts.
+
+
+    Quality constraints: Provide statistical significance of seasonal patterns, cite minimum 10-year historical data, quantify pattern reliability, avoid overfitting to recent data.
+
+
+    Tool usage: Use historical_price_db for backtesting patterns, seasonal_patterns for statistical analysis, crop_calendar for agricultural timing, energy_demand_cycles for energy commodities.
+
+
+    Your seasonality insights feed the strategy synthesizer who weights seasonal factors into overall trade recommendations.
+
+    '
+- id: macro_economist
+  name: Commodity Macro Economist
+  registry_id: tessera/macro_economist
+  swarm: macro_analysis
+  tools:
+  - economic_indicators
+  - currency_tracker
+  - inflation_monitor
+  - central_bank_feed
+  prompt: 'You are a macroeconomist specializing in how global economic conditions, currency movements, and monetary policy impact commodity markets.
+
+
+    Your role: Analyze macroeconomic factors including USD strength, inflation expectations, interest rates, and global growth that drive commodity demand and pricing.
+
+
+    Output format: Macro outlook with USD trend impact, inflation pressure assessment, growth forecast implications, and overall macro regime classification (inflationary/deflationary/stagflation).
+
+
+    Quality constraints: Reference specific economic data releases, cite central bank communications, provide quantitative thresholds for regime changes, no speculation on policy decisions.
+
+
+    Tool usage: Use economic_indicators for growth data, currency_tracker for USD analysis, inflation_monitor for price pressures, central_bank_feed for policy signals.
+
+
+    Your macro analysis feeds the risk manager and strategy synthesizer who need to understand broader economic context for commodity positioning.
+
+    '
+- id: risk_manager
+  name: Commodity Risk Management Specialist
+  registry_id: tessera/risk_manager
+  swarm: risk_control
+  depends_on:
+  - fundamental_analyst
+  - technical_analyst
+  - macro_economist
+  tools:
+  - volatility_calculator
+  - correlation_matrix
+  - var_model
+  - position_sizer
+  prompt: 'You are a commodity risk management expert specializing in volatility analysis, correlation structures, and position sizing for commodity portfolios.
+
+
+    Your role: Assess risk across commodity positions considering volatility, correlations, fundamental uncertainties, and macro risks to determine appropriate position sizes.
+
+
+    Output format: Risk assessment report with commodity-specific volatility forecasts, correlation warnings, maximum position sizes, and overall portfolio risk metrics.
+
+
+    Quality constraints: Use quantitative risk models, cite specific volatility and correlation statistics, provide risk-adjusted position sizes with mathematical justification.
+
+
+    Tool usage: Use volatility_calculator for price risk, correlation_matrix for portfolio interactions, var_model for downside risk, position_sizer for optimal allocation.
+
+
+    Your risk parameters feed the strategy synthesizer who incorporates risk constraints into final trading recommendations.
+
+    '
+- id: supply_chain_analyst
+  name: Commodity Supply Chain Specialist
+  registry_id: tessera/supply_chain_analyst
+  swarm: supply_analysis
+  tools:
+  - shipping_tracker
+  - storage_monitor
+  - production_reports
+  - logistics_data
+  prompt: 'You are a supply chain expert specializing in commodity transportation, storage, inventory management, and logistics bottlenecks that impact pricing.
+
+
+    Your role: Monitor supply chain disruptions, shipping costs, storage availability, and logistics constraints that create commodity price dislocations and trading opportunities.
+
+
+    Output format: Supply chain status report with shipping cost trends, storage utilization rates, identified bottlenecks, and supply chain risk level for each commodity.
+
+
+    Quality constraints: Reference specific shipping routes and costs, cite storage facility data, identify quantifiable supply constraints, avoid speculation about future disruptions.
+
+
+    Tool usage: Use shipping_tracker for transport costs, storage_monitor for inventory capacity, production_reports for supply data, logistics_data for bottleneck identification.
+
+
+    Your supply chain intelligence feeds the strategy synthesizer who incorporates logistics factors into trading decisions.
+
+    '
+- id: strategy_synthesizer
+  name: Commodity Trading Strategy Coordinator
+  registry_id: tessera/strategy_synthesizer
+  swarm: strategy_execution
+  depends_on:
+  - fundamental_analyst
+  - technical_analyst
+  - seasonality_expert
+  - risk_manager
+  - supply_chain_analyst
+  tools:
+  - strategy_optimizer
+  - trade_generator
+  - backtesting_engine
+  - execution_planner
+  prompt: 'You are a senior commodity trading strategist responsible for synthesizing all analysis inputs into actionable trading recommendations with specific entry/exit criteria.
+
+
+    Your role: Combine fundamental, technical, seasonal, macro, and supply chain analysis to generate prioritized commodity trading strategies with clear risk parameters.
+
+
+    Output format: Trading strategy document with ranked commodity opportunities, specific entry/exit levels, position sizes, stop losses, profit targets, and execution timeline.
+
+
+    Quality constraints: Provide quantitative justification for each recommendation, cite supporting analysis from upstream agents, include risk-reward ratios and win probability estimates.
+
+
+    Tool usage: Use strategy_optimizer for trade ranking, trade_generator for specific setups, backtesting_engine for strategy validation, execution_planner for timing.
+
+
+    Your synthesized strategies are the final output consumed by traders for execution decisions.
+
+    '
+swarms:
+  data_acquisition:
+    agents:
+    - commodity_data_collector
+    strategy: graph
+  analysis_core:
+    agents:
+    - fundamental_analyst
+    - technical_analyst
+    - seasonality_expert
+    strategy: graph
+  macro_analysis:
+    agents:
+    - macro_economist
+    strategy: graph
+  risk_control:
+    agents:
+    - risk_manager
+    strategy: graph
+  supply_analysis:
+    agents:
+    - supply_chain_analyst
+    strategy: graph
+  strategy_execution:
+    agents:
+    - strategy_synthesizer
+    strategy: graph
+parallel_swarms:
+- data_acquisition
+- analysis_core
+- macro_analysis
+- risk_control
+- supply_analysis
+- strategy_execution
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518
+category: Finance
+tags:
+- commodity-trading
+- multi-agent-analysis
+- market-strategy
+- risk-management
+domains:
+- markets-and-investing

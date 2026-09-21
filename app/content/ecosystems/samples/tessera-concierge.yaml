@@ -1,0 +1,142 @@
+ecosystem:
+  name: tessera-concierge
+  description: >-
+    The front door. Given a visitor's problem or question, it answers "here is what
+    Tessera can actually do about it" — grounded in Tessera's own self-model
+    (tessera-self): matching ecosystems with fit + required inputs + deliverable +
+    maturity, honest gaps ("I don't have that; closest is Y; composable from Z"),
+    and a refusal when the ask is an explicit non-goal. Kills the "so what".
+  version: '1.0'
+strategy: interactive
+report: false
+domains:
+- tessera-self
+tags:
+- concierge
+- front-door
+- self-aware
+quality:
+  challenger: final
+  challenger_gate:
+    block_below: ADEQUATE
+  grounding: true
+  gates:
+    citation: ask
+    format: warn
+    grounding: ask
+    output_kind: warn
+outcome:
+  kind: report
+entry_point: need_analyst
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: tessera_concierge_findings
+    write: [all]
+    read: [all]
+  # ── tessera-self self-model (read-only grounding) ──────────────────────────
+  - name: self_ecosystems
+    path: /catalog/ecosystem/
+    write: []
+    read: [all]
+    auto_persist: false
+  - name: self_capabilities
+    path: /catalog/capability/
+    write: []
+    read: [all]
+    auto_persist: false
+  - name: self_value_prop
+    path: /catalog/value-prop/
+    write: []
+    read: [all]
+    auto_persist: false
+  - name: self_non_goals
+    path: /catalog/non-goal/
+    write: []
+    read: [all]
+    auto_persist: false
+  - name: self_domains
+    path: /catalog/domain-catalog/
+    write: []
+    read: [all]
+    auto_persist: false
+agents:
+- id: need_analyst
+  name: Need Analyst
+  registry_id: tessera/need_analyst
+  swarm: solo
+  tools:
+  - memory_write
+  prompt: >-
+    Read the visitor's message/mission. Distil it into: the underlying problem, the
+    domain/context, the decision or deliverable they actually want, and any constraints.
+    Do NOT propose solutions yet. If the ask is vague, state the most useful
+    interpretation and note the assumption. Publish a crisp need statement to shared findings.
+- id: capability_matcher
+  name: Capability Matcher
+  registry_id: tessera/capability_matcher
+  swarm: solo
+  depends_on:
+  - need_analyst
+  tools:
+  - memory_read
+  - memory_write
+  prompt: >-
+    Read the need statement. Query Tessera's self-model to find what can serve it:
+    read /catalog/ecosystem/ (each record's purpose, inputs_accepted, deliverable,
+    domains_mounted, maturity, alignment) and /catalog/capability/. Rank the ecosystems
+    by fit to the need. For each candidate emit: {eco_id, name, why_it_fits, inputs_needed,
+    deliverable, maturity, cite the eco_id}. Prefer records with maturity=product; note
+    when the best match is only maturity=proof/demo. Ground EVERY claim in a catalog
+    record — never invent a capability. If nothing matches well, say so plainly.
+    Publish ranked matches to shared findings.
+- id: honesty_gate
+  name: Honesty & Gap Check
+  registry_id: tessera/honesty_gate
+  swarm: solo
+  depends_on:
+  - need_analyst
+  tools:
+  - memory_read
+  - memory_write
+  prompt: >-
+    Read the need statement and /catalog/non-goal/ + /catalog/value-prop/. Decide the
+    honest posture: (a) if the ask matches an explicit NON-GOAL (e.g. a generic/consumer/
+    hobby request, or "build me any agent"), say Tessera deliberately does NOT do that and
+    why, citing the non-goal; (b) if it is on-mission but unserved, mark it a GAP ("no eco
+    yet; closest capability is X; composable from Y+Z"); (c) if on-mission and served,
+    confirm alignment with the value proposition. Publish {posture, cited non_goal/value_prop,
+    gaps} to shared findings. Do not over-promise.
+- id: concierge_responder
+  name: Concierge Responder
+  registry_id: tessera/concierge_responder
+  swarm: solo
+  depends_on:
+  - capability_matcher
+  - honesty_gate
+  tools:
+  - memory_read
+  prompt: >-
+    Write the visitor-facing answer to "what can Tessera do about my problem?", grounded
+    ONLY in the matches, posture, and gaps in shared findings. Structure: (1) one-line read
+    of their need; (2) What Tessera can do — the top 1-3 matching ecosystems, each with what
+    it produces, what it needs from them, and maturity (be honest if it is a demo/proof, not
+    a product); (3) What it deliberately does NOT do — if the ask hit a non-goal, say so
+    plainly and why; (4) Honest gaps — anything on-mission but not yet built, with the closest
+    building blocks; (5) a suggested next step (run eco X, or "not the right tool"). Cite the
+    eco_id / non_goal behind each claim. Tone: crisp, honest, no marketing. Never claim a
+    capability that is not in the self-model.
+swarms:
+  solo:
+    agents:
+    - need_analyst
+    - capability_matcher
+    - honesty_gate
+    - concierge_responder
+    strategy: graph
+parallel_swarms:
+- solo
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518

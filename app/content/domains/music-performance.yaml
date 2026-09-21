@@ -1,0 +1,34 @@
+domain: music-performance
+name: Music Performance (Songbooks)
+description: 'Durable musical knowledge for performing musicians: songs and their structure, music-theory, and lyric metadata reused across setlists and songbooks.'
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: song
+  key: '{title}-{artist}'
+  description: A song — durable identity, key, tempo, era, durable attributes.
+  status: active
+- type: song-music-theory
+  key: '{title}-{artist}'
+  description: Durable theory for a song — chords, progression, key changes.
+  status: active
+- type: song-structure
+  key: '{title}-{artist}'
+  description: Durable arrangement/structure — sections, form, cues.
+  status: active
+- type: song-lyrics-metadata
+  key: '{title}-{artist}'
+  description: Durable lyric metadata — themes, language, content flags.
+  status: active
+conclusions_never_cataloged:
+- the curated songbook/setlist for a specific run
+seeded_from: &id001
+- piano-band-songbook-builder
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: bottom-up validated across belonging ecosystems (2026-06-30)

@@ -1,0 +1,193 @@
+ecosystem:
+  name: phase-test
+  description: |
+    Minimal regression-test ecosystem exercising every Phase 1-4.5 feature in
+    under 3 minutes with a single web search provider call. Covers: ASL compiler (parallel
+    layers, JsonMerge, ResultSelector, S3 staging), internal grounding,
+    memory_write/memory_read (single-segment + multi-segment paths), prefix-mode
+    walking, ACL enforcement, role_contract injection (compiler) + rendering
+    (runtime) + validation (agent-invoker), citation contract (single + multi
+    upstream), [novel — reason] escape hatch, model tiering (Opus synthesizers
+    vs Sonnet leaves), web search provider Bearer auth, generateUI tool chips.
+  version: "1.0"
+
+strategy: orchestrated
+report: false
+
+quality:
+  challenger: false
+  grounding: true
+  external_grounding: false
+
+memory:
+  strategies: [semantic]
+  shared_namespaces:
+    - name: test_marker
+      path: /test
+      write: [writer]
+      read: [all]
+    - name: catalog_test
+      path: /catalog/phase-test
+      write: [cross_writer]
+      read: [all]
+
+agents:
+  - id: writer
+    name: Writer
+    swarm: setup
+    depends_on: []
+    tools: [memory_write, generateUI]
+    prompt: |
+      Your specific contribution: write one fixed test marker to shared memory at /tessera/test
+      so downstream agents can read it back. You verify the write path works.
+
+      Steps:
+      1. Call memory_write(namespace="/tessera/test", content="MARKER-OK: writer agent wrote this at runtime")
+      2. Render a small Metric widget showing { label: "marker", value: "written" } via generateUI
+
+      Your STRUCTURED FINDINGS section must contain ONE claim:
+      - claim: Test marker written to /tessera/test
+        confidence: HIGH
+        evidence: [source: memory_write] eventId returned by AgentCore Memory
+
+  - id: cross_writer
+    name: Cross-Ecosystem Writer
+    swarm: setup
+    depends_on: []
+    tools: [web_search, memory_write, generateUI]
+    prompt: |
+      Your specific contribution: fetch ONE current fact via web_search and publish it to the
+      cross-ecosystem catalog at /tessera/catalog/phase-test for any future ecosystem to consume.
+      This proves the cross-ecosystem write path AND web search provider Bearer auth.
+
+      Steps:
+      1. Call web_search ONCE with query "what year is it" — extract today's date from results
+      2. Call memory_write(namespace="/tessera/catalog/phase-test", content=<the fact you found>)
+      3. Render a small Badge widget via generateUI
+
+      Your STRUCTURED FINDINGS must include:
+      - claim: Current date verified via web_search
+        confidence: HIGH
+        evidence: [source: web_search] cite the result you got
+
+  - id: reader
+    name: Reader
+    swarm: synthesis
+    depends_on: [writer]
+    tools: [memory_read, generateUI]
+    prompt: |
+      Your specific contribution: synthesize on top of `writer` by reading the marker it wrote
+      to /tessera/test and confirming you found it. You do NOT do any independent research —
+      this is purely a synthesis test.
+
+      You do NOT: write to memory yourself, do web_search, or produce novel claims unrelated
+      to writer's marker.
+
+      Steps:
+      1. Call memory_read(namespace="/tessera/test")
+      2. Inspect the result — it should contain the marker written by `writer`
+      3. Render a Metric widget showing { label: "read_count", value: <number of entries you found> }
+
+      Your STRUCTURED FINDINGS must include exactly:
+      - claim: Successfully read marker written by writer
+        confidence: HIGH
+        evidence: [per writer: <quote what writer wrote>]
+
+      Cite the upstream finding using the format `[per writer: ...]` for every claim.
+
+  - id: composer
+    name: Composer
+    swarm: synthesis
+    depends_on: [reader, cross_writer]
+    tools: [memory_read, generateUI]
+    prompt: |
+      Your specific contribution: combine findings from reader (which read the marker) and
+      cross_writer (which fetched a current fact and published to /tessera/catalog/phase-test)
+      into a single synthesis report. This tests multi-upstream citation and the
+      [novel — reason] escape hatch.
+
+      You do NOT: research independently, write to memory, or repeat what either upstream said
+      verbatim — synthesize and add value.
+
+      Steps:
+      1. Call memory_read(namespace="/tessera/catalog/phase-test") to fetch what cross_writer published
+      2. Render a Table widget showing the two findings side by side
+
+      Your STRUCTURED FINDINGS must include AT LEAST:
+      - claim: Reader successfully synthesized writer's marker
+        confidence: HIGH
+        evidence: [per reader: <reader's finding>]
+      - claim: Cross_writer published a current fact to the catalog
+        confidence: HIGH
+        evidence: [per cross_writer: <cross_writer's finding>]
+      - claim: Both upstream paths complete — platform memory cycle proven end-to-end
+        confidence: HIGH
+        evidence: [novel — synthesis observation, no upstream basis]
+
+      Cite each upstream agent at least once. Use [novel — reason] for any claim with no
+      upstream basis.
+
+  - id: budget_tester
+    name: Budget Tester
+    swarm: setup
+    depends_on: []
+    tools: [memory_write, generateUI]
+    tool_budget:
+      memory_write: 2          # explicit low cap so 3rd call fires tool_budget_exhausted
+      generateUI: 1
+    prompt: |
+      Your specific contribution: verify that tool_budget enforcement works by intentionally
+      exceeding the memory_write cap and confirming the platform returns a structured
+      `tool_budget_exhausted` error.
+
+      Steps:
+      1. Call memory_write(namespace="/tessera/test", content="budget probe 1") — should succeed
+      2. Call memory_write(namespace="/tessera/test", content="budget probe 2") — should succeed
+      3. Call memory_write(namespace="/tessera/test", content="budget probe 3") — should fail with tool_budget_exhausted
+      4. Call generateUI ONCE with a small Badge — should succeed
+      5. Synthesize: report whether the error fired exactly on call 3 and whether _budget metadata appeared in earlier calls
+
+      Your STRUCTURED FINDINGS must include:
+      - claim: tool_budget_exhausted error fired on the 3rd memory_write call as expected
+        confidence: HIGH
+        evidence: [novel — verified via direct platform observation in this run]
+      - claim: tool result metadata included _budget {used, cap, remaining} on successful calls
+        confidence: HIGH
+        evidence: [novel — verified via direct platform observation in this run]
+
+  - id: platform_tools_tester
+    name: Platform Tools Tester
+    swarm: setup
+    depends_on: []
+    tools: []
+    tool_budget:
+      calculator: 2
+      current_time: 2
+      http_request: 2
+      code_interpreter: 2
+    prompt: |
+      Your specific contribution: verify that the four new platform tools (calculator,
+      current_time, http_request, code_interpreter) are available and functional.
+
+      Steps:
+      1. Call calculator with expression "2 + 2 * 3" — expect 8
+      2. Call current_time with timezone "UTC" — expect a valid datetime string
+      3. Call http_request with url "https://example.com/api/test" and method "GET" — expect a JSON response
+      4. Call code_interpreter with code "print(1 + 1)" — expect output containing "2"
+
+      Your STRUCTURED FINDINGS must include:
+      - claim: calculator returned correct result for "2 + 2 * 3"
+        confidence: HIGH
+        evidence: [source: calculator] <the result>
+      - claim: current_time returned valid UTC datetime
+        confidence: HIGH
+        evidence: [source: current_time] <the datetime>
+      - claim: http_request successfully fetched example.com
+        confidence: HIGH
+        evidence: [source: http_request] <status or snippet>
+      - claim: code_interpreter executed Python and returned "2"
+        confidence: HIGH
+        evidence: [source: code_interpreter] <the output>
+
+triggers:
+  - type: manual

@@ -1,0 +1,122 @@
+# Declarative, versioned ingest for the conduct-people-au domain (Conduct + People NFR).
+# Same blue/green-versioned engine as the other domains. Design note: the authoritative
+# APRA conduct/people HTML pages (CPS 511, FAR) are ~1 MB and exceed the agentic
+# normalizer's practical input size, so the RELIABLE grounding here is the Federal
+# Register of Legislation OData API (governing Acts → legal-instrument). ASIC pages are
+# smaller and ingested best-effort. Types with no reliable small source (remuneration-
+# standard) are declared and populated bottom-up from runs via catalog_write.
+#
+# Conclusions (a person's conduct assessment, a remuneration decision, an accountability
+# finding for a run) are NEVER cataloged — see conduct-people-au.yaml.
+ingest:
+  sources:
+    # ── legal-instrument (authoritative governing Acts, via legislation OData API) ──
+    - name: legislation-conduct-people-acts
+      produces: [legal-instrument]
+      fetch: {transport: http_json, url: "https://api.prod.legislation.gov.au/v1/titles?$filter=id%20eq%20'C2004A00818'%20or%20id%20eq%20'C2023A00067'%20or%20id%20eq%20'C1959A00006'%20or%20id%20eq%20'C2009A00028'%20or%20id%20eq%20'C2004A00274'&$top=10", timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: legal-instrument
+        key: "{instrument_id}"
+        key_field: instrument_id
+        guidance: >-
+          OData JSON with a `value` array. Emit one legal-instrument per Act: instrument_id = `id`,
+          title = `name`, collection = `collection`, in_force = `isInForce`, status = `status`,
+          making_date = `makingDate`, register_url = "https://www.legislation.gov.au/" + id + "/latest/text".
+          administered_by: ASIC for the Corporations Act; APRA + ASIC for the FAR Act; APRA for the
+          Banking Act; Fair Work Commission for the Fair Work Act; Australian Human Rights Commission
+          for the Racial Discrimination Act.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [federal-register-of-legislation]}
+
+    # ── conduct-obligation (ASIC RGs + statutory conduct) ───────────────────────────
+    # Pre-parsed ASIC conduct obligations (catalog-content/asic-conduct.json), ingested
+    # deterministically via s3 + map — the live ASIC RG index exceeded the normalizer.
+    - name: asic-conduct-guides
+      produces: [conduct-obligation]
+      fetch: {transport: s3, key: catalog-content/asic-conduct.json}
+      normalize:
+        mode: map
+        entity_type: conduct-obligation
+        key_field: obligation_id
+        select: "obligations"
+        fields:
+          obligation_id: "obligation_id"
+          title: "title"
+          description: "description"
+          framework: "framework"
+          governing_provision: "governing_provision"
+          references: "references"
+        const: {administered_by: ASIC, status: current}
+        provenance: {ingested_by: catalog-ingest, sources: [asic]}
+
+    # ── accountability-obligation (ASIC FAR page) ──────────────────────────────────
+    - name: asic-far
+      produces: [accountability-obligation]
+      fetch: {transport: http_html, url: https://www.asic.gov.au/regulatory-resources/financial-services/financial-accountability-regime/, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: accountability-obligation
+        key: "{obligation_id}"
+        key_field: obligation_id
+        guidance: >-
+          Emit one record per FAR obligation set: obligation_id (e.g. far-reasonable-steps,
+          far-accountability-statement, far-key-personnel, far-deferred-remuneration, far-notification),
+          title, description (the duty, incl. the 'reasonable steps' and 'no gaps in responsibility'
+          expectations), governing_provision (Financial Accountability Regime Act 2023),
+          administered_by (APRA and ASIC), status.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [asic, apra, far-act]}
+
+    # ── conduct-precedent (ASIC enforcement outcomes) ──────────────────────────────
+    # Landmark ASIC conduct matters (public record), pre-parsed into
+    # catalog-content/asic-conduct.json and ingested via s3 + map.
+    - name: asic-conduct-enforcement
+      produces: [conduct-precedent]
+      fetch: {transport: s3, key: catalog-content/asic-conduct.json}
+      normalize:
+        mode: map
+        entity_type: conduct-precedent
+        key_field: precedent_id
+        select: "precedents"
+        fields:
+          precedent_id: "precedent_id"
+          entity: "entity"
+          date: "date"
+          issue: "issue"
+          outcome: "outcome"
+          lesson: "lesson"
+          references: "references"
+        provenance: {ingested_by: catalog-ingest, sources: [asic]}
+
+    # ── remuneration-standard (APRA CPS 511) ───────────────────────────────────────
+    # APRA CPS 511 has no official API and is a PDF, so — following the cyber-security-risk
+    # nist-ai-rmf-playbook pattern — its obligations are parsed once into a structured S3
+    # file (catalog-content/apra-cps.json, shared with financial-regulatory-risk) and
+    # ingested DETERMINISTICALLY via transport:s3 + mode:map. Replaces the earlier
+    # bottom-up-only note.
+    - name: apra-cps-511-remuneration
+      produces: [remuneration-standard]
+      fetch:
+        transport: s3
+        key: catalog-content/apra-cps.json
+      normalize:
+        mode: map
+        entity_type: remuneration-standard
+        key_field: standard_id
+        select: "remuneration"
+        fields:
+          standard_id: "standard_id"
+          title: "title"
+          description: "description"
+          governing_provision: "governing_provision"
+          references: "references"
+        const:
+          administered_by: APRA
+          status: current
+        provenance: {ingested_by: catalog-ingest, sources: [apra-cps-511]}
+
+  refresh:
+    schedule: "rate(30 days)"
+    sanity_drop: 0.5
+  synthesis: none

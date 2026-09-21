@@ -1,0 +1,208 @@
+ecosystem:
+  name: advisor-client-conversation
+  description: "Generate a live, in-meeting conversation guide (questions, prompts,\
+    \ next steps) tailored to a client's fact-find to support meaningful advisor\u2013\
+    client discussions"
+  version: '1.0'
+strategy: orchestrated
+report: true
+tags:
+- advisory
+- client-conversation
+- financial-planning
+- in-meeting
+quality:
+  challenger: per_level
+  challenger_gate:
+    block_below: ADEQUATE
+  grounding: true
+  gates:
+    citation: ask
+    format: ask
+    grounding: ask
+    output_kind: ask
+outcome:
+  kind: file_artifact
+  artifacts:
+  - id: conversation_guide
+    agent: guide_drafter
+    format: html
+    save_as: advisor_client_conversation_guide.html
+    download_label: Download In-Meeting Conversation Guide (HTML)
+entry_point: factfind_parser
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: advisor_client_conversation_findings
+    write:
+    - all
+    read:
+    - all
+  - name: advice_obligation_catalog
+    write: []
+    read:
+    - all
+  - name: regulatory_guidance_catalog
+    write: []
+    read:
+    - all
+  - name: advice_strategy_catalog
+    write: []
+    read:
+    - all
+  - name: regulatory_figure_catalog
+    write: []
+    read:
+    - all
+  - name: product_type_catalog
+    write: []
+    read:
+    - all
+  - name: disclosure_document_catalog
+    write: []
+    read:
+    - all
+  - name: planning_assumption_catalog
+    write: []
+    read:
+    - all
+agents:
+- id: factfind_parser
+  name: Fact-Find Parser
+  registry_id: tessera/factfind_parser
+  swarm: research
+  tools:
+  - file_read
+  - memory_write
+  output_kind: structured
+  prompt: "You parse the client's structured fact-find (uploaded file / existing record\
+    \ data) and extract a clean, structured client profile for a holistic advice conversation.\n\
+    \nExtract and organise:\n- Personal & family: names, ages, dependants, employment,\
+    \ health notes\n- Goals & objectives: short/medium/long-term goals, priorities,\
+    \ timeframes, values\n- Cashflow: income sources, expenses, surplus/deficit, debts\n\
+    - Assets & liabilities: property, investments, cash, super balances, loans\n-\
+    \ Superannuation: funds, contributions, investment options, insurance inside super\n\
+    - Insurance: life, TPD, trauma, IP \u2014 inside and outside super, sums insured\n\
+    - Investments: portfolio holdings, platforms, risk profile, ESG preferences\n\
+    - Estate: wills, EPOAs, beneficiaries, guardianship, binding nominations\n- Tax:\
+    \ marginal rates, structures (trusts, companies), franking, CGT positions\n- Known\
+    \ concerns, questions the client has raised, previous advice history\n\nFlag missing\
+    \ / unclear fields explicitly (these become live-meeting clarifiers).\n\nPublish\
+    \ the structured profile to shared findings for downstream agents."
+- id: gap_analyst
+  name: Advice Gap Analyst
+  registry_id: tessera/gap_analyst
+  swarm: analysis
+  depends_on:
+  - factfind_parser
+  tools:
+  - memory_read
+  - memory_write
+  output_kind: structured
+  prompt: "Using the parsed client profile, identify advice gaps, red flags and priority\
+    \ discussion areas across ALL pillars (goals, cashflow, super, insurance, investments,\
+    \ estate, tax).\n\nGround your analysis in the AU advice-domain catalogs \u2014\
+    \ memory_read from:\n- /catalog/advice-obligation/  (Best Interests Duty, appropriate\
+    \ advice, safe-harbour steps, FDS/consent, DDO)\n- /catalog/regulatory-guidance/\
+    \ (ASIC RGs relevant to scoped/holistic advice)\n- /catalog/advice-strategy/ (contribution\
+    \ splitting, salary sacrifice, TTR, debt recycling, insurance structuring, etc.)\n\
+    - /catalog/regulatory-figure/ (contribution caps, TBC, thresholds \u2014 current\
+    \ FY)\n- /catalog/product-type/ and /catalog/disclosure-document/ where product\
+    \ discussion is implicated\n- /catalog/planning-assumption/ (current inflation,\
+    \ return, wage growth assumptions)\n\nFor each pillar produce: (a) observed position,\
+    \ (b) gap or risk, (c) candidate strategy hooks, (d) obligation triggers (e.g.\
+    \ must-discuss under BID), (e) priority rank (High/Med/Low). Note any WEAK data\
+    \ points that need live clarification.\n\nPublish the gap analysis to shared findings.\
+    \ Do NOT invent figures \u2014 cite catalog keys."
+- id: question_designer
+  name: Discovery Question Designer
+  registry_id: tessera/question_designer
+  swarm: analysis
+  depends_on:
+  - gap_analyst
+  tools:
+  - memory_read
+  - memory_write
+  output_kind: structured
+  prompt: "Design tailored, open-ended discovery questions and discussion prompts\
+    \ the advisor can use LIVE in the meeting, organised by pillar and priority.\n\
+    \nFor each priority area from the gap analyst:\n- 2\u20134 open-ended discovery\
+    \ questions (goals, values, trade-offs \u2014 not yes/no)\n- 1\u20132 clarifier\
+    \ questions for any WEAK/missing data points\n- 1\u20132 'deepening' prompts that\
+    \ surface motivations, concerns, family context\n- Optional teaching prompt (plain-English\
+    \ concept the advisor may need to explain: e.g. concessional cap, insurance inside\
+    \ super, franking)\n\nTone: warm, curious, non-judgemental, plain English (no\
+    \ jargon dumps). Questions must connect back to a specific gap or obligation so\
+    \ the conversation stays purposeful. Tag each question with the pillar and priority.\n\
+    \nPublish the question set to shared findings."
+- id: next_steps_planner
+  name: Next Steps Planner
+  registry_id: tessera/next_steps_planner
+  swarm: analysis
+  depends_on:
+  - gap_analyst
+  tools:
+  - memory_read
+  - memory_write
+  output_kind: structured
+  prompt: "Draft suggested next steps and post-meeting actions the advisor can tick\
+    \ off live as decisions are made.\n\nFor each priority area produce:\n- Immediate\
+    \ in-meeting decisions (e.g. confirm scope, agree strategy exploration)\n- Information/documents\
+    \ to collect (super statements, insurance PDS, wills, tax returns)\n- Third-party\
+    \ actions (accountant, solicitor, mortgage broker referral)\n- Advice deliverables\
+    \ to prepare (SoA scope, ROA, strategy modelling)\n- Compliance/consent items\
+    \ (FDS, ongoing fee consent, DDO acknowledgements) \u2014 reference /catalog/advice-obligation/\
+    \ and /catalog/disclosure-document/\n- Suggested timeframe / owner (advisor /\
+    \ client / paraplanner)\n\nPublish the next-steps plan to shared findings."
+- id: guide_drafter
+  name: Live Guide Drafter
+  registry_id: tessera/guide_drafter
+  swarm: drafting
+  depends_on:
+  - question_designer
+  - next_steps_planner
+  tools:
+  - memory_read
+  - code_interpreter
+  output_kind: drafter
+  output_format:
+    type: html
+    save_as: advisor_client_conversation_guide.html
+    validate: true
+  prompt: "Assemble a single self-contained interactive HTML file the advisor can\
+    \ open on-screen during the meeting.\n\nRead the client profile, gap analysis,\
+    \ question set and next-steps plan from shared findings. Build the HTML with:\n\
+    - Header: client name(s), meeting date placeholder, holistic-review scope banner\n\
+    - Client snapshot panel: goals, family, key positions (collapsible)\n- Pillar\
+    \ sections (Goals, Cashflow, Super, Insurance, Investments, Estate, Tax) each\
+    \ with:\n    * priority badge (High/Med/Low)\n    * gap summary\n    * discovery\
+    \ questions as tickable checkboxes\n    * teaching prompt (collapsible)\n    *\
+    \ next-steps checklist (tickable)\n    * free-text note field per section (contenteditable)\n\
+    - Sticky top bar with progress indicator (X of Y prompts covered)\n- 'Wrap-up'\
+    \ section: agreed scope, immediate decisions, follow-up owners\n- All interactivity\
+    \ via inline vanilla JS + CSS (no external CDNs) so it works offline in-meeting\n\
+    - Clean, print-friendly styling; expand/collapse via <details> where practical\n\
+    \nUse code_interpreter to write the file. Save as advisor_client_conversation_guide.html."
+swarms:
+  research:
+    agents:
+    - factfind_parser
+    strategy: graph
+  analysis:
+    agents:
+    - gap_analyst
+    - question_designer
+    - next_steps_planner
+    strategy: graph
+  drafting:
+    agents:
+    - guide_drafter
+    strategy: graph
+parallel_swarms:
+- research
+- analysis
+- drafting
+triggers:
+- type: manual
+owner: 742844b8-7081-708c-2dcf-f935a6ace544

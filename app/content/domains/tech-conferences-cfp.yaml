@@ -1,0 +1,44 @@
+domain: tech-conferences-cfp
+name: Tech Conferences & CFPs
+description: 'Durable knowledge about conferences and their calls-for-papers: event profiles, CFP criteria, tracks, committees and what wins — reused across submission cycles year over year.'
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: conference
+  key: '{name}-{year}'
+  description: A conference/event profile — audience, themes, format, scale, history.
+  status: active
+- type: cfp
+  key: '{conference}'
+  description: A call-for-papers — selection criteria, rubric, submission norms.
+  status: active
+- type: conference-track
+  key: '{conference}-{track}'
+  description: A track/theme — scope, typical accepted topics.
+  status: active
+- type: past-program
+  key: '{conference}-{year}'
+  description: A past program / accepted set — durable signal of what wins.
+  status: active
+- type: program-committee-member
+  key: '{name}-{conference}'
+  description: A reviewer/committee member — interests, prior selections.
+  status: active
+- type: audience-segment
+  key: '{segment}'
+  description: A recurring audience segment across events — interests, seniority.
+  status: active
+conclusions_never_cataloged:
+- acceptance-probability score for a submission
+- the optimized pitch/abstract for a run
+seeded_from: &id001
+- conference-submission-optimizer
+- conference-submission-scout
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: bottom-up validated across belonging ecosystems (2026-06-30)

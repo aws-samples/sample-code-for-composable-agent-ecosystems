@@ -1,0 +1,254 @@
+[
+  {
+    "gap_id": "drift-agentic-ai-sirs",
+    "kind": "drift-sprawl",
+    "layers": [
+      "intentional",
+      "operational"
+    ],
+    "summary": "'agentic-ai-sirs' matches non-goal #2 (hobby/consumer) \u2014 demo-only. It dilutes the identity and is demo-only per non-goal #2.",
+    "evidence_refs": [
+      "eco:agentic-ai-sirs",
+      "non-goal:2 (draft)"
+    ],
+    "severity": "medium",
+    "recommended_action": "keep as proof-only or cut; do not feature.",
+    "provenance": {
+      "layer": "intent-declared",
+      "source_ref": "docs/tessera-intent.draft.md#C",
+      "confidence": "low",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "gap_id": "drift-au-fishing-spot-finder",
+    "kind": "drift-sprawl",
+    "layers": [
+      "intentional",
+      "operational"
+    ],
+    "summary": "'au-fishing-spot-finder' matches non-goal #2 (hobby/consumer) \u2014 demo-only. It dilutes the identity and is demo-only per non-goal #2.",
+    "evidence_refs": [
+      "eco:au-fishing-spot-finder",
+      "non-goal:2 (draft)"
+    ],
+    "severity": "medium",
+    "recommended_action": "keep as proof-only or cut; do not feature.",
+    "provenance": {
+      "layer": "intent-declared",
+      "source_ref": "docs/tessera-intent.draft.md#C",
+      "confidence": "low",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "gap_id": "drift-car-ad-optimizer",
+    "kind": "drift-sprawl",
+    "layers": [
+      "intentional",
+      "operational"
+    ],
+    "summary": "'car-ad-optimizer' matches non-goal #2 (hobby/consumer) \u2014 demo-only. It dilutes the identity and is demo-only per non-goal #2.",
+    "evidence_refs": [
+      "eco:car-ad-optimizer",
+      "non-goal:2 (draft)"
+    ],
+    "severity": "medium",
+    "recommended_action": "keep as proof-only or cut; do not feature.",
+    "provenance": {
+      "layer": "intent-declared",
+      "source_ref": "docs/tessera-intent.draft.md#C",
+      "confidence": "low",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "gap_id": "drift-car-insurance-compare-au",
+    "kind": "drift-sprawl",
+    "layers": [
+      "intentional",
+      "operational"
+    ],
+    "summary": "'car-insurance-compare-au' matches non-goal #2 (hobby/consumer) \u2014 demo-only. It dilutes the identity and is demo-only per non-goal #2.",
+    "evidence_refs": [
+      "eco:car-insurance-compare-au",
+      "non-goal:2 (draft)"
+    ],
+    "severity": "medium",
+    "recommended_action": "keep as proof-only or cut; do not feature.",
+    "provenance": {
+      "layer": "intent-declared",
+      "source_ref": "docs/tessera-intent.draft.md#C",
+      "confidence": "low",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "gap_id": "drift-conference-submission-optimizer",
+    "kind": "drift-sprawl",
+    "layers": [
+      "intentional",
+      "operational"
+    ],
+    "summary": "'conference-submission-optimizer' matches non-goal #2 (hobby/consumer) \u2014 demo-only. It dilutes the identity and is demo-only per non-goal #2.",
+    "evidence_refs": [
+      "eco:conference-submission-optimizer",
+      "non-goal:2 (draft)"
+    ],
+    "severity": "medium",
+    "recommended_action": "keep as proof-only or cut; do not feature.",
+    "provenance": {
+      "layer": "intent-declared",
+      "source_ref": "docs/tessera-intent.draft.md#C",
+      "confidence": "low",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "gap_id": "drift-conference-submission-scout",
+    "kind": "drift-sprawl",
+    "layers": [
+      "intentional",
+      "operational"
+    ],
+    "summary": "'conference-submission-scout' matches non-goal #2 (hobby/consumer) \u2014 demo-only. It dilutes the identity and is demo-only per non-goal #2.",
+    "evidence_refs": [
+      "eco:conference-submission-scout",
+      "non-goal:2 (draft)"
+    ],
+    "severity": "medium",
+    "recommended_action": "keep as proof-only or cut; do not feature.",
+    "provenance": {
+      "layer": "intent-declared",
+      "source_ref": "docs/tessera-intent.draft.md#C",
+      "confidence": "low",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "gap_id": "drift-piano-band-songbook-builder",
+    "kind": "drift-sprawl",
+    "layers": [
+      "intentional",
+      "operational"
+    ],
+    "summary": "'piano-band-songbook-builder' matches non-goal #2 (hobby/consumer) \u2014 demo-only. It dilutes the identity and is demo-only per non-goal #2.",
+    "evidence_refs": [
+      "eco:piano-band-songbook-builder",
+      "non-goal:2 (draft)"
+    ],
+    "severity": "medium",
+    "recommended_action": "keep as proof-only or cut; do not feature.",
+    "provenance": {
+      "layer": "intent-declared",
+      "source_ref": "docs/tessera-intent.draft.md#C",
+      "confidence": "low",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "gap_id": "drift-political-debate-consensus",
+    "kind": "drift-sprawl",
+    "layers": [
+      "intentional",
+      "operational"
+    ],
+    "summary": "'political-debate-consensus' matches non-goal #2 (hobby/consumer) \u2014 demo-only. It dilutes the identity and is demo-only per non-goal #2.",
+    "evidence_refs": [
+      "eco:political-debate-consensus",
+      "non-goal:2 (draft)"
+    ],
+    "severity": "medium",
+    "recommended_action": "keep as proof-only or cut; do not feature.",
+    "provenance": {
+      "layer": "intent-declared",
+      "source_ref": "docs/tessera-intent.draft.md#C",
+      "confidence": "low",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "gap_id": "drift-sale-ready",
+    "kind": "drift-sprawl",
+    "layers": [
+      "intentional",
+      "operational"
+    ],
+    "summary": "'sale-ready' matches non-goal #2 (hobby/consumer) \u2014 demo-only. It dilutes the identity and is demo-only per non-goal #2.",
+    "evidence_refs": [
+      "eco:sale-ready",
+      "non-goal:2 (draft)"
+    ],
+    "severity": "medium",
+    "recommended_action": "keep as proof-only or cut; do not feature.",
+    "provenance": {
+      "layer": "intent-declared",
+      "source_ref": "docs/tessera-intent.draft.md#C",
+      "confidence": "low",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "gap_id": "drift-stage",
+    "kind": "drift-sprawl",
+    "layers": [
+      "intentional",
+      "operational"
+    ],
+    "summary": "'stage' matches non-goal #2 (hobby/consumer) \u2014 demo-only. It dilutes the identity and is demo-only per non-goal #2.",
+    "evidence_refs": [
+      "eco:stage",
+      "non-goal:2 (draft)"
+    ],
+    "severity": "medium",
+    "recommended_action": "keep as proof-only or cut; do not feature.",
+    "provenance": {
+      "layer": "intent-declared",
+      "source_ref": "docs/tessera-intent.draft.md#C",
+      "confidence": "low",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "gap_id": "drift-telco-customer-service",
+    "kind": "drift-sprawl",
+    "layers": [
+      "intentional",
+      "operational"
+    ],
+    "summary": "'telco-customer-service' matches non-goal #2 (hobby/consumer) \u2014 demo-only. It dilutes the identity and is demo-only per non-goal #2.",
+    "evidence_refs": [
+      "eco:telco-customer-service",
+      "non-goal:2 (draft)"
+    ],
+    "severity": "medium",
+    "recommended_action": "keep as proof-only or cut; do not feature.",
+    "provenance": {
+      "layer": "intent-declared",
+      "source_ref": "docs/tessera-intent.draft.md#C",
+      "confidence": "low",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  },
+  {
+    "gap_id": "drift-trip-planner",
+    "kind": "drift-sprawl",
+    "layers": [
+      "intentional",
+      "operational"
+    ],
+    "summary": "'trip-planner' matches non-goal #2 (hobby/consumer) \u2014 demo-only. It dilutes the identity and is demo-only per non-goal #2.",
+    "evidence_refs": [
+      "eco:trip-planner",
+      "non-goal:2 (draft)"
+    ],
+    "severity": "medium",
+    "recommended_action": "keep as proof-only or cut; do not feature.",
+    "provenance": {
+      "layer": "intent-declared",
+      "source_ref": "docs/tessera-intent.draft.md#C",
+      "confidence": "low",
+      "captured_at": "2026-07-27T04:01:33.617948Z"
+    }
+  }
+]

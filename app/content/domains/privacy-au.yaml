@@ -1,0 +1,130 @@
+domain: privacy-au
+name: Australian Privacy & Data Protection
+description: "Durable, cited AU privacy reference knowledge for regulated entities — the 13 Australian Privacy Principles, the statutory obligations they impose (securing personal information, the Notifiable Data Breaches scheme, overseas disclosure, direct marketing, access & correction), OAIC APP guideline chapters, published OAIC determinations/breach lessons, and privacy thresholds/timeframes/penalties. Composes with financial-regulatory-risk and cyber-security-risk for the Privacy/Data slice of enterprise risk. A specific system's PIA result, an incident breach assessment, or a compliance score are CONCLUSIONS — never cataloged. Ingest is declarative + blue/green-versioned (domains/privacy-au/catalog.yaml)."
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: privacy-principle
+  key: 'app-{number}'
+  description: "One of the 13 Australian Privacy Principles (APP 1–13) under the Privacy Act 1988."
+  status: active
+- type: privacy-obligation
+  key: '{obligation_id}'
+  description: "A concrete statutory duty for APP entities — secure PI (APP 11), notify an eligible data breach (NDB, Part IIIC), overseas disclosure (APP 8), direct marketing (APP 7), access & correction (APP 12/13), privacy policy (APP 1)."
+  status: active
+- type: privacy-guidance
+  key: '{guidance_id}'
+  description: "An OAIC APP guideline chapter (or other OAIC guidance) — key expectations + the principle it elaborates."
+  status: active
+- type: breach-precedent
+  key: '{determination_id}'
+  description: "A published OAIC determination or Notifiable-Data-Breaches insight — a durable 'what a privacy failure looks like' lesson. No complainant personal details."
+  status: active
+- type: privacy-figure
+  key: '{measure}-{as_at}'
+  description: "A dated privacy threshold/timeframe/penalty (small-business turnover threshold, NDB assessment window, max penalty for serious/repeated interference)."
+  status: active
+- type: legal-instrument
+  key: '{instrument_id}'
+  description: "The authoritative governing Act from the Federal Register of Legislation (legislation.gov.au) — register id + current in-force status; anchors the obligations to the source-of-truth law."
+  status: active
+conclusions_never_cataloged:
+- a specific system's or product's privacy-impact-assessment (PIA) result
+- a breach assessment / eligible-data-breach determination for a specific incident
+- a specific entity's privacy-compliance score or gap ranking for a run
+- a remediation plan for a specific system
+- board memo / recommendation for a specific matter
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: "declarative ingest domain (spec-declarative-ingest.md) — 5 types (privacy-principle, privacy-obligation, privacy-guidance, breach-precedent, privacy-figure). All sources LIVE OAIC / Federal Register via the grounded agentic normalizer; subdir declarative descriptor (domains/privacy-au/catalog.yaml) using the same blue/green versioned engine as cyber-security-risk and au-financial-advice. synthesis: none."
+catalog:
+  view:
+    default:
+      title:
+      - title
+      - name
+      - measure
+      subtitle:
+      - principle_key
+      - obligation_id
+      - guidance_id
+      - determination_id
+      - figure_key
+      summary:
+      - summary
+      - description
+      - issue
+      - value
+    privacy-principle:
+      title: title
+      subtitle: principle_key
+      summary: summary
+    privacy-obligation:
+      title: title
+      subtitle: obligation_id
+      summary: description
+      badge:
+        field: status
+        scale:
+          current: green
+          proposed: amber
+          amended: muted
+    privacy-guidance:
+      title: title
+      subtitle: guidance_id
+      summary: summary
+    breach-precedent:
+      title: issue
+      subtitle: determination_id
+      summary: lesson
+    privacy-figure:
+      title: measure
+      subtitle: as_at
+      summary: value
+    legal-instrument:
+      title: title
+      subtitle: instrument_id
+      summary: status
+  ingestion:
+    schedule: rate(30 days)
+    sources:
+    - id: legislation-privacy-act
+      mode: agent
+      produces:
+      - legal-instrument
+      authoritative_url: https://api.prod.legislation.gov.au/v1/titles?$filter=name eq 'Privacy Act 1988'
+      status: active
+    - id: oaic-app-principles
+      mode: agent
+      produces:
+      - privacy-principle
+      authoritative_url: https://www.oaic.gov.au/privacy/australian-privacy-principles/read-the-australian-privacy-principles
+      status: active
+    - id: oaic-app-guidelines
+      mode: agent
+      produces:
+      - privacy-guidance
+      authoritative_url: https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines
+      status: active
+    - id: oaic-org-obligations
+      mode: agent
+      produces:
+      - privacy-obligation
+      authoritative_url: https://www.oaic.gov.au/privacy/privacy-guidance-for-organisations-and-government-agencies
+      status: active
+    - id: oaic-ndb-scheme
+      mode: agent
+      produces:
+      - privacy-obligation
+      authoritative_url: https://www.oaic.gov.au/privacy/notifiable-data-breaches
+      status: active
+    - id: oaic-privacy-figures
+      mode: agent
+      produces:
+      - privacy-figure
+      authoritative_url: https://www.oaic.gov.au/privacy/privacy-guidance-for-organisations-and-government-agencies
+      status: active

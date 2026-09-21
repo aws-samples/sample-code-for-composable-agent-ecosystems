@@ -1,0 +1,18 @@
+# Shared code provided to Lambdas by the shared Layer — the SINGLE SOURCE OF TRUTH.
+#
+# Both the CDK layer build (platform_stack + ingest_stack) and the import smoke test
+# (scripts/check-lambda-imports.py) read this file, so the two can never diverge.
+# deploy-lambdas.sh no longer vendors these into each zip — the layer is the sole owner.
+#
+# Add a new shared module here the moment a Lambda imports it; the smoke test fails
+# otherwise (which is exactly what would have caught tessera_platform.decision going
+# missing from the layer and silently disabling the decision engine).
+#
+# Entries: "<file>.py" (a top-level module) or "<pkg>/<sub>" (a package subdir).
+auth.py
+pricing.py
+tessera_platform/catalog
+tessera_platform/decision
+tessera_platform/evaluation
+tessera_platform/export
+tessera_platform/quorum

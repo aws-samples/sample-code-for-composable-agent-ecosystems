@@ -1,0 +1,194 @@
+# PLATFORM ecosystem — system-managed catalog infrastructure (users cannot edit).
+# The one agentic part of "producing" the cyber-security-risk catalog: reasons the
+# raw entities the ingestion Lambda populates (attack-technique, vulnerability,
+# security-control, breach) into durable `risk` records. Ingestion itself is the
+# catalog-ingest Lambda (infra), NOT an eco. Spec: docs/spec-risk-reasoning.md §3b.
+platform: true
+ecosystem:
+  name: risk-synthesis
+  description: >
+    Synthesises authoritative risk catalog entries for the cyber-security-risk domain.
+    Reads the raw entities the ingestion pipeline populates (techniques, vulnerabilities,
+    controls, breach base-rates) and reasons them into durable `risk` records with
+    cross-links, severity, exposure ranges, and FAIR defaults. Durable reference
+    entities — NOT per-org assessments (that is risk-assessment).
+  version: "1.0"
+
+domains: [cyber-security-risk]
+strategy: orchestrated
+report: false
+quality:
+  challenger: true
+  grounding: true
+  # Automated system producer — no human present (and the future Map fan-out has none
+  # either). Gates annotate but never pause (ask -> warn), so the run completes headless.
+  gates:
+    format: warn
+    grounding: warn
+    citation: warn
+    output_kind: warn
+
+memory:
+  shared_namespaces:
+    - name: risk_catalog
+      path: /catalog/risk/
+      write: [risk_synthesizer]
+      read: [all]
+      auto_persist: true
+    # Domain read-inheritance (raw reference entities the synthesizer reasons over).
+    # Baked into the repo (platform eco = repo is source of truth) rather than added
+    # by domains /apply, which mutates the S3 YAML and would be clobbered on redeploy.
+    # read-only (write:[] + auto_persist:false) → can never become a fan-out anti-pattern.
+    - name: attack_technique_catalog
+      path: /catalog/attack-technique/
+      write: []
+      read: [all]
+      auto_persist: false
+    - name: vulnerability_catalog
+      path: /catalog/vulnerability/
+      write: []
+      read: [all]
+      auto_persist: false
+    - name: security_control_catalog
+      path: /catalog/security-control/
+      write: []
+      read: [all]
+      auto_persist: false
+    - name: agentic_threat_catalog
+      path: /catalog/agentic-threat/
+      write: []
+      read: [all]
+      auto_persist: false
+    - name: breach_catalog
+      path: /catalog/breach/
+      write: []
+      read: [all]
+      auto_persist: false
+
+agents:
+  - id: risk_synthesizer
+    name: Risk Catalog Synthesizer
+    output_kind: analyst
+    depends_on: []
+    tools: [memory_read, memory_search, code_interpreter, memory_write]
+    prompt: >
+      You are given ONE risk cluster in the run mission: a coherent ATT&CK-tactic theme
+      with its attack-techniques, their cross-linked mitigating security-controls, and
+      actively-exploited (ransomware) vulnerability context.
+      OR the cluster may be an AI/AGENTIC theme — it has `kind: ai` and a `threats` list
+      (OWASP LLM/Agentic Top-10) plus a `gai_risk_catalog` (NIST AI 600-1). For an AI
+      cluster: set every risk's `category` = "ai-agent-compromise"; base the risks on the
+      OWASP threats; and in `frameworks` emit `nist_ai_rmf {function: "GOVERN|MAP|MEASURE|
+      MANAGE", dimensions: [...]}`, `nist_ai_600_1: [mapped gai_risk_id(s)]`, and
+      `owasp: [threat_id(s)]` INSTEAD of nist_csf / nist_800_30_threat_events. Use the SAME
+      `open_fair` factor shape as below (every factor `{estimate, basis}`; do NOT nest).
+      OR the cluster may be a BUSINESS-SCENARIO theme — it has `kind: scenario`, a target
+      `category`, plus matched `techniques`, `controls`, and `breach_exemplars`. For a
+      scenario cluster: emit every risk with `category` = the cluster's `category` EXACTLY
+      (do NOT relabel it), framed as that business outcome, grounded in the supplied
+      techniques + breach exemplars; use the traditional `nist_csf` + `nist_800_30` anchors.
+      OR the cluster may be an AI-GOVERNANCE theme — it has `kind: governance`, a target
+      `category` (one of: fairness-bias, transparency, accountability, safety, privacy,
+      societal-harm, environmental), plus `gai_risks` (NIST AI 600-1), `obligations`
+      (EU AI Act articles), `controls` (NIST AI RMF GOVERN/MAP/MEASURE/MANAGE) and real
+      `incident_exemplars`. For a governance cluster: emit every risk with `category` = the
+      cluster's `category` EXACTLY, framed as a GOVERNANCE risk (harm to people/rights/
+      society, not a security compromise), grounded in the `gai_risks` + `incident_exemplars`.
+      In `frameworks` emit `eu_ai_act: [obligation article(s) from the cluster]`,
+      `nist_ai_rmf {function, dimensions}` (from the cluster's controls), and
+      `nist_ai_600_1: [focus gai_risk_id(s)]` INSTEAD of nist_csf / nist_800_30. Use the SAME
+      `open_fair` factor shape (every factor `{estimate, basis}`; estimates may be qualitative
+      likelihood/impact, NOT org-specific $). `mapped_controls` should reference the NIST AI
+      RMF `control_id`s. `key_stats` should cite the incident exemplars + credible AI-harm sources.
+      Reason DEEPLY over THIS cluster ONLY — do NOT scan the full catalog.
+      ENUMERATION IS PRE-DETERMINED: the mission includes a `slots` array — the explicit,
+      standards-derived list of the risks you MUST produce. Emit EXACTLY ONE record per
+      slot: use the slot's `slot_id` VERBATIM as `risk_id`, the slot's `category` VERBATIM
+      as `category`, and ground the record in that slot's `focus_technique_ids` (or
+      `focus_threat` for AI) plus the cluster context. Do NOT invent extra risks, do NOT
+      merge or drop slots, do NOT renumber ids. Produce one fenced ```json block per slot,
+      all fully enriched. (If no `slots` array is present, fall back to enumerating every
+      distinct material risk in the cluster.)
+      Output BOTH:
+      (1) a brief `## STRUCTURED FINDINGS` section (your key claims + evidence), then
+      (2) ONE fenced ```json block PER risk record — each a JSON object with fields:
+        risk_id (RSK-<CAT>-NNN), title (friendly, human), icon (a single emoji),
+        category — a FRIENDLY business-scenario, EXACTLY one of: [data-breach, ransomware,
+          insider-threat, supply-chain, identity-access, service-disruption,
+          regulatory-compliance, ip-theft, reputational, ai-agent-compromise,
+          fairness-bias, transparency, accountability, safety, privacy, societal-harm, environmental],
+        severity_default, threat_narrative (plain-language, RICH, grounded in the context),
+        sources{attack_techniques, controls}, base_rates,
+        frameworks {   # STANDARD anchors — make the risk defensible + cross-mappable
+          open_fair {  # The Open Group O-RT factor taxonomy. EVERY factor is EXACTLY
+                       # { estimate: "<range or qualitative — NEVER an org-specific single $>",
+                       #   basis: "<why this range>" }. loss_event_frequency is its OWN
+                       # factor — do NOT nest threat_event_frequency/vulnerability inside it.
+            loss_event_frequency:     { estimate, basis },
+            threat_event_frequency:   { estimate, basis },
+            vulnerability:            { estimate, basis },
+            primary_loss_magnitude:   { estimate, basis },
+            secondary_loss_magnitude: { estimate, basis } },
+          nist_csf { function: "GV|ID|PR|DE|RS|RC", categories: ["e.g. PR.DS","DE.CM"] },
+          nist_800_30_threat_events: ["representative NIST SP 800-30 threat event(s)"] },
+        mapped_controls [{control_id, control_name, efficacy: "High|Medium|Low",
+          note: "how it reduces THIS risk"}] — ALWAYS include control_name (available in
+          the cluster's controls); never emit bare control ids,
+        attack_paths: [ {tactic, technique_ids: [ids from this cluster], breaking_controls:
+          [control_ids that break THIS step]} ] — 1-3 ordered kill-chain paths from
+          initial-access toward impact, using ONLY this cluster's technique/control ids,
+        mitigation: { quick_wins: [{control_ids: [], action: "concrete generic action",
+          residual: "what remains"}], strategic: [{control_ids: [], action, residual}] }
+          — prioritized "what to do" (quick_wins = high-efficacy/low-effort first),
+        board_framing: { one_liner: "exec-facing sentence", decisive_question: "the one
+          question a board must answer", recommended_posture: "mitigate|accept|transfer",
+          asymmetry: "bounded mitigation cost vs unbounded tail loss" } — GENERIC framing,
+          NOT an org verdict,
+        key_stats: [ {stat: "the figure + what it measures", source: "recognized report
+          e.g. Verizon DBIR | IBM Cost of a Data Breach | FBI IC3 | ENISA | CISA",
+          year: "YYYY"} ] — 2-4 credible industry stats. Do NOT invent URLs; cite
+          source + year only (the UI links the source),
+        provenance,
+        AND a `methodology` block that frames this risk through five GENERIC
+        (uncontextualized) analytic lenses — the reusable "how to reason about this risk",
+        NOT tied to any specific organisation:
+        methodology.taleb: {fragility: "fragile|robust|antifragile", asymmetry: "the
+          payoff asymmetry (bounded mitigation cost vs unbounded tail loss)", convexity:
+          "why the loss curve is convex/concave", tail_risk: "why losses are tail-heavy",
+          key_question: "the decisive Taleb question for this risk"}
+        methodology.bow_tie: {top_event: "the central risk event", threats: ["threat
+          sources / ATT&CK techniques that lead to it"], consequences: ["what results if
+          it occurs"], preventive_barriers: ["controls that stop it — from your preventive
+          controls"], recovery_barriers: ["controls that limit damage after — detective/
+          responsive"]}
+        methodology.decision_tree: {options: [{option: "Mitigate|Accept|Transfer",
+          generic_cost: "typical cost class", residual_risk: "what remains", emv_logic:
+          "generic expected-value reasoning using the FAIR ranges — NO org-specific $"}],
+          recommendation_logic: "generic decision rule (not an org verdict)"}
+        methodology.pre_mortem: {failure_modes: [{scenario: "a common way mitigating this
+          risk fails in practice", why: "root cause"}]}
+      Keep the methodology STRICTLY GENERIC — industry framing + ranges only, no org
+      names and no single dollar figure presented as "the answer". Each json block becomes
+      ONE durable catalog record keyed by risk_id. Make the threat_narrative and FAIR
+      ranges RICH and grounded in the exploited context. You MAY memory_read a specific
+      technique or control id for extra detail, but keep it bounded. These are durable
+      reference facts — never a per-org assessment or verdict.
+  - id: risk_validator
+    name: Risk Entry Validator
+    output_kind: challenger
+    depends_on: [risk_synthesizer]
+    tools: [memory_read]
+    prompt: >
+      Validate each synthesised risk: cross-linked technique/control ids actually exist
+      in the catalog; `frameworks.open_fair` ranges are well-formed [min<=max]; `category`
+      is one of the allowed business-scenarios; `frameworks.nist_csf.function` is a valid
+      CSF 2.0 function; no per-org conclusion or dollar figure leaked in. Also check
+      `attack_paths` reference only ids present in the cluster; `board_framing.
+      recommended_posture` is mitigate|accept|transfer; `key_stats` cite source + year and
+      contain NO fabricated URLs. When the mission carries a `slots` array, enforce SLOT
+      FIDELITY: every emitted `risk_id` must equal a slot's `slot_id` and its `category`
+      must equal that slot's `category` VERBATIM; there must be exactly one record per slot
+      (no missing slots, no extra/renumbered ids). Any deviation → verdict WEAK. Otherwise
+      check the set is COMPREHENSIVE — flag if the cluster's obvious material risks are under-
+      enumerated. Any BLOCKER (missing/invalid link, malformed FAIR, bad category/CSF,
+      conclusion masquerading as a durable entity) → verdict WEAK.

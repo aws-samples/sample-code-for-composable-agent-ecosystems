@@ -1,0 +1,167 @@
+ecosystem:
+  name: ai-policy-builder
+  description: Help a $50M Australian performing arts organization draft a consolidated
+    AI governance policy aligned to NIST AI RMF, ISO/IEC 42001, and the Australian
+    Privacy Act, covering both org-wide and creative/artistic AI use
+  version: '1.0'
+strategy: orchestrated
+report: true
+tags:
+- ai-governance
+- policy
+- compliance
+- arts
+quality:
+  challenger: per_level
+  challenger_gate:
+    block_below: ADEQUATE
+  grounding: true
+  gates:
+    citation: ask
+    format: ask
+    grounding: ask
+    output_kind: ask
+outcome:
+  kind: file_artifact
+  audience: board of directors, management team, staff
+  artifacts:
+  - id: policy_html
+    agent: policy_drafter
+    format: html
+    save_as: ai-governance-policy.html
+    download_label: Download AI Governance Policy (HTML)
+entry_point: nist_researcher
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: ai_policy_builder_findings
+    write:
+    - all
+    read:
+    - all
+agents:
+- id: nist_researcher
+  name: NIST AI RMF Researcher
+  registry_id: tessera/nist_researcher
+  swarm: research
+  tools:
+  - web_search
+  - memory_write
+  prompt: "You research the NIST AI Risk Management Framework (AI RMF 1.0) and its\
+    \ Generative AI Profile. Identify the core functions (GOVERN, MAP, MEASURE, MANAGE)\
+    \ and the categories/subcategories most relevant to a ~$50M Australian performing\
+    \ arts organization using AI in both operations (HR screening, audience analytics,\
+    \ fundraising) and creative work (generative content, likeness). Cite official\
+    \ NIST sources. Publish structured findings: {framework, applicable_controls[],\
+    \ policy_clauses_suggested[], arts_specific_notes[], sources[]} to shared memory.\
+    \ Do NOT invent control IDs \u2014 verify them."
+- id: iso42001_researcher
+  name: ISO/IEC 42001 Researcher
+  registry_id: tessera/iso42001_researcher
+  swarm: research
+  tools:
+  - web_search
+  - memory_write
+  prompt: Research ISO/IEC 42001:2023 (AI Management System). Identify the management
+    system clauses (context, leadership, planning, support, operation, performance
+    evaluation, improvement) and Annex A controls that a $50M performing arts organisation
+    should adopt. Note interactions with creative AI use (impact assessments, data
+    quality, third-party generative tools). Cite the standard and reputable secondary
+    sources. Publish {clauses[], annex_a_controls[], policy_mapping[], sources[]}
+    to shared memory. Flag any control you cannot verify.
+- id: au_privacy_researcher
+  name: AU Privacy Act Researcher
+  registry_id: tessera/au_privacy_researcher
+  swarm: research
+  tools:
+  - web_search
+  - memory_write
+  prompt: "Research the Australian Privacy Act 1988, the 13 Australian Privacy Principles\
+    \ (APPs), the Notifiable Data Breaches scheme, and current reform proposals (2023-2024\
+    \ Privacy Act Review) that affect AI use \u2014 particularly automated decision-making,\
+    \ biometric data (performer likeness), and personal information used to train\
+    \ or run AI. Cite OAIC and legislation.gov.au. Publish {obligations[], apps_referenced[],\
+    \ ai_specific_provisions[], reform_watch[], sources[]} to shared memory."
+- id: arts_context_researcher
+  name: Performing Arts Context Researcher
+  registry_id: tessera/arts_context_researcher
+  swarm: research
+  tools:
+  - web_search
+  - memory_write
+  prompt: 'Research how mid-size performing arts organisations use AI: generative
+    content in productions, digital doubles / performer likeness, audience CRM & personalization,
+    dynamic ticket pricing, accessibility (captioning, audio description), donor analytics,
+    HR screening. Identify sector-specific risks: MEAA/union positions on AI, copyright
+    and moral rights for performers, ethical use of deceased artists'' likenesses,
+    audience trust. Cite sector bodies (Live Performance Australia, Australia Council/Creative
+    Australia, MEAA, Arts Law). Publish {use_cases[], risks[], stakeholder_concerns[],
+    sources[]} to shared memory.'
+- id: policy_architect
+  name: Policy Architect
+  registry_id: tessera/policy_architect
+  swarm: synthesis
+  depends_on:
+  - nist_researcher
+  - iso42001_researcher
+  - au_privacy_researcher
+  - arts_context_researcher
+  tools:
+  - memory_read
+  - memory_write
+  prompt: 'Read all four researchers'' findings from shared memory. Produce a unified
+    policy outline with sections: (1) Purpose & Scope, (2) Governance & Roles, (3)
+    Principles (aligned to NIST GOVERN + ISO 42001 leadership), (4) AI Lifecycle Controls
+    (MAP/MEASURE/MANAGE + ISO Annex A), (5) Data & Privacy (APPs), (6) Creative &
+    Artistic AI (generative content, performer likeness, consent), (7) Third-Party
+    & Vendor Management, (8) Risk Assessment & Impact Analysis, (9) Incident Response
+    & Breach Notification, (10) Training & Awareness, (11) Monitoring, Review & Continuous
+    Improvement, (12) Definitions, (13) Framework Cross-Reference Matrix. For every
+    clause, tag which framework control(s) it satisfies. Publish {outline, cross_reference_matrix,
+    draft_clauses} to shared memory.'
+- id: policy_drafter
+  name: Policy HTML Drafter
+  registry_id: tessera/policy_drafter
+  swarm: drafter
+  depends_on:
+  - policy_architect
+  tools:
+  - memory_read
+  - code_interpreter
+  output_kind: drafter
+  output_format:
+    type: html
+    save_as: ai-governance-policy.html
+    validate: true
+  prompt: 'Read the policy outline, draft clauses, and cross-reference matrix from
+    shared memory. Produce a single self-contained HTML file: title page, executive
+    summary, table of contents (anchor links), all 13 sections fully drafted in formal
+    policy language for a $50M Australian performing arts organisation, and a framework
+    cross-reference appendix table (clause -> NIST AI RMF subcategory / ISO 42001
+    clause / APP). Use clean embedded CSS (readable serif body, sans-serif headings,
+    print-friendly). Include a version/effective-date/owner header block with placeholders.
+    Save the file via code_interpreter as ai-governance-policy.html.'
+swarms:
+  research:
+    agents:
+    - nist_researcher
+    - iso42001_researcher
+    - au_privacy_researcher
+    - arts_context_researcher
+    strategy: graph
+  synthesis:
+    agents:
+    - policy_architect
+    strategy: graph
+  drafter:
+    agents:
+    - policy_drafter
+    strategy: graph
+parallel_swarms:
+- research
+- synthesis
+- drafter
+triggers:
+- type: manual
+owner: 54f8b438-a051-700a-5df3-1d813770b9df

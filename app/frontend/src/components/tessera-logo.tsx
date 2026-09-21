@@ -1,0 +1,29 @@
+"use client";
+
+export function TesseraLogo({ size = 32 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tessera logo">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#6c8cff" stopOpacity="0.9"/><stop offset="100%" stopColor="#4f6fdf" stopOpacity="0.7"/></linearGradient>
+        <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#fb923c" stopOpacity="0.9"/><stop offset="100%" stopColor="#ea580c" stopOpacity="0.7"/></linearGradient>
+        <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#ef4444" stopOpacity="0.9"/><stop offset="100%" stopColor="#dc2626" stopOpacity="0.7"/></linearGradient>
+        <linearGradient id="g4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#fbbf24" stopOpacity="0.9"/><stop offset="100%" stopColor="#d97706" stopOpacity="0.7"/></linearGradient>
+        <linearGradient id="g5" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#22d3ee" stopOpacity="0.9"/><stop offset="100%" stopColor="#0891b2" stopOpacity="0.7"/></linearGradient>
+      </defs>
+      {/* Central star */}
+      <polygon fill="url(#g5)" stroke="#22d3ee" strokeWidth="2" points="250,180 261.5,222.3 299.5,200.5 277.7,238.5 320,250 277.7,261.5 299.5,299.5 261.5,277.7 250,320 238.5,277.7 200.5,299.5 222.3,261.5 180,250 222.3,238.5 200.5,200.5 238.5,222.3"/>
+      {/* Inner tiles */}
+      <polygon fill="url(#g1)" stroke="#6c8cff" strokeWidth="1" points="250,185 227.7,162.8 250,110 272.3,162.8"/>
+      <polygon fill="url(#g1)" stroke="#6c8cff" strokeWidth="1" points="315,250 337.2,227.7 390,250 337.2,272.3"/>
+      <polygon fill="url(#g2)" stroke="#fb923c" strokeWidth="1" points="250,315 272.3,337.2 250,390 227.7,337.2"/>
+      <polygon fill="url(#g3)" stroke="#ef4444" strokeWidth="1" points="185,250 162.8,272.3 110,250 162.8,227.7"/>
+      <polygon fill="url(#g4)" stroke="#fbbf24" strokeWidth="1" points="296,204 295.9,172.6 349,151 327.4,204.1"/>
+      <polygon fill="url(#g4)" stroke="#fbbf24" strokeWidth="1" points="204,296 204.1,327.4 151,349 172.6,295.9"/>
+      <polygon fill="url(#g3)" stroke="#ef4444" strokeWidth="1" points="204,204 172.6,204.1 151,151 204.1,172.6"/>
+      <polygon fill="url(#g2)" stroke="#fb923c" strokeWidth="1" points="296,296 327.4,295.9 349,349 295.9,327.4"/>
+      {/* Center jewel */}
+      <circle cx="250" cy="250" r="8" fill="#22d3ee" opacity="0.8" style={{filter: "drop-shadow(0 0 8px rgba(34,211,238,0.6))"}}/>
+      <circle cx="250" cy="250" r="3.5" fill="#fff" opacity="0.95"/>
+    </svg>
+  );
+}

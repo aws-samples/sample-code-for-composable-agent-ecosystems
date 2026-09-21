@@ -1,0 +1,71 @@
+domain: accounting-tax-au
+name: Australian Accounting & Tax Risk
+description: "Durable, cited AU accounting- and tax-risk reference knowledge for regulated firms — the governing statutes (Income Tax Assessment Act 1997/1936, Corporations Act 2001 financial reporting), Australian Accounting Standards (AASB), and ATO tax guidance. Covers the Accounting & Tax slice of enterprise NFR; composes with financial-regulatory-risk. An entity's accounting treatment, tax position, provision, or disclosure judgement for a run are CONCLUSIONS — never cataloged. Legal instruments come from the Federal Register of Legislation OData API; accounting standards from the AASB; tax-guidance is populated bottom-up. Ingest is declarative + blue/green-versioned (domains/accounting-tax-au/catalog.yaml)."
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: legal-instrument
+  key: '{instrument_id}'
+  description: "An authoritative governing Act (Income Tax Assessment Act 1997/1936, Corporations Act 2001 financial reporting) from the Federal Register of Legislation — register id + in-force status."
+  status: active
+- type: accounting-standard
+  key: '{standard_id}'
+  description: "An Australian Accounting Standard (AASB) — number, title, and objective (AASB 9/15/16/112/137, etc.)."
+  status: active
+- type: tax-guidance
+  key: '{guidance_id}'
+  description: "An ATO ruling / guidance item (taxation ruling, practical compliance guideline). Populated bottom-up from runs."
+  status: active
+conclusions_never_cataloged:
+- an entity's accounting treatment / recognition / measurement judgement for a run
+- a tax position, effective-tax-rate, or provision for a specific entity
+- a disclosure adequacy assessment for a specific report
+- a materiality determination for a specific matter
+- board memo / recommendation for a specific matter
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: "declarative ingest domain — 3 types (legal-instrument, accounting-standard, tax-guidance). legal-instrument via the Federal Register of Legislation OData API (reliable); accounting-standard via the AASB standards list (best-effort); tax-guidance bottom-up. Same blue/green engine as the other domains. synthesis: none."
+catalog:
+  view:
+    default:
+      title:
+      - title
+      subtitle:
+      - instrument_id
+      - standard_id
+      - guidance_id
+      summary:
+      - status
+      - objective
+      - summary
+    legal-instrument:
+      title: title
+      subtitle: instrument_id
+      summary: status
+    accounting-standard:
+      title: title
+      subtitle: standard_id
+      summary: objective
+    tax-guidance:
+      title: title
+      subtitle: guidance_id
+      summary: summary
+  ingestion:
+    schedule: rate(30 days)
+    sources:
+    - id: legislation-accounting-tax-acts
+      mode: agent
+      produces:
+      - legal-instrument
+      authoritative_url: https://api.prod.legislation.gov.au/v1/titles?$filter=id eq 'C2004A05138' or id eq 'C1936A00027' or id eq 'C2004A00818'  # pragma: allowlist secret — public AU legislation instrument IDs in a legislation.gov.au API URL, not a secret
+      status: active
+    - id: aasb-standards
+      mode: agent
+      produces:
+      - accounting-standard
+      authoritative_url: https://standards.aasb.gov.au/accounting-standards
+      status: active

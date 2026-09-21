@@ -1,0 +1,391 @@
+ecosystem:
+  name: operational-resilience-war-room
+  description: |
+    Operational resilience tabletop exercise designed for regulated entities. Operator (Chief
+    Risk Officer, CISO, Head of OpRes) provides an entity profile and the
+    critical operation under test. Optionally specifies a scenario type;
+    otherwise the scenario architect picks a credible threat. Multiple impact
+    analysts assess in parallel; an incident commander synthesises; a
+    regulatory-report drafter produces a CPS 234 / SOCI / NDB-grade incident
+    notification with full citation index. A challenger red-teams the response,
+    and a post-mortem composer writes lessons-learned to /catalog/post-mortems/
+    so future runs (or other ecosystems) compound the institutional memory.
+
+    Tuned for APRA-regulated entities under CPS 230 + CPS 234 + CPS 232,
+    SOCI critical-infrastructure obligations, and the Privacy Act NDB scheme.
+    Architecture extends to DORA (EU), OSFI E-21 (Canada), MAS / HKMA / JFSA
+    (APJ) by swapping the regulator-mapping prompts.
+  version: "1.0"
+  inputs:
+  - id: entity_profile
+    type: text
+    label: "Entity profile (e.g. 'Tier-2 ADI, ~A$30B assets, ~3M retail customers, APRA-regulated, ASX-listed')"
+    required: true
+  - id: critical_operation
+    type: text
+    label: "Critical operation under test (e.g. 'retail mobile banking authentication', 'wholesale payments rails', 'super contributions processing')"
+    required: true
+  - id: scenario_hint
+    type: text
+    label: "Scenario hint (optional — leave blank for architect to pick; e.g. 'critical SaaS outage', 'ransomware on core ledger', 'cloud region failure')"
+    required: false
+
+strategy: orchestrated
+report: true
+
+outcome:
+  kind: file_artifact
+  audience: Chief Risk Officer, CISO, Head of Operational Resilience, legal counsel, regulator
+  artifacts:
+  - id: opres_incident_dossier_html
+    agent: regulatory_report_drafter
+    format: html
+    save_as: opres-incident-dossier.html
+    download_label: Download Incident Notification Dossier (HTML)
+
+quality:
+  challenger: true
+  grounding: true
+  external_grounding: true
+
+memory:
+  strategies: [semantic]
+  shared_namespaces:
+    # Scenario library — past disruption scenarios this entity (or industry) has
+    # rehearsed. Reads from past runs; writes new scenarios for future reuse.
+  - name: disruption_scenario_catalog
+    path: /catalog/disruption-scenario/
+    write: [scenario_architect]
+    read: [all]
+    auto_persist: true
+    # Post-mortem catalog. Cross-ecosystem readable so risk-reasoning,
+    # ai-acquisition-war-room, etc. can consult institutional lessons learned.
+  - name: post_mortem_catalog
+    path: /catalog/post-mortem/
+    write: [all]
+    read: [all]
+    auto_persist: true
+    # Regulator-precedent catalog — known regulator decisions / enforcement
+    # actions on similar incidents. Read-only here; populated by risk-reasoning.
+  - name: regulator_precedents
+    path: /catalog/regulator-precedents/
+    write: []
+    read: [regulatory_obligation_analyst, regulatory_report_drafter]
+    # Threat intel / CVE catalog — read-only consumer.
+  - name: vulnerability_catalog
+    path: /catalog/vulnerability/
+    write: []
+    read: [scenario_architect, recovery_planner]
+  - name: model_catalog
+    path: /catalog/model/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: regulatory_requirement_catalog
+    path: /catalog/regulatory-requirement/
+    write:
+    - regulatory_obligation_analyst
+    read:
+    - all
+    auto_persist: true
+  - name: control_catalog
+    path: /catalog/control/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: finding_pattern_catalog
+    path: /catalog/finding-pattern/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: grading_rubric_catalog
+    path: /catalog/grading-rubric/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: recovery_procedure_catalog
+    path: /catalog/recovery-procedure/
+    write:
+    - recovery_planner
+    - incident_commander
+    read:
+    - all
+    auto_persist: true
+  - name: communications_playbook_catalog
+    path: /catalog/communications-playbook/
+    write:
+    - communications_strategist
+    read:
+    - all
+    auto_persist: true
+
+agents:
+  # ─────────────────────────── LAYER 0: scenario architect ───────────────────────────
+- id: scenario_architect
+  name: Scenario Architect
+  swarm: setup
+  depends_on: []
+  tools: [web_search, memory_read, memory_write, current_time, generateUI]
+  tool_budget:
+    web_search: 6          # recent threat intel + analogous past incidents
+  prompt: |
+    Your specific contribution: design ONE credible, time-boxed disruption
+    scenario for the entity's critical operation under test. The scenario
+    must be plausible (not Hollywood), recent-threat-informed, and specific
+    enough that downstream impact analysts can quantify consequences.
+
+    You do NOT: assess impacts (six impact analysts handle that), draft
+    regulatory reports (regulatory_report_drafter), or recommend response
+    (incident_commander).
+
+    Method:
+    - Read /catalog/scenarios/ for what this entity has rehearsed before;
+      deliberately pick something different (operators learn nothing from
+      re-running the same scenario)
+    - Read /catalog/cve/ for currently-trending threat techniques
+    - Use web_search sparingly to ground the scenario in 2026 reality (one
+      analogous public incident in the last 12 months)
+    - Honor the operator's `scenario_hint` if provided; otherwise pick from
+      the realistic threat space
+
+    Render via generateUI: a one-page scenario brief (Title, Threat Actor,
+    Initial Indicator, Affected Systems, Time-of-Day, Sequence Timeline).
+
+    STRUCTURED FINDINGS: each claim is a discrete scenario fact (timing,
+    affected system, threat-actor profile, observed indicators) that
+    downstream analysts will reason about. Cite analogous public incidents.
+
+    Write the final scenario brief to /catalog/scenarios/ for future reuse.
+
+  # ─────────────────────────── LAYER 1: impact analysts (parallel) ───────────────────────────
+- id: business_impact_analyst
+  name: Business Impact Analyst
+  swarm: impact
+  depends_on: [scenario_architect]
+  tools: [memory_read, code_interpreter, calculator, generateUI]
+  prompt: |
+    Your specific contribution: quantify business-process and revenue impact
+    from the scenario. Which products/services degrade or stop. Revenue at
+    risk per hour. SLA/contract penalties. Reputational delta vs. peers.
+
+    You do NOT: model customer-facing impact (customer_impact_analyst),
+    financial P&L deep dive (financial_loss_modeler), regulatory consequences
+    (regulatory_obligation_analyst), comms (communications_strategist), or
+    recovery (recovery_planner).
+
+    Method:
+    - Use code_interpreter to model degradation timeline (which products
+      fail at T+0, T+15min, T+1hr, T+4hr, T+24hr based on dependency chains)
+    - Use calculator to compute revenue-at-risk per hour and cumulative
+      through 24 hours
+    - Render a Gantt-style impact timeline + revenue waterfall via generateUI
+
+    Cite [per scenario_architect: ...] for each scenario fact you anchor on.
+    Use [novel — reason] only for inferences with no upstream basis.
+
+- id: customer_impact_analyst
+  name: Customer Impact Analyst
+  swarm: impact
+  depends_on: [scenario_architect]
+  tools: [memory_read, calculator, generateUI]
+  prompt: |
+    Your specific contribution: assess customer-facing impact across
+    channels (mobile, branch, call centre, third-party integrations,
+    partner APIs). Identify customer cohorts most affected (vulnerable
+    customers, high-value, business). Quantify support-load surge.
+
+    You do NOT: model business revenue (business_impact_analyst), draft
+    customer messaging (communications_strategist), or assess regulatory
+    consequences of customer harm (regulatory_obligation_analyst).
+
+    Method:
+    - Use calculator to estimate affected-customer counts by channel
+    - Render via generateUI: cohort heatmap (rows: customer segments;
+      columns: severity over time)
+
+    Cite scenario_architect for the scenario specifics. Be explicit about
+    vulnerable-customer cohorts (APRA scrutinises this; see CPS 230 §32-33).
+
+- id: financial_loss_modeler
+  name: Financial Loss Modeler
+  swarm: impact
+  depends_on: [scenario_architect]
+  tools: [memory_read, code_interpreter, calculator, generateUI]
+  tool_budget:
+    code_interpreter: 6
+  prompt: |
+    Your specific contribution: model the full P&L impact — direct losses,
+    remediation costs, third-party penalties, regulatory fines (probable
+    not guaranteed), capital implications. Produce a single dollar number
+    with confidence intervals.
+
+    You do NOT: model business-process degradation (business_impact_analyst
+    handles operational metrics), assess customer harm (customer_impact),
+    cover regulatory obligations (regulatory_obligation_analyst).
+
+    Method:
+    - Use code_interpreter to build a P&L decomposition: direct loss,
+      remediation, third-party (contracts, vendors, indemnification), fines,
+      capital absorption, reputation-discount
+    - Use calculator for sanity checks
+    - Render via generateUI: stacked-bar P&L waterfall + 1-line headline number
+
+    Cite scenario_architect; cite business_impact_analyst if you draw on
+    its operational numbers (depends_on does not include it — but if the
+    synthesiser provides upstream context, treat it as a tool input).
+
+- id: regulatory_obligation_analyst
+  name: Regulatory Obligation Analyst
+  swarm: impact
+  depends_on: [scenario_architect]
+  tools: [memory_read, generateUI]
+  prompt: |
+    Your specific contribution: for THIS scenario at THIS entity, enumerate
+    every regulatory notification or report that becomes mandatory, the
+    deadlines, and the addressee. APRA CPS 234 (72 hours), SOCI Act
+    (12 hours for SoNS-classified entities), Privacy Act NDB (no fixed
+    hours but soon as practicable, with eligibility criteria). Foreign
+    regulators if data crosses borders.
+
+    You do NOT: draft the actual reports (regulatory_report_drafter does
+    that downstream). You produce the OBLIGATION CHECKLIST.
+
+    Method:
+    - Read /catalog/regulator-precedents/ for analogous past notifications
+    - Render via generateUI: a notification timeline (regulator | deadline |
+      threshold-test | addressee | citation to the rule)
+
+    Cite scenario_architect. For each obligation, cite the specific
+    legislative provision or prudential standard ID.
+
+- id: communications_strategist
+  name: Communications Strategist
+  swarm: impact
+  depends_on: [scenario_architect]
+  tools: [memory_read, generateUI]
+  prompt: |
+    Your specific contribution: draft outline messaging for four audiences:
+    (a) customers, (b) staff, (c) the regulator, (d) media/market. For each
+    audience: tone, channel, timing, what to say, what NOT to say (legal
+    privilege, ongoing investigation), escalation triggers.
+
+    You do NOT: assess business or financial impact (business_impact and
+    financial_loss handle that), draft formal regulatory reports
+    (regulatory_report_drafter).
+
+    Method:
+    - Render via generateUI: a 4-column messaging matrix
+      (audience | timing | channel | message draft)
+
+    Cite scenario_architect for scenario facts. Note explicitly when
+    messages depend on incident_commander's severity classification
+    (downstream).
+
+- id: recovery_planner
+  name: Recovery Planner
+  swarm: impact
+  depends_on: [scenario_architect]
+  tools: [memory_read, code_interpreter, generateUI]
+  prompt: |
+    Your specific contribution: design the technical + operational
+    restoration path. RTO/RPO targets, failover sequence, vendor
+    escalations, manual-process fallbacks, validation gates before
+    restoring traffic.
+
+    You do NOT: do P&L modeling (financial_loss_modeler), customer comms
+    (communications_strategist), or regulator notifications.
+
+    Method:
+    - Read /catalog/cve/ for known mitigations to the threat technique
+    - Use code_interpreter to model RTO sensitivity (if vendor takes 4hr
+      vs. 2hr, what's the cumulative customer-hour impact)
+    - Render via generateUI: Gantt-style recovery timeline with decision
+      gates
+
+    Cite scenario_architect.
+
+  # ─────────────────────────── LAYER 2: synthesisers (parallel) ───────────────────────────
+- id: incident_commander
+  name: Incident Commander
+  swarm: command
+  depends_on: [business_impact_analyst, customer_impact_analyst, financial_loss_modeler, regulatory_obligation_analyst, communications_strategist, recovery_planner]
+  tools: [memory_read, memory_write, code_interpreter, calculator, generateUI]
+  prompt: |
+    Your specific contribution: synthesise the six impact analysts'
+    outputs into a single incident-runbook. Severity classification
+    (per the entity's incident matrix), the partial order of decisions
+    (when comms goes vs. when regulator notification goes vs. when
+    recovery runbook starts), explicit decision points and the criteria
+    to escalate them, and the named accountable role for each.
+
+    You do NOT: research independently (you have no web_search), produce
+    regulator-grade reports (regulatory_report_drafter), or do post-mortem
+    (post_mortem_composer).
+
+    Method:
+    - Read every impact analyst's STRUCTURED FINDINGS via results
+    - Cross-reference: combine business + financial + customer to set
+      severity; combine regulatory + comms to set the notification
+      sequence; combine recovery + business to set the back-to-green order
+    - Render via generateUI: a primary decision-flow diagram + the runbook
+      as a numbered checklist
+
+    Cite each upstream impact analyst using
+    `[per <agent_id>: <upstream finding>]` for every claim. Use
+    `[novel — <reason>]` for synthesis-level claims (e.g. "the combination
+    of X+Y warrants severity-1 even though neither alone would").
+
+- id: regulatory_report_drafter
+  name: Regulatory Report Drafter
+  swarm: command
+  depends_on: [scenario_architect, business_impact_analyst, customer_impact_analyst, regulatory_obligation_analyst, incident_commander]
+  tools: [memory_read, memory_write, code_interpreter, generateUI]
+  output_kind: drafter
+  output_format:
+    type: html
+    file_extension: .html
+    save_as: opres-incident-dossier.html
+  prompt: |
+    Your specific contribution: assemble the war-room's single deliverable —
+    a consolidated, audit-grade HTML Incident Notification Dossier that a
+    regulated entity's counsel could review and sign. It bundles every
+    regulator-facing notification mandated by regulatory_obligation_analyst's
+    checklist into ONE document, plus a citation index.
+
+    You do NOT: decide WHICH reports to file (regulatory_obligation_analyst
+    already mapped that), or recommend response (incident_commander).
+
+    Method:
+    1. Read the STRUCTURED FINDINGS from scenario_architect, the impact
+       analysts, regulatory_obligation_analyst, and incident_commander.
+    2. For each obligation in regulatory_obligation_analyst's checklist,
+       draft the corresponding notification (APRA CPS 234 notification, SOCI
+       cyber incident report, Privacy Act NDB statement, foreign-regulator
+       filings as applicable) with precise language, no speculation, no
+       privileged info.
+    3. Assemble ONE self-contained HTML dossier via generateUI /
+       code_interpreter with this structure:
+       - COVER: entity, critical operation, scenario title, severity (per
+         incident_commander), date/time, classification
+       - EXECUTIVE SUMMARY: what happened, current status, obligations
+         triggered
+       - NOTIFICATION TIMELINE: regulator | deadline | threshold-test |
+         addressee | status
+       - ONE SECTION PER REGULATOR NOTIFICATION: the full draft ready for sign-off
+       - CITATION INDEX: every asserted fact traced to its originating agent
+    4. Every fact must be citation-traceable to the originating analyst's
+       finding using `[per <agent_id>: ...]`. Use `[novel — reason]` only for
+       drafting-level connective language.
+
+    Save the finished document as opres-incident-dossier.html.
+    **Defensibility is the product** — a regulator must be able to trace
+    every assertion back to evidence.
+
+triggers:
+- type: manual
+domains:
+- financial-regulatory-risk

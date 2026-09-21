@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tessera.dev/schemas/conduct-people-au.records.json",
+  "title": "conduct-people-au domain — catalog record contract",
+  "description": "Entity-keyed reference records for the AU conduct & people-risk domain. Anchored on authoritative governing statutes from the Federal Register of Legislation (legislation.gov.au) via the OData API, plus best-effort ASIC conduct/accountability guidance. A specific person's conduct assessment, a remuneration decision, or an accountability-failure finding for a run are CONCLUSIONS — NEVER cataloged.",
+  "x-tessera-domain": "conduct-people-au",
+  "x-tessera-keys": {
+    "legal-instrument": "{instrument_id}",
+    "conduct-obligation": "{obligation_id}",
+    "accountability-obligation": "{obligation_id}",
+    "remuneration-standard": "{standard_id}",
+    "conduct-precedent": "{precedent_id}"
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "ingested_by": { "type": "string" },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "refresh_date": { "type": "string", "format": "date" },
+        "supersedes": { "type": "string" }
+      },
+      "required": ["ingested_by", "refresh_date"]
+    },
+    "legal-instrument": {
+      "type": "object",
+      "description": "An authoritative governing Act from the Federal Register of Legislation (legislation.gov.au) — Corporations Act 2001, Financial Accountability Regime Act 2023, Banking Act 1959, Fair Work Act 2009 — register id + current in-force status.",
+      "properties": {
+        "instrument_id": { "type": "string", "examples": ["C2004A00818", "C2023A00067"] },
+        "title": { "type": "string" },
+        "collection": { "type": "string", "examples": ["Act"] },
+        "in_force": { "type": "boolean" },
+        "status": { "type": "string", "examples": ["InForce", "Repealed"] },
+        "making_date": { "type": "string" },
+        "register_url": { "type": "string", "format": "uri" },
+        "administered_by": { "type": "string", "examples": ["ASIC", "APRA", "Fair Work Commission"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["instrument_id", "title", "provenance"]
+    },
+    "conduct-obligation": {
+      "type": "object",
+      "description": "A conduct / consumer-outcome obligation binding a financial firm — ASIC Regulatory Guides, Corporations Act conduct provisions, design & distribution (DDO), ABA Banking Code standards.",
+      "properties": {
+        "obligation_id": { "type": "string", "examples": ["rg-271-internal-dispute-resolution", "ddo-target-market-determination", "efficiently-honestly-fairly-s912a"] },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "framework": { "type": "string", "examples": ["asic-rg", "corporations-act", "banking-code"] },
+        "governing_provision": { "type": "string" },
+        "administered_by": { "type": "string", "examples": ["ASIC"] },
+        "status": { "type": "string", "examples": ["current"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["obligation_id", "title", "provenance"]
+    },
+    "accountability-obligation": {
+      "type": "object",
+      "description": "A Financial Accountability Regime (FAR) obligation — accountable-entity/person duties (reasonable steps), key-personnel, deferred-remuneration, notification, and no-gaps accountability mapping.",
+      "properties": {
+        "obligation_id": { "type": "string", "examples": ["far-reasonable-steps", "far-accountability-statement", "far-deferred-remuneration", "far-notification"] },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "governing_provision": { "type": "string", "examples": ["Financial Accountability Regime Act 2023"] },
+        "administered_by": { "type": "string", "examples": ["APRA", "ASIC"] },
+        "status": { "type": "string", "examples": ["current"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["obligation_id", "title", "provenance"]
+    },
+    "remuneration-standard": {
+      "type": "object",
+      "description": "A remuneration/incentive-governance requirement (APRA CPS 511) — variable-remuneration limits, deferral, malus/clawback, non-financial measures. Populated bottom-up from runs where the APRA source is too large to ingest directly.",
+      "properties": {
+        "standard_id": { "type": "string", "examples": ["cps-511-deferral", "cps-511-malus-clawback", "cps-511-non-financial-measures"] },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "governing_provision": { "type": "string", "examples": ["APRA CPS 511 Remuneration"] },
+        "administered_by": { "type": "string", "examples": ["APRA"] },
+        "status": { "type": "string" },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["standard_id", "title", "provenance"]
+    },
+    "conduct-precedent": {
+      "type": "object",
+      "description": "A published ASIC conduct-enforcement outcome — a durable 'what a conduct failure looks like / costs' lesson. No unrelated personal details.",
+      "properties": {
+        "precedent_id": { "type": "string", "examples": ["asic-2026-xxxmr"] },
+        "entity": { "type": "string" },
+        "date": { "type": "string" },
+        "issue": { "type": "string" },
+        "outcome": { "type": "string" },
+        "lesson": { "type": "string" },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["precedent_id", "provenance"]
+    }
+  }
+}

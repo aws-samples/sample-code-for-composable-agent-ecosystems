@@ -1,0 +1,242 @@
+ecosystem:
+  name: hedge-fund-trading-desk
+  description: "Hedge fund trading desk simulation — agents analyze a stock event and make a collective investment decision"
+  version: '1.0'
+strategy: orchestrated
+report: true
+outcome:
+  kind: file_artifact
+  audience: portfolio manager, investment committee, risk committee
+  artifacts:
+  - id: trade_decision_memo_html
+    agent: portfolio_manager
+    format: html
+    save_as: trade-decision-memo.html
+    download_label: Download Investment Decision Memo (HTML)
+quality:
+  challenger: per_level
+  challenger_gate:
+    block_below: ADEQUATE
+  grounding: true
+  gates:
+    citation: ask
+    format: ask
+    grounding: ask
+    output_kind: ask
+entry_point: quant
+memory:
+  strategies:
+  - episodic
+  - semantic
+  shared_namespaces:
+  - name: trading_thesis
+    write:
+    - all
+    read:
+    - all
+  - name: company_catalog
+    path: /catalog/company/
+    write:
+    - fundamental
+    read:
+    - all
+    auto_persist: true
+  - name: security_catalog
+    path: /catalog/security/
+    write:
+    - quant
+    read:
+    - all
+    auto_persist: true
+  - name: commodity_catalog
+    path: /catalog/commodity/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: commodity_fundamental_catalog
+    path: /catalog/commodity-fundamental/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: macro_indicator_catalog
+    path: /catalog/macro-indicator/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: sector_catalog
+    path: /catalog/sector/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: earnings_event_catalog
+    path: /catalog/earnings-event/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: analyst_coverage_catalog
+    path: /catalog/analyst-coverage/
+    write:
+    - sentiment
+    read:
+    - all
+    auto_persist: true
+  - name: seasonal_pattern_catalog
+    path: /catalog/seasonal-pattern/
+    write: []
+    read:
+    - all
+    auto_persist: false
+agents:
+- id: quant
+  name: Quant Analyst
+  swarm: research
+  depends_on: []
+  tools:
+  - historical_pattern_matcher
+  - fair_value_model
+  - scenario_simulator
+  prompt: 'You are a quantitative analyst at a hedge fund. Pull historical patterns for similar events (earnings misses, guidance cuts, after-hours drops), calculate fair value using DCF and comparable multiples, and model 3 scenarios: bull, base, bear. Present numbers, not narratives. Be precise with probabilities.'
+- id: fundamental
+  name: Fundamental Analyst
+  swarm: research
+  depends_on: []
+  tools:
+  - earnings_analyzer
+  - balance_sheet_scanner
+  - guidance_parser
+  prompt: 'You are a fundamental equity analyst. Dig into the specifics: what exactly did the company miss on, is this a one-time hit or structural, what does the balance sheet look like (cash, debt, buyback capacity), and what did management signal on the call. Separate noise from signal.'
+- id: sentiment
+  name: Sentiment Analyst
+  swarm: research
+  depends_on: []
+  tools:
+  - social_scanner
+  - analyst-tracker
+  - insider_activity_monitor
+  prompt: 'You are a sentiment and flow analyst. Scan for: analyst downgrades/upgrades in the last 24h, unusual options activity, insider transactions in the last 90 days, social media sentiment shift, and institutional positioning changes. Report the crowd''s mood and where smart money is moving.'
+- id: macro
+  name: Macro Strategist
+  swarm: research
+  depends_on: []
+  tools:
+  - sector_rotation_tracker
+  - rate_environment_analyzer
+  - contagion_mapper
+  prompt: 'You are a macro strategist. Zoom out: is this company-specific or part of a sector rotation? What''s the rate environment doing to growth multiples? Is there contagion risk to other portfolio holdings? Assess whether this is an idiosyncratic event or a canary in the coal mine.'
+- id: risk_manager
+  name: Risk Manager
+  swarm: risk
+  depends_on:
+  - quant
+  - fundamental
+  - macro
+  tools:
+  - position_sizer
+  - correlation_calculator
+  - drawdown_modeler
+  - var_calculator
+  prompt: "You are the risk manager. Given the research, calculate: current portfolio exposure, correlation with other holdings, maximum acceptable position size given the fund's risk limits, value-at-risk impact of adding/reducing, and worst-case drawdown scenario. You have veto power — if the risk is unacceptable, say so clearly."
+- id: contrarian
+  name: Contrarian
+  swarm: challenge
+  depends_on:
+  - quant
+  - fundamental
+  - sentiment
+  - macro
+  tools:
+  - counter_thesis_builder
+  - historical_contrarian_scanner
+  prompt: "You are the designated contrarian. Your job is to argue the OPPOSITE of whatever consensus is forming. If everyone says buy, find every reason to sell. If everyone says sell, make the bull case. Challenge assumptions, find the blind spots, stress-test the thesis. Be intellectually honest — not just disagreeable."
+- id: portfolio_manager
+  name: Portfolio Manager
+  swarm: decision
+  depends_on:
+  - risk_manager
+  - contrarian
+  - sentiment
+  tools:
+  - order_builder
+  - execution_planner
+  - code_interpreter
+  - generateUI
+  output_kind: reporter
+  output_format:
+    type: html
+    file_extension: .html
+    save_as: trade-decision-memo.html
+  prompt: |
+    You are the Portfolio Manager. You've heard everyone. Now decide and
+    produce the desk's single deliverable: a customer-facing HTML Investment
+    Decision Memo.
+
+    You do NOT re-run the analysis — the research swarm, risk manager, and
+    contrarian already did. Your job is the DECISION and its defensible
+    write-up.
+
+    Method:
+    1. Read the STRUCTURED FINDINGS from risk_manager, contrarian, sentiment,
+       and (via results) quant, fundamental, macro.
+    2. Decide: BUY, SELL, or HOLD. If trading, specify size (% of portfolio),
+       entry price/range, stop loss, take-profit targets, and timing (market
+       open, VWAP, wait for stabilization).
+    3. Assemble ONE self-contained HTML memo via generateUI / code_interpreter
+       with these sections:
+       - HEADER: ticker/event, decision badge (BUY/SELL/HOLD), conviction, date
+       - EXECUTIVE SUMMARY: the decision justified in 3 sentences
+       - THE THESIS: bull/base/bear scenarios with probabilities (from quant)
+       - FUNDAMENTAL VIEW: one-time vs. structural, balance-sheet capacity
+       - SENTIMENT & FLOW: analyst moves, options, insider, positioning
+       - MACRO CONTEXT: idiosyncratic vs. sector rotation, contagion risk
+       - RISK ASSESSMENT: position size, VaR impact, worst-case drawdown,
+         and whether the risk manager vetoed
+       - THE CONTRARIAN CASE: the strongest argument against the decision
+       - EXECUTION PLAN: order, entry, stop, targets, timing
+    4. Every claim must be traceable: cite the originating agent as
+       `[per <agent_id>: ...]`. Use `[novel — reason]` only for your own
+       synthesis-level judgments.
+
+    Save the finished document as trade-decision-memo.html. This is the desk's
+    money on the line — the memo must stand on its own for an investment
+    committee.
+swarms:
+  research:
+    agents:
+    - quant
+    - fundamental
+    - sentiment
+    - macro
+    depends_on: []
+  risk:
+    agents:
+    - risk_manager
+    depends_on: []
+  challenge:
+    agents:
+    - contrarian
+    depends_on: []
+  decision:
+    agents:
+    - portfolio_manager
+    depends_on: []
+parallel_swarms:
+- research
+- risk
+- challenge
+- decision
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518
+category: Finance
+tags:
+- trading
+- investment-decision
+- multi-perspective-analys
+- portfolio-management
+domains:
+- markets-and-investing

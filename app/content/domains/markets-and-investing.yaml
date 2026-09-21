@@ -1,0 +1,57 @@
+domain: markets-and-investing
+name: Markets & Investing
+description: 'Durable public market knowledge reused across investment analysis: companies, securities, commodities, and the macro/seasonal/fundamental facts that recur. Run-specific conclusions (theses, allocations, trades) are never cataloged. Personal/private holdings live in the personal-finance domain (user-scoped).'
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: company
+  key: '{ticker}'
+  description: A company — fundamentals, segments, management, durable profile.
+  status: active
+- type: security
+  key: '{symbol}'
+  description: A tradable security — instrument facts, history, characteristics.
+  status: active
+- type: commodity
+  key: '{name}'
+  description: A commodity — contract specs, durable supply/demand structure.
+  status: active
+- type: commodity-fundamental
+  key: '{commodity}-{factor}'
+  description: A durable commodity fundamental (inventories, production regions).
+  status: active
+- type: macro-indicator
+  key: '{indicator}'
+  description: A macro indicator series — definition, regime, durable behaviour.
+  status: active
+- type: sector
+  key: '{name}'
+  description: A sector/industry — durable structure, drivers, rotation behaviour.
+  status: active
+- type: earnings-event
+  key: '{ticker}-{period}'
+  description: A company earnings event — durable record of result vs expectation.
+  status: active
+- type: analyst-coverage
+  key: '{ticker}'
+  description: Durable analyst-coverage profile for a name.
+  status: active
+- type: seasonal-pattern
+  key: '{market}-{pattern}'
+  description: A durable seasonal/recurring market pattern.
+  status: active
+conclusions_never_cataloged:
+- investment thesis / view for a run
+- trade or allocation decision
+- price target / recommendation
+seeded_from: &id001
+- hedge-fund-trading-desk
+- commodity-trading-ecosystem
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: bottom-up validated across belonging ecosystems (2026-06-30)

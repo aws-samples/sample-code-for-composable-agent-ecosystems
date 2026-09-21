@@ -1,0 +1,296 @@
+[
+  {
+    "output_id": "advisor-client-conversation--advisor-client-conversation-4d9e2ab9",
+    "eco_id": "advisor-client-conversation",
+    "eco_name": "advisor-client-conversation",
+    "run_id": "advisor-client-conversation-4d9e2ab9",
+    "title": "advisor-client-conversation \u2014 real deliverable (advisor_client_conversation_guide.html)",
+    "deliverable_format": "html",
+    "save_as": "advisor_client_conversation_guide.html",
+    "producer_agent": "guide_drafter",
+    "excerpt": "Advisor Client Conversation Guide \u2014 Jack Doe\n\n\n\n\n\n\nAdvisor Client Conversation Guide\nJack Doe \u00b7 Holistic Review \u00b7 2026-07-10 (edit)\n\n\n\n0 / 0 prompts covered\n\nPrint / PDF\nExpand all\nCollapse\nReset\n\n\n\n\nDISCOVERY MODE \u2014 First meeting . No client data exists yet for Jack Doe. Every prompt below is designed to elicit a first data point, not to verify a hypothesis. No advice can be given from this meeting.\n[per gap_analyst: no client profile in shared catalog] \u00b7 [per question_designer: bank built in discovery mode] \u00b7 [per next_steps_planner: discovery-mode action framework required, BID s961B(2)(b)-(c) inquiry gate must precede any recommendation]\n\n\n\n\nMeeting map ~60 min\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n0-5\n5-15\n15-27\n27-39\n39-51\n51-58\n58-60\n\n\nMeta openers\nGoals\nCashflow\nSuper\nInsurance\nInv/Est/Tax\nWrap\n\n\n4 DEPTH pillars ~10-12 min each \u00b7 3 SURFACE pillars ~2-3 min each \u00b7 closing sweep 2 min\n\n\n[per question_designer: DEPTH pillars = Goals + Cashflow + Super + Insurance; Investments/Estate/Tax surfaced but time-boxed]\n\n\n\n\nClient snapshot To capture live\nNo pre-meeting fact-find exists. Populate as you go \u2014 these fields feed every pillar below.\n\nClient(s) Jack Doe\nAge / DOB \u2014\nMarital / Dependants \u2014\nEmployment \u2014\nGross income \u2014\nStatus New?\n\n\n\nGoals \u2014 capture verbatim (top 3)\n\n\n\n\nKey positions \u2014 assets / super / debts / insurance (rough $ only)\n\n\n\n\nFamily / stakeholders\n\n\n\n\nTrigger event \u2014 why now?\n\n\n\n[per gap_analyst: weak/absent data \u2014 age, dependants, employment, income, super balances, insurance, mari",
+    "excerpt_chars": 1500,
+    "size_bytes": 44795,
+    "s3_ref": "s3://tessera-dev-runsbucketf47f9fb8-zyyd1talbium/runs/advisor-client-conversation-4d9e2ab9/guide_drafter/advisor_client_conversation_guide.html",
+    "artifact_api_path": "/api/runs/advisor-client-conversation-4d9e2ab9/artifacts/guide_drafter/advisor_client_conversation_guide.html",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "run:advisor-client-conversation-4d9e2ab9",
+      "confidence": "high",
+      "captured_at": "2026-07-27T04:06:09.400759+00:00"
+    }
+  },
+  {
+    "output_id": "ai-acquisition-war-room--ai-acquisition-war-room-0ebaf93f",
+    "eco_id": "ai-acquisition-war-room",
+    "eco_name": "ai-acquisition-war-room",
+    "run_id": "ai-acquisition-war-room-0ebaf93f",
+    "title": "ai-acquisition-war-room \u2014 real deliverable (acquisition-memo.html)",
+    "deliverable_format": "html",
+    "save_as": "acquisition-memo.html",
+    "producer_agent": "drafter",
+    "excerpt": "Project Kestrel \u2014 Board Recommendation Memo\n\n\n\n\nCONFIDENTIAL \u2014 BOARD & M&A COMMITTEE ONLY \u2014 PROJECT KESTREL\n\n\n\nProject Kestrel\n\nBoard Recommendation Memo \u2014 Cyber & AI-Safety Due Diligence\n\n\nTarget NovaCover Pty Ltd (Sydney; NovaCover Europe Ltd, Dublin)\nAcquirer Meridian Financial Group (ASX-listed)\nIndicative EV A$420,000,000\nRationale NovaBrain AI underwriting + embedded-insurance API\nMemo date 2026-07-17\nExclusivity 6 weeks \u2014 board decision required\nPrepared by Cyber + AI-Safety DD workstream\n\n\n\nOverall Recommendation\nCONDITIONAL GO\n\nA$420M \u2192 A$345M net\n\nRisk-adjusted enterprise value\n\nConfidence: MEDIUM-HIGH\nWalk-away line: seller counter > A$385M\n\n\n\n\n1. Executive Summary\n\nThe transaction is recommended as a CONDITIONAL GO at A$345M net cash\n(~2.5\u00d7 GWP, versus 3.0\u00d7 at the A$420M indicative) \u2014 a\nA$90M gross deal-value adjustment (21.4% of EV) structured as a\nA$65M headline price chip + A$25M held-back escrow + uncapped specific\nindemnities on the DataLumen class action and EU AI Act non-conformity.\nNO-GO is not warranted \u2014 each defect is fixable and NovaBrain plus the embedded-API\ndistribution are genuine strategic assets \u2014 but unconditional GO would be negligent\ngiven a 16-day EU AI Act enforcement cliff (2026-08-02) and a\nlive agentic-fraud exposure on the claims-triage bot.\n[per ciso_recommendation: CONDITIONAL GO at A$345\u2013355M]\n\n\n\nWhy the haircut. A$18.4M of non-deferrable 18-month integration\nopex, A$25M+ contingent-liability tail (DataLumen class action + AI Act fine",
+    "excerpt_chars": 1500,
+    "size_bytes": 47397,
+    "s3_ref": "s3://tessera-dev-runsbucketf47f9fb8-zyyd1talbium/runs/ai-acquisition-war-room-0ebaf93f/drafter/acquisition-memo.html",
+    "artifact_api_path": "/api/runs/ai-acquisition-war-room-0ebaf93f/artifacts/drafter/acquisition-memo.html",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "run:ai-acquisition-war-room-0ebaf93f",
+      "confidence": "high",
+      "captured_at": "2026-07-27T04:06:09.400759+00:00"
+    }
+  },
+  {
+    "output_id": "ai-governance-conformity--ai-governance-conformity-94a5fd95",
+    "eco_id": "ai-governance-conformity",
+    "eco_name": "ai-governance-conformity",
+    "run_id": "ai-governance-conformity-94a5fd95",
+    "title": "ai-governance-conformity \u2014 real deliverable (ai-conformity-dossier.html)",
+    "deliverable_format": "html",
+    "save_as": "ai-conformity-dossier.html",
+    "producer_agent": "conformity_dossier_composer",
+    "excerpt": "AI Conformity Dossier \u2014 TalentSift Copilot v3.2\n\n\n\n\n\nAI CONFORMITY DOSSIER \u2014 PRE-MARKET ASSESSMENT\nTalentSift Copilot v3.2\nAgentic resume-screening & candidate-ranking SaaS \u00b7 EU-established provider \u00b7 400+ enterprise deployers \u00b7 ~50,000 applications/month\n\nAssessment date 2026-07-09\nEnforcement date (EU AI Act Art. 6) 2026-08-02 (T-24 days)\nOverall grade RED \u00b7 1.9 / 10\nEntity key talentsift-copilot-v3-2\n\n\n\n\nContents\n\nExecutive Summary\nRegulatory Classification\nObligation Register (per regime)\nUnified Cross-Framework Control Map\nRisk & Threat Profile\nGap Register & Ranked Remediation\nTechnical Documentation Skeleton (Annex IV)\nCitations & Provenance\n\n\n\n1 \u00b7 Executive Summary\n\n\nOverall conformity 1.9 / 10 RED \u00b7 pre-market blocking\nHarmonized coverage 5% 9 of 10 controls ABSENT \u00b7 1 PARTIAL\nDays to EU enforcement 24 Art. 6 high-risk binding 2026-08-02\nMax penalty exposure \u20ac35M / 7% Art. 99 + parallel GDPR \u20ac20M / 4%\n\n\nSystem identity\n\nField Value\nSystem TalentSift Copilot v3.2 \u2014 agentic resume-screening & candidate-ranking SaaS\nProvider role AI system PROVIDER (EU-established HR-tech vendor) \u2014 sold to enterprise DEPLOYERS\nPurpose Autonomous CV screening, ranking, shortlisting, interview scheduling; auto-reject below threshold, auto-advance top-N\nGeographies EU only \u2014 DE, FR, NL, IE (no current US/AU deployment)\nScale ~50,000 applications/month \u00b7 400+ enterprise customers \u00b7 ~85% of rejections never individually reviewed\nArchitecture Frontier LLM (via API) + fine-tuned scoring classi",
+    "excerpt_chars": 1500,
+    "size_bytes": 72311,
+    "s3_ref": "s3://tessera-dev-runsbucketf47f9fb8-zyyd1talbium/runs/ai-governance-conformity-94a5fd95/conformity_dossier_composer/ai-conformity-dossier.html",
+    "artifact_api_path": "/api/runs/ai-governance-conformity-94a5fd95/artifacts/conformity_dossier_composer/ai-conformity-dossier.html",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "run:ai-governance-conformity-94a5fd95",
+      "confidence": "high",
+      "captured_at": "2026-07-27T04:06:09.400759+00:00"
+    }
+  },
+  {
+    "output_id": "buyerside--buyerside-f967963a",
+    "eco_id": "buyerside",
+    "eco_name": "buyerside",
+    "run_id": "buyerside-f967963a",
+    "title": "buyerside \u2014 real deliverable (buyers_report.pdf)",
+    "deliverable_format": "pdf",
+    "save_as": "buyers_report.pdf",
+    "producer_agent": "buyer_brief_composer",
+    "excerpt": "[binary pdf deliverable, 245910 bytes \u2014 open via artifact_api_path]",
+    "excerpt_chars": 0,
+    "size_bytes": 245910,
+    "s3_ref": "s3://tessera-dev-runsbucketf47f9fb8-zyyd1talbium/runs/buyerside-f967963a/buyer_brief_composer/buyers_report.pdf",
+    "artifact_api_path": "/api/runs/buyerside-f967963a/artifacts/buyer_brief_composer/buyers_report.pdf",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "run:buyerside-f967963a",
+      "confidence": "high",
+      "captured_at": "2026-07-27T04:06:09.400759+00:00"
+    }
+  },
+  {
+    "output_id": "buyerside-premium--buyerside-premium-29317537",
+    "eco_id": "buyerside-premium",
+    "eco_name": "buyerside-premium",
+    "run_id": "buyerside-premium-29317537",
+    "title": "buyerside-premium \u2014 real deliverable (visual_assets.pdf)",
+    "deliverable_format": "pdf",
+    "save_as": "visual_assets.pdf",
+    "producer_agent": "visual_asset_generator",
+    "excerpt": "[binary pdf deliverable, 558099 bytes \u2014 open via artifact_api_path]",
+    "excerpt_chars": 0,
+    "size_bytes": 558099,
+    "s3_ref": "s3://tessera-dev-runsbucketf47f9fb8-zyyd1talbium/runs/buyerside-premium-29317537/visual_asset_generator/visual_assets.pdf",
+    "artifact_api_path": "/api/runs/buyerside-premium-29317537/artifacts/visual_asset_generator/visual_assets.pdf",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "run:buyerside-premium-29317537",
+      "confidence": "high",
+      "captured_at": "2026-07-27T04:06:09.400759+00:00"
+    }
+  },
+  {
+    "output_id": "car-ad-optimizer--car-ad-optimizer-913458b2",
+    "eco_id": "car-ad-optimizer",
+    "eco_name": "car-ad-optimizer",
+    "run_id": "car-ad-optimizer-913458b2",
+    "title": "car-ad-optimizer \u2014 real deliverable (car_ad_optimized.html)",
+    "deliverable_format": "html",
+    "save_as": "car_ad_optimized.html",
+    "producer_agent": "ad_drafter",
+    "excerpt": "Optimized Ad \u2014 2014 Nissan Qashqai Ti (J11 Auto)\n\n\n\n\n\n\n\n\n\n\nPrivate Ad Optimization Report\n2014 Nissan Qashqai Ti \u2014 J11, Auto\nRewritten copy, prioritised shot list, evidence-based pricing, and a ranked channel plan for a fast, credible AU metro private sale.\n\n\nPrepared 2026-07-06\nReport agent \u00b7 Tessera\n\n\n\nAsking price $13,490 [CONFIRM]\nTrim Ti (top of J11 range)\nLocation [CONFIRM: metro]\nSource listing carsales.com.au SSE-AD-20608383\n\n\n\n\nPublication gate. The source listing was 403\u2011blocked at ingest time [per listing_ingest: HTTP 403 CloudFront JS gate], so every per\u2011vehicle claim below is tagged CONFIRM . Do not publish this ad until the seller has verified or deleted each tagged sentence.\n\n\n\n1 \u00b7 Executive summary\n\n\nAsking price $13,490 Firm figure inside carsales guide $11,800\u2013$15,300 [per listing_ingest]\nExpected sold band $11.5k\u201312.5k Apply the AU private -8 to -15% ask-to-sold haircut\nTime-to-sale target 14\u201321 days FB Marketplace + Gumtree + carsales tripod\n\n\n\nWhat changed and why it will perform better\nThe rewrite is engineered against the seven documented failure modes of mainstream AU private ads in this segment: feature\u2011dump tone, model\u2011name\u2011only headline, spec\u2011sheet ordering, buried filter facts, generic CTA, clich\u00e9 phrases, and price\u2011in\u2011headline anti\u2011patterns [per copy_analyst: \"sellers over-index on dealer-style feature dumps... bury the three signals buyers actually filter on\" ].\n\nHeadline architecture. Year\u2013Make\u2013Model\u2013Trim + one differentiator + km + rego, not \"2",
+    "excerpt_chars": 1500,
+    "size_bytes": 70204,
+    "s3_ref": "s3://tessera-dev-runsbucketf47f9fb8-zyyd1talbium/runs/car-ad-optimizer-913458b2/ad_drafter/car_ad_optimized.html",
+    "artifact_api_path": "/api/runs/car-ad-optimizer-913458b2/artifacts/ad_drafter/car_ad_optimized.html",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "run:car-ad-optimizer-913458b2",
+      "confidence": "high",
+      "captured_at": "2026-07-27T04:06:09.400759+00:00"
+    }
+  },
+  {
+    "output_id": "conference-submission-scout--conference-submission-scout-94a52f78",
+    "eco_id": "conference-submission-scout",
+    "eco_name": "conference-submission-scout",
+    "run_id": "conference-submission-scout-94a52f78",
+    "title": "conference-submission-scout \u2014 real deliverable (conference_submission_scout.zip)",
+    "deliverable_format": "bundle",
+    "save_as": "conference_submission_scout.zip",
+    "producer_agent": "drafter",
+    "excerpt": "[binary bundle deliverable, 14469 bytes \u2014 open via artifact_api_path]",
+    "excerpt_chars": 0,
+    "size_bytes": 14469,
+    "s3_ref": "s3://tessera-dev-runsbucketf47f9fb8-zyyd1talbium/runs/conference-submission-scout-94a52f78/drafter/conference_submission_scout.zip",
+    "artifact_api_path": "/api/runs/conference-submission-scout-94a52f78/artifacts/drafter/conference_submission_scout.zip",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "run:conference-submission-scout-94a52f78",
+      "confidence": "high",
+      "captured_at": "2026-07-27T04:06:09.400759+00:00"
+    }
+  },
+  {
+    "output_id": "consultant-client-meeting-prep--consultant-client-meeting-prep-45b31640",
+    "eco_id": "consultant-client-meeting-prep",
+    "eco_name": "consultant-client-meeting-prep",
+    "run_id": "consultant-client-meeting-prep-45b31640",
+    "title": "consultant-client-meeting-prep \u2014 real deliverable (meeting_brief.html)",
+    "deliverable_format": "html",
+    "save_as": "meeting_brief.html",
+    "producer_agent": "brief_drafter",
+    "excerpt": "IRESS CTO Meeting Brief \u2014 Darryl Campbell-Blackwell\n\n\n\n\n\nMeeting Brief: Darryl Campbell-Blackwell\n\nClient: IRESS Limited (ASX: IRE)\nStakeholder: Darryl Campbell-Blackwell, Group Chief Technology Officer\nMeeting Objective: Trusted-advisor relationship building; explore cloud-native AI modernisation alignment (no hard sell)\nDate: 2026-07-06\nOffering: AWS FSI cloud & AI infrastructure for capital markets, wealth-tech, post-trade platforms\nFormat: 20-minute in-person 1:1\n\n\n\n1. Executive Summary\n\nMeeting Thesis: Darryl Campbell-Blackwell's elevation to Global Leadership Team CTO in May 2026 signals that AI-led modernisation and platform overhaul now sit at IRESS's executive decision-making table, making this the optimal entry point for strategic cloud/AI partnership discussion. [per meeting_strategist: CTO role elevated May 2026 specifically for AI-led modernisation; role elevation signals strategic focus on AI transformation]\n\nWhy Now (three bullets):\n\nCompetitive parity crisis. Cloud-native wealth challengers (HUB24/Netwealth) capture 80% of net platform flows with 9\u00d7 IRESS market cap; global trading/data incumbents (Bloomberg, LSEG) deploy agentic AI at scale in 2026; post-trade players (Broadridge) demonstrate 30% Day 1 cost reductions via AI ontology. [per meeting_strategist: HUB24/Netwealth command 80% net flows and 9\u00d7 market cap; LSEG launched Deep Research GenAI June 2026, Broadridge claims 30% cost reduction via DeepSee agentic AI]\nModernisation paradox. IRESS's 18-month ",
+    "excerpt_chars": 1500,
+    "size_bytes": 53380,
+    "s3_ref": "s3://tessera-dev-runsbucketf47f9fb8-zyyd1talbium/runs/consultant-client-meeting-prep-45b31640/brief_drafter/meeting_brief.html",
+    "artifact_api_path": "/api/runs/consultant-client-meeting-prep-45b31640/artifacts/brief_drafter/meeting_brief.html",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "run:consultant-client-meeting-prep-45b31640",
+      "confidence": "high",
+      "captured_at": "2026-07-27T04:06:09.400759+00:00"
+    }
+  },
+  {
+    "output_id": "enterprise-risk-board--enterprise-risk-board-fb9aaf7c",
+    "eco_id": "enterprise-risk-board",
+    "eco_name": "enterprise-risk-board",
+    "run_id": "enterprise-risk-board-fb9aaf7c",
+    "title": "enterprise-risk-board \u2014 real deliverable (board-risk-memo.html)",
+    "deliverable_format": "html",
+    "save_as": "board-risk-memo.html",
+    "producer_agent": "board_memo_composer",
+    "excerpt": "Board Risk & Compliance Committee \u2014 Aria Servicing Assistant v1.0: Risk Interrogation & Go/No-Go Memo\n\n\n\n\n\n\nAria Servicing Assistant v1.0 \u2014 Risk Interrogation & Go/No-Go Memo\n\nPrepared for the Board Risk & Compliance Committee, Meridian Mutual Bank\n\n\n\nDate: 23 July 2026\nStatus: DRAFT \u2014 FOR DECISION\nClassification: Board Confidential\n\n\n\n1. Executive Summary\n\n\n\nRecommendation\nNO-GO\nDeployment of Aria v1.0 as currently designed\n\n\nDeployment Blockers\n5\nAny one is individually sufficient to withhold approval\n\n\nUnowned (Orphan) Risks\n8\nFAR \"no gaps in responsibility\" test failing\n\n\nTheoretical 24h Blast Radius\nAUD 600M+\nUnbounded \u2014 likely exceeds regulatory capital appetite\n\n\n\nThe initiative\nAria Servicing Assistant v1.0 is an agentic AI customer-servicing agent proposed for production deployment at Meridian Mutual Bank. It is built on the Nimbus AI foundation model (US-hosted, us-east-1) and is designed to handle approximately 180,000 customer interactions per month , of which the solution design asserts ~70% will complete with no human involvement . Aria has autonomous authority to read customer PII, reverse fees / issue refunds up to AUD 500, initiate payments and transfers up to AUD 5,000, and update customer contact details.\nEvidence: 03-solution-design.pdf \u2014 \"approximately 70% of interactions complete with no human involvement\"; \"Initiate a payment or transfer up to AUD 5,000\". Confidence basis: management-assertion ; the 70% figure is not supported by pilot data in any submi",
+    "excerpt_chars": 1500,
+    "size_bytes": 77289,
+    "s3_ref": "s3://tessera-dev-runsbucketf47f9fb8-zyyd1talbium/runs/enterprise-risk-board-fb9aaf7c/board_memo_composer/board-risk-memo.html",
+    "artifact_api_path": "/api/runs/enterprise-risk-board-fb9aaf7c/artifacts/board_memo_composer/board-risk-memo.html",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "run:enterprise-risk-board-fb9aaf7c",
+      "confidence": "high",
+      "captured_at": "2026-07-27T04:06:09.400759+00:00"
+    }
+  },
+  {
+    "output_id": "iress-adviser-copilot--iress-adviser-copilot-997d562b",
+    "eco_id": "iress-adviser-copilot",
+    "eco_name": "iress-adviser-copilot",
+    "run_id": "iress-adviser-copilot-997d562b",
+    "title": "iress-adviser-copilot \u2014 real deliverable (adviser-meeting-pack.html)",
+    "deliverable_format": "html",
+    "save_as": "adviser-meeting-pack.html",
+    "producer_agent": "advice_pack_composer",
+    "excerpt": "Adviser Meeting Pack \u2014 Doe Household (HFA-0472)\n\n\n\n\n\n\n\n\n\nHarbourline Financial Advice \u00b7 Adviser Copilot\nAdviser Meeting Pack \u2014 Doe Household\nAnnual review \u00b7 CBA concentration, retirement transition, estate refresh, insurance review\n\n\nClient ref HFA-0472\nAdviser Sarah Nguyen (AR 1002345)\nGenerated 2026-07-10 (UTC)\nPrior review 2024-11-20\n\n\n\nClients John A Doe (60) & Jane L Doe (58)\nResidency Australian tax resident\nHousehold risk profile Balanced-to-Growth (7/10)\nTotal assets A$3.464M \u00b7 Liabilities Nil\n\n\n\u26a0 INTERNAL ADVISER AID \u2014 NOT A STATEMENT OF ADVICE.\nThis pack is an internal preparation document for the adviser. It is not a Statement of Advice, Record of Advice, or personal financial advice\nto the client. Every \"point for discussion\" below must be re-tested against s961B safe-harbour steps and delivered to the client only via\nan SoA/RoA (Corporations Act 2001, Part 7.7). Standing disclaimer applies (see \u00a79).\n\n\n\n\n\n2 Client Snapshot\n\n\nTotal assets A$3.464M Nil liabilities \u00b7 debt-free\nInvestable (ex home/vehicles) A$1.402M Super A$1.045M \u00b7 Non-super A$357k\nCash holdings A$157.4k 11.2% of investable \u00b7 idle vs 2-yr buffer target\nHousehold risk profile 7 / 10 Balanced-to-Growth \u00b7 assessed 2024-11-20\n\n\n\n\nHousehold profile Fact find\n\nJohn A Doe Age 60 \u00b7 Operations Mgr, Harbourline Logistics \u00b7 $145k p.a. + $10k salary sacrifice \u00b7 preservation age reached (Mar 2025)\nJane L Doe Age 58 \u00b7 Bookkeeper (part-time, 3 days) \u00b7 $48k p.a. + SG \u00b7 Rest Super A$360k\nResidence 42 Marina Cres, Mos",
+    "excerpt_chars": 1500,
+    "size_bytes": 80223,
+    "s3_ref": "s3://tessera-dev-runsbucketf47f9fb8-zyyd1talbium/runs/iress-adviser-copilot-997d562b/advice_pack_composer/adviser-meeting-pack.html",
+    "artifact_api_path": "/api/runs/iress-adviser-copilot-997d562b/artifacts/advice_pack_composer/adviser-meeting-pack.html",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "run:iress-adviser-copilot-997d562b",
+      "confidence": "high",
+      "captured_at": "2026-07-27T04:06:09.400759+00:00"
+    }
+  },
+  {
+    "output_id": "platform-optimizer--platform-optimizer-6ed07d12",
+    "eco_id": "platform-optimizer",
+    "eco_name": "platform-optimizer",
+    "run_id": "platform-optimizer-6ed07d12",
+    "title": "platform-optimizer \u2014 real deliverable (proposed_patch.yaml)",
+    "deliverable_format": "yaml",
+    "save_as": "proposed_patch.yaml",
+    "producer_agent": "patch_synthesizer",
+    "excerpt": "[binary yaml deliverable, 19174 bytes \u2014 open via artifact_api_path]",
+    "excerpt_chars": 0,
+    "size_bytes": 19174,
+    "s3_ref": "s3://tessera-dev-runsbucketf47f9fb8-zyyd1talbium/runs/platform-optimizer-6ed07d12/patch_synthesizer/proposed_patch.yaml",
+    "artifact_api_path": "/api/runs/platform-optimizer-6ed07d12/artifacts/patch_synthesizer/proposed_patch.yaml",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "run:platform-optimizer-6ed07d12",
+      "confidence": "high",
+      "captured_at": "2026-07-27T04:06:09.400759+00:00"
+    }
+  },
+  {
+    "output_id": "saturn-metals-dd-bundle--saturn-metals-dd-bundle-1854bd82",
+    "eco_id": "saturn-metals-dd-bundle",
+    "eco_name": "saturn-metals-dd-bundle",
+    "run_id": "saturn-metals-dd-bundle-1854bd82",
+    "title": "saturn-metals-dd-bundle \u2014 real deliverable (saturn-metals-dd-bundle.zip)",
+    "deliverable_format": "bundle",
+    "save_as": "saturn-metals-dd-bundle.zip",
+    "producer_agent": "drafter",
+    "excerpt": "[binary bundle deliverable, 17626 bytes \u2014 open via artifact_api_path]",
+    "excerpt_chars": 0,
+    "size_bytes": 17626,
+    "s3_ref": "s3://tessera-dev-runsbucketf47f9fb8-zyyd1talbium/runs/saturn-metals-dd-bundle-1854bd82/drafter/saturn-metals-dd-bundle.zip",
+    "artifact_api_path": "/api/runs/saturn-metals-dd-bundle-1854bd82/artifacts/drafter/saturn-metals-dd-bundle.zip",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "run:saturn-metals-dd-bundle-1854bd82",
+      "confidence": "high",
+      "captured_at": "2026-07-27T04:06:09.400759+00:00"
+    }
+  },
+  {
+    "output_id": "stage--stage-77f8dacd",
+    "eco_id": "stage",
+    "eco_name": "stage",
+    "run_id": "stage-77f8dacd",
+    "title": "stage \u2014 real deliverable (presentation.html)",
+    "deliverable_format": "html",
+    "save_as": "presentation.html",
+    "producer_agent": "presentation_drafter",
+    "excerpt": "Tessera \u2014 The reflex, reversed. v2\n\n\n\n\n\u2190 \u2192 NAV \u00b7 F FULLSCREEN \u00b7 S NOTES \u00b7 G GOTO \u00b7 ESC EXIT\nTESSERA \u00b7 v2 1 / 25\nSpeaker notes\n\n\n\n\n\nAWS FSI Practice Offsite \u00b7 Capital Markets track\n\nThe reflex, reversed.\nTessera \u2014 a governed, adversarial, citation-traced agent studio. Built for Capital Markets deliverables that survive audit.\n\n20 main \u00b7 20 biz appx \u00b7 20 tech appx\nPrincipal Consultants \u00b7 FSI\n2026-07-05\n\n\n\n\n\n\n\n\n\n\n\nExecutive summary \u00b7 read this, skip the deck\n\nThe reflex is \"yet another agentic solution.\" Reverse it in five moves.\n\n01 Role-contract citations \u2713 contract\n02 Adversarial challenger \u2713 role\n03 Compounding memory \u2713 cross-run\n04 Governed studio + builder \u2713 moat\n05 Inspectable deliverables \u2713 A2UI\n\n\n\nTiming spine \u00b7 20 minutes\n\n\n\n\n\n1:30 hook\n5:00 pivot\n8:00 demo\n10:00 anchor\n13:30 silence\n18:30 CTA\n20:00\n\n\n\n\nThe ask\nNominate one Capital Markets account for a Tessera pilot before you leave this room.\nVerbal in-room + async QR on the closer.\n\n\n\n\n\n\n\nBeat 1 \u00b7 the reflex\n\n\"Not another agentic thing.\"\n\n\nWhat a principal hears in 2026\n\n\"It's a wrapper around Bedrock Agents.\"\n\"Model made it up. Where's the source?\"\n\"I can't put this in front of a regulator.\"\n\"Fine in the demo. Non-deterministic in prod.\"\n\"Partner already pitched me one last month.\"\n\n\n\nWhy the reflex is correct\n\nMost agent stacks affirm, they don't catch .\nCitations are cosmetic, not contractual.\nMemory is per-session, not compounding.\nDeliverables are prose, not inspectable.\nNo adversary in the loop by design.\n\n\n\nE",
+    "excerpt_chars": 1500,
+    "size_bytes": 682722,
+    "s3_ref": "s3://tessera-dev-runsbucketf47f9fb8-zyyd1talbium/runs/stage-77f8dacd/presentation_drafter/presentation.html",
+    "artifact_api_path": "/api/runs/stage-77f8dacd/artifacts/presentation_drafter/presentation.html",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "run:stage-77f8dacd",
+      "confidence": "high",
+      "captured_at": "2026-07-27T04:06:09.400759+00:00"
+    }
+  },
+  {
+    "output_id": "trip-planner--trip-planner-dbf4df4d",
+    "eco_id": "trip-planner",
+    "eco_name": "trip-planner",
+    "run_id": "trip-planner-dbf4df4d",
+    "title": "trip-planner \u2014 real deliverable (trip_dossier.pdf)",
+    "deliverable_format": "pdf",
+    "save_as": "trip_dossier.pdf",
+    "producer_agent": "dossier_drafter",
+    "excerpt": "[binary pdf deliverable, 26373 bytes \u2014 open via artifact_api_path]",
+    "excerpt_chars": 0,
+    "size_bytes": 26373,
+    "s3_ref": "s3://tessera-dev-runsbucketf47f9fb8-zyyd1talbium/runs/trip-planner-dbf4df4d/dossier_drafter/trip_dossier.pdf",
+    "artifact_api_path": "/api/runs/trip-planner-dbf4df4d/artifacts/dossier_drafter/trip_dossier.pdf",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "run:trip-planner-dbf4df4d",
+      "confidence": "high",
+      "captured_at": "2026-07-27T04:06:09.400759+00:00"
+    }
+  }
+]

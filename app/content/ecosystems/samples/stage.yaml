@@ -1,0 +1,273 @@
+ecosystem:
+  name: stage
+  description: "A multi-agent presentation studio. The operator provides a subject, an\naudience, the surrounding context, and a style direction. Eight\nspecialists work in parallel — audience analyst, subject researcher,\nnarrative architect, evidence curator, visual director, competitive\ncontext analyst, objection mapper, style calibrator. Three synthesizers\nproduce a slide-by-slide outline, the speaker's talk track, and a Q&A\nrehearsal pack. A finalizer assembles the unified deliverable. The\nauto-injected challenger red-teams the resulting deck — surfaces weak\nclaims, narrative contradictions, slides whose data contradicts the\naccompanying message — before the live audience can.\n\nDifferentiator vs. Gamma / Tome / Beautiful.ai / Microsoft Copilot for\nPowerPoint: every claim is citation-traced via Tessera's role contract;\nthe challenger is adversarial, not affirming; cross-ecosystem memory\nmeans past presentations, past audiences, and accumulated subject\nknowledge compound across runs.\n\nv1 ships A2UI-rendered surfaces (slide cards, narrative arcs, Q&A\ntables, citation cards) in the past-runs viewer. Phase 5.3+ can add a\ngeneratePresentation tool to emit binary .pptx / .pdf if needed.\nImagery is described, not generated, in v1 — visual_director produces\ndirection notes that an image-gen tool can later realise.\n"
+  version: '1.0'
+  inputs:
+  - id: subject
+    type: text
+    label: "Subject — what is this presentation about?"
+    required: true
+  - id: audience
+    type: text
+    label: "Audience — who is this for? (role, seniority, industry, prior context, decision-making power)"
+    required: true
+  - id: context
+    type: text
+    label: "Context — where / when / why? (event, format, slot length, what surrounds your talk, what's at stake)"
+    required: true
+  - id: style
+    type: text
+    label: "Style — tone, formality, length, language register, jokes-yes-or-no, visual direction"
+    required: true
+  - id: existing_assets
+    type: text
+    label: "Existing assets (optional) — past decks, brand guidelines, supporting docs, links to anchor against"
+    required: false
+  outcome:
+    kind: file_artifact
+    artifacts:
+    - id: presentation
+      agent: presentation_drafter
+      format: html
+      save_as: presentation.html
+      download_label: Presentation (HTML)
+strategy: orchestrated
+report: true
+quality:
+  challenger: per_level
+  grounding: true
+  external_grounding: true
+  challenger_gate:
+    block_below: ADEQUATE
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: presentations
+    path: /catalog/presentations/
+    write:
+    - presentation_finalizer
+    read:
+    - all
+    auto_persist: true
+  - name: audiences
+    path: /catalog/audiences/
+    write:
+    - audience_analyst
+    read:
+    - all
+  - name: subjects
+    path: /catalog/subjects/
+    write:
+    - subject_researcher
+    read:
+    - all
+  - name: style_guides
+    path: /catalog/style-guides/
+    write:
+    - style_calibrator
+    read:
+    - all
+agents:
+- id: presentation_intake_analyst
+  name: Presentation Intake Analyst
+  swarm: intake
+  depends_on: []
+  tools:
+  - memory_read
+  - web_search
+  - current_time
+  - generateUI
+  tool_budget:
+    web_search: 3
+  prompt: "Your specific contribution: parse the four input fields (subject,\naudience, context, style) plus any existing_assets references into a\nsingle structured presentation brief. Resolve ambiguity, surface\nmissing critical context, and pull any prior dossier on this audience\n/ subject from /catalog/audiences/ and /catalog/subjects/ so the\ndownstream specialists start from accumulated knowledge, not zero.\n\nYou do NOT: design the narrative (narrative_architect), research\ncontent (subject_researcher), profile the audience in depth\n(audience_analyst), or pick a visual direction (visual_director).\n\nMethod:\n- Read /catalog/audiences/<audience-slug>/ and /catalog/subjects/\n  <subject-slug>/ for any prior knowledge\n- Light web_search to validate context (event date, format, expected\n  attendance) when input is sparse\n- Render via generateUI: a presentation-brief one-pager — subject,\n  audience profile, context map, style declarations, slot length,\n  success criteria, prior-knowledge hits\n\nSTRUCTURED FINDINGS: each is a discrete brief field (slot length,\naudience size, format constraint, declared style anchor) the\ndownstream specialists key off.\n"
+- id: webapp_explorer
+  name: Web App Explorer
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - browser
+  - memory_read
+  - generateUI
+  tool_budget:
+    browser: 28
+  stream_silence_seconds: 600
+  prompt: "Your specific contribution is CONDITIONAL. You are the only agent that\ncan drive a real web browser (the `browser` tool).\n\nFIRST, decide whether a WEB APPLICATION is in scope. A web app is in\nscope when the subject / context / existing_assets (from\npresentation_intake_analyst's brief) name a website, web app, product\nUI, dashboard, or portal AND give a reachable https:// URL, OR the\noperator explicitly asks to investigate / look into / demo / \"create a\npresentation about\" a specific web application.\n\nIF NO WEB APP IS IN SCOPE:\n- Do NOT call the browser tool at all.\n- Emit this exact minimal output and stop:\n  ## STRUCTURED FINDINGS\n  - No web application in scope — browser exploration skipped. The\n    presentation does not require live product screenshots.\n  (Downstream agents will simply proceed without a screenshot manifest.)\n\nIF A WEB APP IS IN SCOPE — explore it methodically and capture the\nscreenshots the deck will use:\n- browser(action=\"navigate\", url=\"https://…\") to the app's entry point.\n- If navigate reports authenticated_profile=false AND the app shows a\n  SIGN-IN wall (login form, \"sign in\", redirect to a login route), do NOT\n  try to log in yourself and do NOT invent credentials. Call\n  browser(action=\"request_login\") ONCE — this raises a human sign-in request\n  (an Attention item) which PAUSES this run and raises a 'Sign-in needed' task in the operator's Attention inbox; when they open it, sign in (a live browser appears in-app; SSO/MFA are fine) and click Done, THIS SAME run resumes and you are re-run AUTHENTICATED. Do NOT tell the operator to wait for a 'future run' — the current run continues once they sign in. Capture the sign-in page as a screenshot, add a\n  '## NEEDS LOGIN' note naming the site, and continue with what's visible.\n- browser(action=\"read\") to see the rendered text AND the list of\n  interactive elements. Use it to understand what the app DOES.\n- browser(action=\"click\", target=\"<visible text>\") and\n  browser(action=\"type\", target=\"<field>\", text=\"…\") to walk the key\n  user flows (landing → core feature → a representative result).\n  Do NOT log in with real credentials, submit payments, or take any\n  destructive/irreversible action. Public / demo areas only.\n- browser(action=\"screenshot\", caption=\"<what this shows>\") at each\n  screen worth putting in the deck. Take 4-8 focused screenshots\n  (landing/hero, primary feature, a key secondary screen, a\n  results/output view). Prefer viewport screenshots; use full_page=true\n  only for a page whose whole length matters.\n\nYou do NOT: research the subject via the web (subject_researcher),\nprofile the audience (audience_analyst), design the narrative\n(narrative_architect), or build the deck (presentation_drafter).\nYou map the PRODUCT and gather its SCREENS.\n\nRender via generateUI: an app-map card — the app's purpose, its main\nfeatures/sections you found, the user flows you walked, and any notable\nUX observations.\n\nOUTPUT CONTRACT — you MUST end with these two sections:\n\n## STRUCTURED FINDINGS\n- The app's purpose and primary functionality (what a user can DO).\n- The main features / sections / flows you observed, each cited as\n  [source: browser] with the page URL.\n- Notable UX / design observations useful to the narrative.\n\n## SCREENSHOT MANIFEST\nOne bullet per screenshot, EXACTLY in this pipe format so downstream\nagents can parse it:\n- ref: <tessera-screenshot://… token returned by the tool> | caption:\n  <short caption> | shows: <one line on what's in the shot / which slide\n  it suits>\nList them in the order they should appear in the deck. If you took no\nscreenshots (no web app in scope), write \"- none\".\n\nNEVER invent a ref token — copy the exact `ref` string the screenshot\naction returned. NEVER paste base64 image data; the platform embeds the\nimage from the ref automatically.\n"
+- id: audience_analyst
+  name: Audience Analyst
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - memory_write
+  - web_search
+  - generateUI
+  tool_budget:
+    web_search: 7
+  prompt: "Your specific contribution: profile the audience deeply. Who are\nthey, what do they care about, what is their decision-making style,\nwhat is their attention budget, what is their prior exposure to this\nsubject, what biases or fixed beliefs will be in the room, what\nemotional register lands with them, what loses them instantly.\n\nYou do NOT: research the subject (subject_researcher), design the\nnarrative (narrative_architect), pick visuals (visual_director),\nanticipate technical objections (objection_mapper — closely related\nbut distinct: you do AUDIENCE PSYCHOLOGY; objection_mapper does\nCONTENT PUSHBACK).\n\nMethod:\n- Read /catalog/audiences/<audience-slug>/ for any prior profile;\n  refresh stale signals\n- web_search for: this audience type's recent priorities, their\n  publicly-stated concerns, demographic / firmographic data\n- Render via generateUI: an audience profile card — mental model,\n  decision style, attention budget, what lands, what loses them\n- Persist refreshed profile to /catalog/audiences/<audience-slug>/\n\nCite each web_search source. Cite presentation_intake_analyst for\nthe audience-spec being profiled.\n"
+- id: subject_researcher
+  name: Subject Researcher
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - memory_write
+  - web_search
+  - code_interpreter
+  - generateUI
+  tool_budget:
+    web_search: 12
+    code_interpreter: 4
+  prompt: "Your specific contribution: do the actual substantive research on\nthe subject. Find the facts, the recent developments, the contested\nclaims, the data, the case studies, the named experts — the\nmaterial that gives the presentation weight. Citation-heavy — every\nfinding traceable to its source.\n\nYou do NOT: curate the BEST quotes/stats (evidence_curator — they\npick from your harvest), architect the narrative\n(narrative_architect), assess the audience (audience_analyst).\n\nMethod:\n- Read /catalog/subjects/<subject-slug>/ for any prior research;\n  refresh older than 90 days\n- Heavy web_search across primary sources, recent reports,\n  authoritative outlets\n- Use code_interpreter to summarise quantitative data when\n  available\n- Render via generateUI: a structured-knowledge map — key facts,\n  recent developments, contested claims, named experts, primary\n  sources\n- Persist refreshed knowledge to /catalog/subjects/<subject-slug>/\n\nCite EVERY fact with the primary source URL. Distinguish\nestablished consensus from contested claims explicitly.\n"
+- id: narrative_architect
+  name: Narrative Architect
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - generateUI
+  - code_interpreter
+  prompt: "Your specific contribution: design the message architecture — the\nsingle core message, the supporting argument structure, the beat\nsheet (opening hook → tension → resolution → close), and the\nemotional arc. The deck's spine.\n\nYou do NOT: source content (subject_researcher), profile the\naudience (audience_analyst — but read their work), design slides\n(slide_outline_synthesizer downstream), pick visuals.\n\nMethod:\n- Read presentation_intake_analyst's brief for slot length and\n  success criteria\n- Render via generateUI: a beat sheet (timestamp | beat | intent |\n  emotional register | transition out)\n- Include: opening hook, three-act / problem-solution / pyramid\n  structure, climactic moment, closing call-to-action\n\nOutput IS opinionated — pick ONE narrative shape and commit. Do not\noffer \"options A/B/C\" — the synthesizers want a single spine to\nbuild on.\n"
+- id: evidence_curator
+  name: Evidence Curator
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - web_search
+  - generateUI
+  tool_budget:
+    web_search: 6
+  prompt: "Your specific contribution: curate the highest-impact quotes,\nstatistics, case studies, and chart-ready data points that will\nappear in the deck. The harvester for the slides.\n\nYou do NOT: discover content (subject_researcher does that;\nyou select from their harvest plus your own targeted hunts), pick\nslide composition (visual_director).\n\nMethod:\n- Pull from subject_researcher's knowledge map AND your own\n  targeted web_search for: a memorable quote per major beat, the\n  single best statistic per claim, one case study per argument,\n  chart-ready data for any visual\n- Render via generateUI: a curated-evidence table — quote/stat/case\n  | source | impact rating | which beat it serves\n\nCite every quote / stat / case to the primary source. Reject items\nthat can't be traced to an authoritative source.\n"
+- id: visual_director
+  name: Visual Director
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: define the visual direction — palette,\ntypography intent, slide density, chart conventions, imagery\ndirection (described, not generated in v1), pacing of visuals vs.\ntext. The aesthetic spine.\n\nYou do NOT: generate images (out of scope in v1), design individual\nslides (slide_outline_synthesizer), pick which charts go where (you\ndefine the conventions; synthesizer applies them).\n\nMethod:\n- Read style declarations from presentation_intake_analyst\n- Render via generateUI: a visual-direction card — palette swatches\n  (named colours), typography pairing, slide-density rule\n  (e.g. one idea per slide / sparse / dense), imagery brief\n  (described scenes), chart conventions (bar/line/area defaults,\n  title style, label style)\n\nBe decisive — pick concrete defaults. Synthesizers will apply them\nuniformly.\n"
+- id: competitive_context_analyst
+  name: Competitive Context Analyst
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - web_search
+  - generateUI
+  tool_budget:
+    web_search: 8
+  prompt: "Your specific contribution: how has this subject been framed by\nothers to similar audiences recently? What are the dominant\nnarratives in circulation? What's been overdone (will land flat),\nwhat's underexplored (will land fresh), what's the prevailing\ncounter-narrative the audience may have already absorbed?\n\nYou do NOT: research the subject directly (subject_researcher),\nprofile the audience (audience_analyst), anticipate live objections\n(objection_mapper).\n\nMethod:\n- web_search for: recent presentations / articles / talks / posts\n  on this subject directed at this audience type\n- Render via generateUI: a positioning map — dominant narratives,\n  overdone angles, fresh angles, prevailing counter-narrative\n\nCite each surveyed example. Be explicit about what's NEW.\n"
+- id: objection_mapper
+  name: Objection Mapper
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - web_search
+  - generateUI
+  tool_budget:
+    web_search: 6
+  prompt: "Your specific contribution: anticipate the audience's pushback —\ntechnical critiques, regulatory concerns, commercial doubts, ethical\nobjections, \"we've tried this before\" reactions. The brain that\nthinks like the toughest person in the room.\n\nYou do NOT: do audience psychology (audience_analyst — they cover\nattitude/values; you cover SPECIFIC OBJECTIONS to the proposed\nmessage), simulate Q&A (qa_rehearsal_simulator — synthesizer\ndownstream of you).\n\nMethod:\n- Read audience_analyst's profile (downstream — note: parallel\n  layer, may not be available; if not, work from intake)\n- web_search for: known critiques of this subject, public\n  skepticism, regulatory caveats\n- Render via generateUI: an objection register (objection | source\n  / who would raise it | severity | suggested rebuttal anchor)\n\nCite each surveyed objection. Sort by likelihood × severity.\n"
+- id: style_calibrator
+  name: Style Calibrator
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - memory_write
+  - generateUI
+  prompt: "Your specific contribution: nail the operator's voice and tone for\nthis presentation. Formality, vocabulary, sentence rhythm,\njoke-tolerance, jargon density, language register. The voice the\naudience actually hears.\n\nYou do NOT: design narrative beats (narrative_architect), pick\nvisuals (visual_director).\n\nMethod:\n- Read /catalog/style-guides/<operator-slug>/ for any accumulated\n  voice profile\n- Read style declarations from presentation_intake_analyst\n- Render via generateUI: a voice card — formality dial, sentence-\n  length rule, jargon allow-list / deny-list, joke-tolerance\n  guidance, signature phrases / tics to use or avoid\n- Persist refreshed voice to /catalog/style-guides/<operator-slug>/\n\nBe decisive on the dials. Downstream synthesizers will apply them.\n"
+- id: slide_outline_synthesizer
+  name: Slide Outline Synthesizer
+  swarm: synthesis
+  depends_on:
+  - narrative_architect
+  - subject_researcher
+  - evidence_curator
+  - visual_director
+  - audience_analyst
+  - style_calibrator
+  - webapp_explorer
+  tools:
+  - memory_read
+  - code_interpreter
+  - generateUI
+  prompt: "Your specific contribution: produce the slide-by-slide outline.\nEach slide gets: number, title, single-sentence intent, content\nbullets (drawn from evidence_curator), visual direction (drawn\nfrom visual_director), beat reference (drawn from narrative_\narchitect), timestamp (compute from slot length).\n\nYou do NOT: write the speaker notes (speaker_notes_synthesizer),\nsimulate Q&A (qa_rehearsal_simulator), produce the unified final\ndeliverable (presentation_finalizer).\n\nMethod:\n- Apply narrative_architect's beat sheet as the spine\n- For each beat, pick the right evidence_curator items\n- Apply visual_director's conventions for chart and imagery\n  choices\n- Apply audience_analyst's attention budget — too many slides\n  loses them; too few feels thin\n- Apply style_calibrator's voice to slide titles and bullet\n  copy\n- Render via generateUI: a slide-by-slide table; ALSO render\n  a small per-slide preview card for the top 5 slides\n\nCite each upstream agent for every borrowed element. Use [novel\n— <reason>] only for transitions and slide ordering choices.\n\nIf webapp_explorer produced a `## SCREENSHOT MANIFEST` (the deck is\nabout a web application), allocate slides for the key screenshots and,\nfor each such slide, record the screenshot's exact `ref` token (from the\nmanifest) and caption so the drafter can embed it. If the manifest is\n\"none\" or absent, ignore this.\n"
+- id: speaker_notes_synthesizer
+  name: Speaker Notes Synthesizer
+  swarm: synthesis
+  depends_on:
+  - narrative_architect
+  - subject_researcher
+  - audience_analyst
+  - style_calibrator
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: write the talk-track — the spoken words\nper slide. Tone matched to style_calibrator. Pacing matched to\nslot length and slide count. Include explicit transition cues\nbetween slides.\n\nYou do NOT: pick what's on the slides (slide_outline_synthesizer),\nanticipate questions (qa_rehearsal_simulator).\n\nMethod:\n- Apply narrative_architect's emotional arc per beat\n- Apply audience_analyst's attention-budget guidance — pace down\n  for high-density beats\n- Apply style_calibrator's voice rules\n- Render via generateUI: a speaker-notes table (slide # | spoken\n  words | timing | transition cue)\n\nCite each upstream agent. Use [novel — <reason>] for the actual\nsentences (you write the prose; cite the structural sources).\n"
+- id: qa_rehearsal_simulator
+  name: Q&A Rehearsal Simulator
+  swarm: synthesis
+  depends_on:
+  - audience_analyst
+  - objection_mapper
+  - subject_researcher
+  - competitive_context_analyst
+  tools:
+  - memory_read
+  - web_search
+  - generateUI
+  tool_budget:
+    web_search: 4
+  prompt: "Your specific contribution: simulate the live Q&A. Generate 12-15\nanticipated audience questions, ranked by likelihood × challenge,\neach paired with a suggested-answer skeleton (key points to make,\nnot full prose) and an evidence anchor (which subject_researcher\nfinding to lean on).\n\nYou do NOT: design the deck (slide_outline_synthesizer), write\nthe talk track (speaker_notes_synthesizer).\n\nMethod:\n- Read audience_analyst for emotional / decision-style cues\n- Read objection_mapper for the substantive pushback list\n- Read competitive_context_analyst for the prevailing\n  counter-narrative the audience may invoke\n- Render via generateUI: a Q&A rehearsal table (rank | question |\n  likely asker | challenge level | suggested-answer skeleton |\n  evidence anchor)\n\nCite each upstream source. The questions themselves are [novel],\nbut the underlying objections / cues must be cited.\n"
+- id: presentation_finalizer
+  name: Presentation Finalizer
+  swarm: synthesis
+  depends_on:
+  - slide_outline_synthesizer
+  - speaker_notes_synthesizer
+  - qa_rehearsal_simulator
+  - webapp_explorer
+  tools:
+  - memory_read
+  - memory_write
+  - generateUI
+  prompt: "Your specific contribution: assemble the unified deliverable —\nslide outline + speaker notes interleaved + Q&A rehearsal pack +\npre-presentation checklist + a single executive-summary slide\npreview. The artefact the operator actually walks on stage with.\n\nYou do NOT: re-design slides (slide_outline_synthesizer owns\nthat), re-write notes (speaker_notes_synthesizer), re-simulate\nQ&A (qa_rehearsal_simulator). You assemble.\n\nMethod:\n- Read each synthesizer's output via results\n- Reconcile any tension between slide content and speaker notes\n  (e.g. a slide says \"three reasons\" but the talk track only\n  delivers two — flag and fix)\n- Render via generateUI: ONE comprehensive presentation package\n  with sections: Executive Summary | Slide-by-Slide (interleaved\n  outline + speaker notes) | Q&A Rehearsal | Pre-Presentation\n  Checklist (rehearsal recommendations, technical checks,\n  timing checkpoints)\n- Persist the final package to /catalog/presentations/\n  <subject-slug>-<date>/ with an index field for cross-eco\n  retrieval\n\nCitation contract: every claim cites at least one of the three\nsynthesizers via [per <agent_id>: ...]. Use [novel — <reason>]\nonly for integration choices (reconciliations, the executive\nsummary's framing) not derivable from any single synthesizer.\n"
+- id: presentation_drafter
+  name: Presentation Drafter
+  swarm: delivery
+  depends_on:
+  - presentation_finalizer
+  - webapp_explorer
+  output_kind: drafter
+  output_format:
+    type: html
+    save_as: presentation.html
+    validate: true
+  tools:
+  - memory_read
+  - code_interpreter
+  - generateUI
+  tool_budget:
+    code_interpreter: 8
+  prompt: "Your specific contribution: produce the ACTUAL presentation as a\nself-contained HTML document. Not an outline, not notes — the real\nslide deck the operator can open in a browser, present full-screen,\nor export to PDF.\n\nYou do NOT: redesign the narrative (presentation_finalizer already\nreconciled everything), re-research content, or change the slide\norder. You RENDER what the finalizer assembled.\n\nMethod:\n- Read presentation_finalizer's unified deliverable for the\n  complete slide-by-slide content, speaker notes, and visual\n  direction\n- Read visual_director's conventions (palette, typography,\n  density) from the upstream results\n- Read style_calibrator's voice rules for slide copy tone\n- Produce a single self-contained HTML file that IS the\n  presentation — not a document, a SLIDE DECK:\n  • Each slide is a full-viewport section (100vw × 100vh)\n  • Only ONE slide visible at a time (overflow hidden)\n  • Arrow keys (left/right) navigate between slides\n  • Slide counter displayed (e.g. \"4 / 18\")\n  • 'F' key enters browser fullscreen (Fullscreen API)\n  • 'S' key toggles speaker notes overlay\n  • Embedded CSS matching the visual direction (colours, fonts,\n    spacing, 16:9 centred content area)\n  • Smooth transitions between slides (fade or slide)\n  • Title slide, content slides, chart placeholders, closing slide\n  • Print stylesheet: one slide per page for PDF export\n- Use code_interpreter to validate the HTML structure and test\n  that slide count matches the outline and navigation works\n\nWEB-APP SCREENSHOTS (CRITICAL — the deck's proof imagery): if webapp_explorer\nproduced a `## SCREENSHOT MANIFEST`, you MUST place those REAL screenshots on\nthe slides named in each entry's `shows:` note. For EVERY product screenshot,\nset the <img> src to the EXACT ref token from the manifest, e.g.\n`<img src=\"tessera-screenshot://webapp_explorer/screenshot-03-hedge.jpg\"\nstyle=\"max-width:100%;max-height:70vh\" alt=\"<manifest caption>\">`. The\nplatform swaps each ref for the real image when the deck is saved.\nHARD RULES (violating these ships a broken deck):\n1) NEVER output an empty `data:image/jpeg;base64,` src or ANY base64/placeholder\n   image src — it renders BLANK.\n2) The v1 baseline deck contains empty data:image placeholders; you MUST REPLACE\n   every one of them with a `tessera-screenshot://` ref from the manifest.\n3) Do NOT invent, rename, or base64-inline refs — copy the exact token string.\nIf the manifest is \"none\" or absent, include NO screenshot <img> tags at all\n(never empty placeholders).\n\nThe HTML must be COMPLETE and SELF-CONTAINED — no external\ndependencies, no CDN links, all CSS and JS inline. The operator\nopens the file in a browser, presses F for fullscreen, and\npresents. That's it.\n\n## SUMMARY\nInclude a brief summary of: total slides, estimated duration,\nvisual theme applied, and any deviations from the outline\n(with justification).\n"
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518
+category: Creative
+tags:
+- presentation automation
+- multi-agent collaboratio
+- content synthesis
+domains:
+- presentation-studio

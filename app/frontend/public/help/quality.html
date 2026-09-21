@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tessera Help — Quality & Grounding</title>
+<meta name="description" content="How Tessera verifies agent outputs: internal grounding, external grounding, challenger review, and structured validation." />
+<link rel="stylesheet" href="help.css" />
+</head>
+<body>
+<!-- This guide uses direct address (second person) to speak to the operator. -->
+<div class="container">
+
+<header>
+  <h1>Quality & Grounding</h1>
+  <p class="subtitle">How Tessera verifies agent outputs and catches errors.</p>
+</header>
+
+<nav class="nav-bar">
+  <a href="index.html">Overview</a>
+  <a href="ecosystems.html">Ecosystems</a>
+  <a href="running.html">Running</a>
+  <a href="builder.html">Builder</a>
+  <a href="tools.html">Tool Catalog</a>
+  <a href="quality.html" class="active">Quality</a>
+  <a href="agent-types.html">Agent Types</a>
+  <a href="quality-gates.html">Quality Gates</a>
+  <a href="files.html">Files</a>
+  <a href="faq.html">FAQ</a>
+</nav>
+
+<section>
+  <h2>Quality Features Overview</h2>
+  <p>Tessera applies multiple layers of verification designed to improve output reliability. You can configure these per ecosystem in the Builder.</p>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">🛡️ Challenger Agent</div>
+      <div class="card-desc">Auto-injected agent that stress-tests all upstream findings. Looks for logical gaps, unsupported claims, and contradictions.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 Report Agent</div>
+      <div class="card-desc">Auto-injected final agent that synthesizes all findings — including the challenger's critique — into a coherent, faithful report.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔍 Internal Grounding</div>
+      <div class="card-desc">Amazon Bedrock Guardrails checks each agent's claims against the evidence it actually has: upstream agent outputs and its own tool-call results.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🌐 External Grounding</div>
+      <div class="card-desc">Time-sensitive claims are verified via web search. Each claim gets a verdict: verified, unverified, or contradicted.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>How It Works During a Run</h2>
+  <p>Quality checks happen automatically between agent layers:</p>
+  <ol class="steps">
+    <li><strong>Agent executes</strong> — produces output with structured findings</li>
+    <li><strong>Schema validation</strong> — output must contain STRUCTURED FINDINGS and OPEN QUESTIONS sections (hard requirement, no fallback)</li>
+    <li><strong>Internal grounding</strong> — Amazon Bedrock Guardrails checks claims against available evidence. Shown in the activity strip as "Verifying findings"</li>
+    <li><strong>External grounding</strong> — time-sensitive claims are extracted and verified via web search. Shown as "External grounding (web verification)"</li>
+    <li><strong>Next layer proceeds</strong> — downstream agents receive verified upstream output</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Challenger Agent</h2>
+  <p>The challenger is a special agent injected after all leaf and synthesizer agents complete. It:</p>
+  <ul class="feature-list">
+    <li>Receives all upstream agent outputs</li>
+    <li>Actively looks for weaknesses: unsupported claims, logical inconsistencies, missing perspectives</li>
+    <li>Produces its own STRUCTURED FINDINGS highlighting issues</li>
+    <li>The report agent must faithfully surface the challenger's critique</li>
+  </ul>
+  <div class="tip">The challenger uses the same model as other agents but with an adversarial prompt. It genuinely tries to break the analysis rather than rubber-stamping it.</div>
+</section>
+
+<section>
+  <h2>Internal Grounding</h2>
+  <p>Uses Amazon Bedrock Guardrails contextual-grounding to verify claims:</p>
+  <ul class="feature-list">
+    <li><strong>Grounding source</strong> — upstream agent prose + the agent's own tool-call results</li>
+    <li><strong>What it catches</strong> — claims that don't appear in any evidence, hallucinated numbers, fabricated sources</li>
+    <li><strong>Result</strong> — claims flagged as unsupported are visible in the grounding check output</li>
+  </ul>
+</section>
+
+<section>
+  <h2>External Grounding</h2>
+  <p>For claims about the real world (prices, dates, events, "recent" or "current" statements):</p>
+  <ol class="steps">
+    <li>Time-sensitive claims are extracted from agent output</li>
+    <li>Each claim is searched via web search</li>
+    <li>A Sonnet 4 evaluator compares the claim against search results</li>
+    <li>Each claim receives a verdict: <strong>verified</strong>, <strong>unverified</strong>, or <strong>contradicted</strong></li>
+  </ol>
+</section>
+
+<section>
+  <h2>Structured Findings Format</h2>
+  <p>Every agent must produce output containing:</p>
+  <ul class="feature-list">
+    <li><code>## STRUCTURED FINDINGS</code> — numbered findings with confidence level (HIGH/MEDIUM/LOW) and evidence citations</li>
+    <li><code>## OPEN QUESTIONS</code> — unresolved questions or areas needing further investigation</li>
+  </ul>
+  <p>If an agent fails to produce these sections, the run reports an error rather than continuing with incomplete data.</p>
+</section>
+
+<section>
+  <h2>Toggling Quality Features</h2>
+  <p>In the Builder's left panel under <strong>Quality Features</strong>, you can enable/disable:</p>
+  <ul class="feature-list">
+    <li>Report agent (final summary)</li>
+    <li>Challenger agent (stress-test)</li>
+    <li>Grounding checks (hallucination detection)</li>
+  </ul>
+  <div class="warn">Disabling quality features speeds up runs but reduces output reliability. Recommended to keep all enabled for production use.</div>
+</section>
+
+<div class="footer">
+  <a href="index.html">← Back to Help Overview</a>
+</div>
+
+</div>
+</body>
+</html>

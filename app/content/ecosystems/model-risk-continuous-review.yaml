@@ -1,0 +1,228 @@
+ecosystem:
+  name: model-risk-continuous-review
+  description: "Continuous, multi-perspective review of an AI/ML model in production at a\nfinancial institution. Operator (Head of MRM, Chief Risk Officer, AI\nGovernance Lead) provides the model's identity and deployment context.\nSix specialist reviewers assess in parallel; two synthesizers combine\ntheir findings into a risk grade and ranked remediation list; a challenger\nred-teams the assessment; a composer writes the formal MRM dossier and\npersists it to /catalog/models/ so the next review compounds on this one.\n\nAligned to the major regimes a bank's MRM function must satisfy:\n  - OCC + Fed joint April 2026 model-risk guidance (extends SR 11-7 to AI)\n  - NYDFS AI guidance (Oct 2024)\n  - CRI FS-AI RMF v1.0\n  - NIST AI RMF Core\n  - APRA draft AI prudential standard\n  - EU AI Act (Article 6 + Annex III high-risk classifications)\n\nReplaces a 4-12 week MRM review cycle with a ~30-minute reproducible run\nthat produces an audit-grade dossier with citation-traceable findings.\n"
+  version: '1.0'
+  inputs:
+  - id: model_identity
+    type: text
+    label: Model identity (name, version, owner team, business purpose)
+    required: true
+  - id: deployment_context
+    type: text
+    label: Deployment context (where used, decision authority, customers affected, fallback)
+    required: true
+  - id: review_trigger
+    type: text
+    label: "Review trigger (initial / periodic / post-incident / post-change — affects depth)"
+    required: false
+strategy: orchestrated
+report: true
+quality:
+  challenger: per_level
+  grounding: true
+  external_grounding: true
+  challenger_gate:
+    block_below: ADEQUATE
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: model_catalog
+    path: /catalog/model/
+    write:
+    - model_intake_analyst
+    read:
+    - all
+    auto_persist: true
+  - name: regulatory_requirement_catalog
+    path: /catalog/regulatory-requirement/
+    write:
+    - regulatory_mapper
+    read:
+    - all
+  - name: finding_pattern_catalog
+    path: /catalog/finding-pattern/
+    write:
+    - fairness_bias_auditor
+    - remediation_prioritizer
+    read:
+    - all
+    auto_persist: true
+  - name: vulnerability_catalog
+    path: /catalog/vulnerability/
+    write: []
+    read:
+    - failure_mode_imaginator
+    - integration_risk_analyst
+  - name: regulator_precedent_catalog
+    path: /catalog/regulator-precedent/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: control_catalog
+    path: /catalog/control/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: disruption_scenario_catalog
+    path: /catalog/disruption-scenario/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: post_mortem_catalog
+    path: /catalog/post-mortem/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: grading_rubric_catalog
+    path: /catalog/grading-rubric/
+    write:
+    - model_risk_grade_synthesizer
+    read:
+    - all
+    auto_persist: true
+  - name: recovery_procedure_catalog
+    path: /catalog/recovery-procedure/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: communications_playbook_catalog
+    path: /catalog/communications-playbook/
+    write: []
+    read:
+    - all
+    auto_persist: false
+agents:
+- id: model_intake_analyst
+  name: Model Intake Analyst
+  swarm: intake
+  depends_on: []
+  tools:
+  - web_search
+  - code_interpreter
+  - memory_read
+  - current_time
+  - generateUI
+  tool_budget:
+    web_search: 4
+  prompt: "Your specific contribution: parse the operator's model identity + context\ninto a structured intake brief that downstream reviewers anchor on. Pull\nany prior dossier from /catalog/models/ for this model so the review\nbecomes a continuation, not a from-scratch reset.\n\nYou do NOT: assess the model (the six review specialists handle that),\nsynthesize a grade (model_risk_grade_synthesizer), or compose the\ndossier (mrm_dossier_composer).\n\nMethod:\n- Extract from inputs: model name, version, owner, business use, decision\n  authority, customer/regulatory exposure, deployment scale, fallback\n  - Search /catalog/models/{model_identity} for prior reviews (note dates,\n  prior grades, open remediation items)\n- If model is referenced publicly (HuggingFace, GitHub, vendor site), do\n  a light web_search for current public posture (1-2 queries max)\n- Render via generateUI: a one-page intake brief\n\nSTRUCTURED FINDINGS: each claim is a discrete intake fact (purpose, scope,\ndecision authority, prior-review delta) downstream reviewers will reason\nabout. Cite the operator inputs as `[per operator: ...]` for facts they\nprovided; cite memory_read for any prior-dossier-derived facts.\n"
+- id: documentation_reviewer
+  name: Documentation Reviewer
+  swarm: review
+  depends_on:
+  - model_intake_analyst
+  tools:
+  - memory_read
+  - code_interpreter
+  - generateUI
+  prompt: "Your specific contribution: assess the model's developer-side\ndocumentation against SR 11-7 §III-IV expectations (and NIST AI RMF\nGovern function). Check for: model card existence + completeness,\ntraining-data provenance + lineage, validation evidence, change log,\ndecommissioning plan.\n\nYou do NOT: audit fairness (fairness_bias_auditor), assess performance\ndrift (performance_drift_analyst), enumerate failure modes\n(failure_mode_imaginator), map regulators (regulatory_mapper).\n\nMethod:\n- Inspect the intake brief for documentation references; flag anything\n  absent that SR 11-7 expects\n- Use code_interpreter if the model card is available as a file/text\n  (parse, score on completeness)\n- Render via generateUI: a documentation completeness scorecard\n  (rubric × present/partial/absent + 1-line evidence)\n\nCite `[per model_intake_analyst: ...]` for every intake fact you build on.\nNote explicitly when documentation is absent (high-risk signal).\n"
+- id: performance_drift_analyst
+  name: Performance & Drift Analyst
+  swarm: review
+  depends_on:
+  - model_intake_analyst
+  tools:
+  - memory_read
+  - code_interpreter
+  - calculator
+  - generateUI
+  tool_budget:
+    code_interpreter: 6
+  prompt: "Your specific contribution: assess model performance and drift since the\nlast review (or since deployment if first review). Calibration, accuracy\nacross cohorts, drift in input distributions, drift in performance.\n\nYou do NOT: assess fairness disparities by protected class\n(fairness_bias_auditor), document compliance (documentation_reviewer),\nregulatory mapping.\n\nMethod:\n- Read prior review's performance baseline from /catalog/models/ if\n  present\n- Use code_interpreter for: drift statistics (KL divergence, PSI),\n  time-series of accuracy/precision/recall, calibration plots\n- Render via generateUI: drift dashboard (multi-line chart) + summary\n  delta table (metric | baseline | current | delta | regulatory threshold)\n\nCite intake. Use [novel — reason] for inferences with no upstream basis.\n"
+- id: fairness_bias_auditor
+  name: Fairness & Bias Auditor
+  swarm: review
+  depends_on:
+  - model_intake_analyst
+  tools:
+  - memory_read
+  - code_interpreter
+  - calculator
+  - generateUI
+  tool_budget:
+    code_interpreter: 6
+  prompt: "Your specific contribution: audit fairness across protected classes\n(race, gender, age, disability) and intersectional cohorts. Quantify\ndisparate-impact metrics (4/5ths rule, AIR, equal opportunity, calibration\nparity). Map findings to ECOA / Fair Lending Act / NYDFS expectations.\n\nYou do NOT: assess overall accuracy (performance_drift_analyst), do\nregulatory mapping (regulatory_mapper) — surface fair-lending-specific\nregulatory exposures only when directly tied to a fairness finding.\n\nMethod:\n- Use code_interpreter to compute fairness metrics by protected class\n- Render via generateUI: fairness heatmap (rows: protected classes;\n  columns: metrics) with 4/5ths-rule pass/fail badges\n\nCite intake. Cite specific fairness-metric thresholds you compare against.\n"
+- id: failure_mode_imaginator
+  name: Failure-Mode Imaginator
+  swarm: review
+  depends_on:
+  - model_intake_analyst
+  tools:
+  - memory_read
+  - web_search
+  - code_interpreter
+  - generateUI
+  tool_budget:
+    web_search: 6
+  prompt: "Your specific contribution: imagine and test failure modes specific to\nthis model's architecture and deployment context. Adversarial inputs,\nout-of-distribution behavior, prompt-injection (for LLMs), agent-escape\n(for agentic systems), jailbreaks, data-poisoning susceptibility.\n\nYou do NOT: do general performance drift (performance_drift_analyst),\nfairness/bias (fairness_bias_auditor), document review.\n\nMethod:\n- Read /catalog/cve/ for known model-class-specific vulnerabilities\n  (LLM jailbreaks, langchain-style RCE patterns, prompt-injection\n  vectors)\n- Use web_search sparingly for current adversarial-ML literature\n  (recent published attacks against this architecture)\n- Use code_interpreter to enumerate likely attack chains\n- Render via generateUI: a failure-mode matrix (mode | likelihood |\n  blast radius | known mitigation status)\n\nCite each adversarial reference. For LLMs / agentic systems, citation\nto published red-team eval is mandatory; absence is a finding in itself.\n"
+- id: integration_risk_analyst
+  name: Integration & Blast-Radius Analyst
+  swarm: review
+  depends_on:
+  - model_intake_analyst
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: assess WHERE this model is used and WHAT\nDEPENDS on it. Downstream systems, decision automation level, blast\nradius of a wrong output, presence/absence of human-in-loop gating,\noverride mechanisms.\n\nYou do NOT: enumerate failure modes (failure_mode_imaginator), audit\nfairness, do drift work. You map the BLAST RADIUS of a failure.\n\nMethod:\n- Read intake brief for deployment context\n- Read /catalog/models/ for any related models that consume this model's\n  outputs (model-of-models risk)\n- Render via generateUI: a dependency graph (this model at center;\n  downstream consumers; criticality of each)\n\nCite intake. Use [novel — reason] for inferred dependencies not\nexplicitly in inputs but reasonable to deduce.\n"
+- id: regulatory_mapper
+  name: Regulatory Mapper
+  swarm: review
+  depends_on:
+  - model_intake_analyst
+  tools:
+  - memory_read
+  - memory_write
+  - web_search
+  - generateUI
+  tool_budget:
+    web_search: 8
+  prompt: "Your specific contribution: enumerate every regulatory regime that\napplies to THIS model (given purpose, deployment, geography, customer\nclass) and what each regime demands as evidence. OCC SR 11-7 / Fed\nAI guidance, NYDFS AI letter, NIST AI RMF, CRI FS-AI RMF, EU AI Act\nclassification, APRA draft standard, sector-specific (HMDA, ECOA,\nASIC, etc.).\n\nYou do NOT: do fair-lending-specific fairness (fairness_bias_auditor\nhandles that with regulatory anchoring), assess documentation\n(documentation_reviewer).\n\nMethod:\n- Read /catalog/regulatory/ai/ for prior regulatory mapping work\n- Use web_search for any recent rule changes (max 8 calls; prefer\n  primary sources — regulator websites, gazettes)\n- Render via generateUI: a regulatory radar (one row per regime:\n  applicable / borderline / not-applicable, evidence demanded,\n  deadline / cadence)\n- Write any newly-discovered regulatory updates to\n  /catalog/regulatory/ai/ for future reviews to reuse\n\nCite the specific provision (regime + section/article) for every\napplicability claim. Cite intake for the model facts you anchor on.\n"
+- id: model_risk_grade_synthesizer
+  name: Model Risk Grade Synthesizer
+  swarm: synthesis
+  depends_on:
+  - documentation_reviewer
+  - performance_drift_analyst
+  - fairness_bias_auditor
+  - failure_mode_imaginator
+  - integration_risk_analyst
+  - regulatory_mapper
+  tools:
+  - memory_read
+  - memory_write
+  - code_interpreter
+  - calculator
+  - generateUI
+  prompt: "Your specific contribution: combine the six reviewers' outputs into a\nsingle risk grade (red / amber / green) with per-dimension contributions.\nShow which findings most influenced the grade. Compare to prior grade if\navailable (delta direction).\n\nYou do NOT: produce a remediation list (remediation_prioritizer does\nthat), draft the formal dossier (mrm_dossier_composer).\n\nMethod:\n- Read every reviewer's STRUCTURED FINDINGS via results\n- Use code_interpreter to apply the bank's grading rubric (or a\n  sensible default if not provided): weight each dimension; combine\n  per agreed formula\n- Render via generateUI: a single big grade indicator + per-dimension\n  contribution chart\n\nCite each upstream reviewer using `[per <agent_id>: ...]` for every\ngrade-influencing claim. Use `[novel — <reason>]` only for synthesis\nclaims (e.g. \"the combination of weak documentation + drift indicates\noperational governance gap even though neither alone would\").\n"
+- id: remediation_prioritizer
+  name: Remediation Prioritizer
+  swarm: synthesis
+  depends_on:
+  - documentation_reviewer
+  - performance_drift_analyst
+  - fairness_bias_auditor
+  - failure_mode_imaginator
+  - integration_risk_analyst
+  - regulatory_mapper
+  tools:
+  - memory_read
+  - memory_write
+  - calculator
+  - generateUI
+  prompt: "Your specific contribution: for every reviewer's finding, produce a\nranked action list. Each item: severity, remediation cost (effort\nhours + capex if any), regulatory deadline, owner role, suggested\nsequence. Persist newly-encountered patterns to /catalog/findings/\nso the next model's review benefits.\n\nYou do NOT: produce a single grade (model_risk_grade_synthesizer),\ncompose the formal dossier (mrm_dossier_composer).\n\nMethod:\n- Aggregate findings from all six reviewers\n- Use calculator to estimate remediation effort\n- Render via generateUI: a ranked remediation table (priority |\n  finding | cost | deadline | owner)\n\nCite each upstream reviewer.\n"
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518
+category: Risk & Compliance
+tags:
+- model-risk-management
+- ai-governance
+- regulatory-compliance
+- continuous-monitoring
+domains:
+- financial-regulatory-risk

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tessera Help — Running an Ecosystem</title>
+<meta name="description" content="Learn how to run and monitor Tessera ecosystems with real-time agent execution, live status tracking, and quality verification." />
+<link rel="stylesheet" href="help.css" />
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Running an Ecosystem</h1>
+  <p class="subtitle">Understanding the live run view and real-time execution.</p>
+</header>
+
+<nav class="nav-bar">
+  <a href="index.html">Overview</a>
+  <a href="ecosystems.html">Ecosystems</a>
+  <a href="running.html" class="active">Running</a>
+  <a href="builder.html">Builder</a>
+  <a href="tools.html">Tool Catalog</a>
+  <a href="quality.html">Quality</a>
+  <a href="agent-types.html">Agent Types</a>
+  <a href="quality-gates.html">Quality Gates</a>
+  <a href="files.html">Files</a>
+  <a href="faq.html">FAQ</a>
+</nav>
+
+<section>
+  <h2>Starting a Run</h2>
+  <p>Pick an ecosystem and choose <strong>Run</strong> to open the launch dialog. Tessera shapes the run <em>conversationally</em> — like the Builder — instead of a single mission box:</p>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">💬 Mission chat (default)</div>
+      <div class="card-desc">Describe what you want; the run planner asks one focused question at a time to build a complete brief for <em>this</em> ecosystem. Launch unlocks only once the brief is complete.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 Run plan panel</div>
+      <div class="card-desc">The right-hand panel shows a live briefing checklist (✓ / ○ with progress), the values captured so far, and attached files — so you can see exactly what's gathered and what's still needed.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📎 Attach files (any ecosystem)</div>
+      <div class="card-desc">Optionally attach files to <em>any</em> run. They're classified and considered in the mission chat, then passed to the agents. Never required.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">⌨ Type it myself</div>
+      <div class="card-desc">Prefer a one-shot mission? Switch to a plain mission box anytime — Launch enables as soon as there's text.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚡ Dry run</div>
+      <div class="card-desc">Runs the full pipeline with minimal work — a fast end-to-end test, not for real results.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚙ Advanced · models</div>
+      <div class="card-desc">Per-run model selection (profile or per-tier overrides). Run-scoped — never edits the ecosystem. The optimizer may suggest a cost/latency-tuned config.</div>
+    </div>
+  </div>
+  <div class="tip">The planner never invents values — if a detail matters and you haven't given it, it asks. Say "proceed" to leave any remaining details to the ecosystem's discretion.</div>
+</section>
+
+<section>
+  <h2>Run View Layout</h2>
+  <p>When a run is active, the view consists of:</p>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">Header Bar</div>
+      <div class="card-desc">Shows ecosystem name, run status (LIVE / SUCCEEDED / FAILED), and connection state (live WebSocket, polling, or offline).</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Activity Strip</div>
+      <div class="card-desc">Always-visible indicator showing what's happening now: which agents are running, grounding checks in progress, or layer transitions.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">DAG Map (left)</div>
+      <div class="card-desc">Interactive dependency graph. Nodes light up as agents run and complete. Choose any node to focus that agent's output.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Agent Output (center)</div>
+      <div class="card-desc">Full rendered output for the focused agent — or all agents if none is focused. Supports markdown, charts, tables, cards, and forms.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Agent Cards (bottom)</div>
+      <div class="card-desc">Horizontal strip of compact cards for every agent. Shows status dot, name, and output preview. Choose a card to focus.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Run Chat (floating)</div>
+      <div class="card-desc">Floating widget in the bottom-right. Chat with the system during or after a run. Also has an Events tab for raw event inspection.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Agent Status Indicators</h2>
+  <table>
+    <thead><tr><th>Dot Color</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>⚫ Gray</td><td>Pending — agent hasn't started yet</td></tr>
+      <tr><td>🔵 Blue (pulsing)</td><td>Running — agent is currently executing</td></tr>
+      <tr><td>🟢 Green</td><td>Complete — agent finished successfully</td></tr>
+      <tr><td>🔴 Red (pulsing)</td><td>Failed — agent encountered an error</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Activity Strip</h2>
+  <p>The green strip below the header shows real-time activity in priority order:</p>
+  <ol class="steps">
+    <li><strong>Agents running</strong> — shows agent IDs (clickable to focus). If multiple agents run in parallel, all are listed.</li>
+    <li><strong>Internal grounding</strong> — Amazon Bedrock Guardrails verifying findings against evidence</li>
+    <li><strong>External grounding</strong> — web-search verification of time-sensitive claims</li>
+    <li><strong>Transitioning</strong> — preparing the next layer of agents</li>
+  </ol>
+  <div class="tip">If the screen looks idle but the status says LIVE, check the activity strip — grounding checks or layer transitions are likely in progress.</div>
+</section>
+
+<section>
+  <h2>Connection States</h2>
+  <p>Tessera uses WebSocket for real-time events. If the connection drops, it falls back to polling:</p>
+  <table>
+    <thead><tr><th>Indicator</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>No indicator</td><td>Live WebSocket — events stream in real time</td></tr>
+      <tr><td><code>◌ polling</code></td><td>WebSocket dropped; polling AWS Step Functions every 5 seconds. Run continues normally.</td></tr>
+      <tr><td><code>○ offline</code></td><td>No connection. Check your network.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Quality Gates &amp; Decisions</h2>
+  <p>Some runs pause at a <strong>quality gate</strong> — for example a checkpoint reviewer (challenger) flags an issue, or an agent's output needs your call. The gate dialogue leads with the reviewer's <em>actual verdict and the specific concern</em> (not a raw error message), then offers:</p>
+  <ul class="feature-list">
+    <li><strong>✓ Accept</strong> — proceed as-is. Records that the concern is accepted so later checkpoints don't re-raise the same thing.</li>
+    <li><strong>↻ Loop with guidance</strong> — re-run with your corrective guidance injected.</li>
+    <li><strong>✕ Abort</strong> — stop the run.</li>
+  </ul>
+  <p>You can discuss the verdict inside the gate before deciding. Gates also surface in the <strong>Attention</strong> inbox so an away operator is notified; if the pause window elapses, the run ends cleanly rather than crashing.</p>
+</section>
+
+<section>
+  <h2>Run Telemetry &amp; Cost</h2>
+  <p>A floating <strong>telemetry</strong> widget (and an inline panel in run history) reports per-run and per-agent <strong>time</strong>, <strong>token usage</strong>, and an estimated <strong>cost</strong> (model list prices × tokens). It's an internal estimate for comparing runs/agents — not an authoritative bill. Minimize it to a small icon beside the chat blob.</p>
+</section>
+
+<section>
+  <h2>Notifications — the Attention Inbox</h2>
+  <p>When a run needs you while you're away, it doesn't just wait silently — it posts to the <strong>Attention</strong> inbox (the ⚠ item in the sidebar). Each entry is a conversation waiting on you:</p>
+  <table>
+    <thead><tr><th>Type</th><th>What it is</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Quality gate</strong></td><td>A checkpoint reviewer (challenger) or an output gate paused the run for your decision.</td></tr>
+      <tr><td><strong>Builder question</strong></td><td>The conversational Builder needs a clarification to continue a design.</td></tr>
+      <tr><td><strong>Design review</strong></td><td>A proposed design is waiting for your review.</td></tr>
+      <tr><td><strong>Approval</strong></td><td>An action is waiting for your approval.</td></tr>
+    </tbody>
+  </table>
+  <p>Choose an item to open and resolve it (e.g. Accept / Loop / Abort a gate). Each item carries a <strong>deadline</strong>: if the pause window elapses before you respond, the item expires and the run ends cleanly (a named <code>GateExpired</code>, not a crash). Resolved or expired items leave the inbox automatically.</p>
+</section>
+
+<section>
+  <h2>Outcome Panel</h2>
+  <p>When a run completes, ecosystems that declare artifacts show an <strong>Outcome Panel</strong> with each declared deliverable and a <strong>Download</strong> button (plus a "Download bundle" .zip of the whole run — every output, tool result, and artifact).</p>
+  <p>If a run finishes but a declared deliverable wasn't produced — or was produced incomplete — the panel shows a <strong>degraded</strong> warning instead of a misleading clean success. So an empty or partial result is never silently presented as "complete."</p>
+</section>
+
+<section>
+  <h2>Run Chat</h2>
+  <p>The floating chat widget (bottom-right) lets you:</p>
+  <ul class="feature-list">
+    <li><strong>Ask questions</strong> about the run's findings while it's in progress or after completion</li>
+    <li><strong>View raw events</strong> via the Events tab — useful for debugging or understanding agent behavior</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Resuming &amp; Re-running</h2>
+  <p><strong>Page reload:</strong> if you reload during a run, Tessera resumes tracking automatically — the active run state is persisted to your browser and polling picks up where it left off. You can safely navigate to other views (Builder, Tool Catalog) during a run; choose "⚡ Live Run" in the sidebar to return.</p>
+  <p><strong>Resume from a step:</strong> open <strong>Past Runs</strong>, choose a run, click any node in its DAG, and select <strong>↻ Resume from here</strong>. This starts a new run that <em>reuses</em> every completed upstream step and re-executes from the chosen node onward — so you don't re-run, or re-pay for, work that already succeeded. It works for <strong>failed and succeeded</strong> runs alike, and a gate-style dialog lets you add guidance before launching. The reused steps show as "carried over" in the new run's DAG.</p>
+  <div class="tip">Native redrive only resumes <em>failed</em> runs from the failure point. "Resume from here" is more general — any node, any run status — and shows you exactly which steps are reused vs re-run before you confirm.</div>
+</section>
+
+<div class="footer">
+  <a href="index.html">← Back to Help Overview</a>
+</div>
+
+</div>
+</body>
+</html>

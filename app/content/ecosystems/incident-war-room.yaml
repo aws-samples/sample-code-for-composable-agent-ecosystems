@@ -1,0 +1,192 @@
+ecosystem:
+  name: incident-war-room
+  description: "Live security incident response simulation — agents coordinate breach containment, forensics, and recovery"
+  version: '1.0'
+strategy: orchestrated
+report: true
+entry_point: triage
+memory:
+  strategies:
+  - episodic
+  - semantic
+  shared_namespaces:
+  - name: incident_record
+    write:
+    - all
+    read:
+    - all
+  - name: attack_technique_catalog
+    path: /catalog/attack-technique/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: risk_catalog
+    path: /catalog/risk/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: vulnerability_catalog
+    path: /catalog/vulnerability/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: security_control_catalog
+    path: /catalog/security-control/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: agentic_threat_catalog
+    path: /catalog/agentic-threat/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: breach_catalog
+    path: /catalog/breach/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: cyber_target_profile_catalog
+    path: /catalog/cyber-target-profile/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: vendor_catalog
+    path: /catalog/vendor/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: indicator_of_compromise_catalog
+    path: /catalog/indicator-of-compromise/
+    write:
+    - forensics
+    read:
+    - all
+    auto_persist: true
+  - name: asset_catalog
+    path: /catalog/asset/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: defense_pattern_catalog
+    path: /catalog/defense-pattern/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: trust_boundary_catalog
+    path: /catalog/trust-boundary/
+    write: []
+    read:
+    - all
+    auto_persist: false
+agents:
+- id: triage
+  name: Triage Lead
+  swarm: command
+  depends_on: []
+  tools:
+  - alert_classifier
+  - severity_scorer
+  - blast_radius_mapper
+  prompt: "You are the Triage Lead in a security incident war room. Classify the incoming alert, determine severity (P1-P4), identify affected systems and data, estimate blast radius, and set the response priority. Be decisive and fast — every minute counts."
+- id: forensics
+  name: Forensics Analyst
+  swarm: investigate
+  depends_on:
+  - triage
+  tools:
+  - log_analyzer
+  - ioc_extractor
+  - attack_path_tracer
+  - timeline_builder
+  prompt: You are a Digital Forensics Analyst in a live incident. Analyze available logs, trace the attack path from initial access to current state, extract indicators of compromise (IOCs), and build a timeline. Preserve evidence integrity. Report findings clearly with confidence levels.
+- id: containment
+  name: Containment Engineer
+  swarm: respond
+  depends_on:
+  - triage
+  tools:
+  - isolate_system
+  - rotate_credentials
+  - block_ip
+  - revoke_sessions
+  prompt: You are the Containment Engineer. Your job is to stop the bleeding NOW. Based on triage findings, isolate affected systems, rotate compromised credentials, block attacker IPs, and revoke active sessions. Act fast but document every action. Minimize business disruption where possible.
+- id: comms
+  name: Comms Coordinator
+  swarm: command
+  depends_on:
+  - triage
+  - forensics
+  tools:
+  - draft_notification
+  - stakeholder_mapper
+  - regulatory_checker
+  prompt: "You are the Communications Coordinator. Draft internal stakeholder notifications, determine regulatory disclosure requirements (GDPR 72hr, SEC 4-day, APRA), and prepare customer communications if needed. Tone must be factual, calm, and actionable. No speculation — only confirmed facts from triage and forensics."
+- id: recovery
+  name: Recovery Engineer
+  swarm: respond
+  depends_on:
+  - containment
+  - forensics
+  tools:
+  - backup_validator
+  - restoration_planner
+  - integrity_checker
+  prompt: You are the Recovery Engineer. After containment is confirmed and forensics has identified the attack scope, plan the recovery sequence. Validate backup integrity, plan restoration order (critical systems first), and verify no persistence mechanisms remain. Do not restore until forensics confirms the attack path is fully understood.
+- id: lessons_learned
+  name: Post-Incident Reviewer
+  swarm: command
+  depends_on:
+  - forensics
+  - containment
+  - comms
+  - recovery
+  tools:
+  - root_cause_analyzer
+  - gap_identifier
+  - recommendation_generator
+  prompt: "You are the Post-Incident Reviewer. With all response phases complete, write the post-incident report. Include: timeline of events, root cause analysis, what worked well, what failed, and specific recommendations to prevent recurrence. Be brutally honest — this report goes to the board."
+swarms:
+  command:
+    agents:
+    - triage
+    - comms
+    - lessons_learned
+    depends_on: []
+  investigate:
+    agents:
+    - forensics
+    depends_on: []
+  respond:
+    agents:
+    - containment
+    - recovery
+    depends_on: []
+parallel_swarms:
+- command
+- investigate
+- respond
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518
+category: Operations & Incident
+tags:
+- incident-response
+- security-coordination
+- breach-simulation
+- multi-phase-orchestratio
+quality:
+  challenger: per_level
+  challenger_gate:
+    block_below: ADEQUATE
+domains:
+- cyber-security-risk

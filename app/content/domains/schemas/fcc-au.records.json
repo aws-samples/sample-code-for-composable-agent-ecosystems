@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tessera.dev/schemas/fcc-au.records.json",
+  "title": "fcc-au domain — catalog record contract",
+  "description": "Entity-keyed reference records the AU financial-crime-compliance catalog holds. Populated by the declarative, blue/green-versioned ingest (domains/fcc-au/catalog.yaml) from authoritative live Home Affairs / AUSTRAC / DFAT sources via the grounded agentic normalizer. A customer's ML/TF risk rating, an SMR decision for a specific transaction, a sanctions-screening hit disposition, or a specific entity's AML-program assessment are CONCLUSIONS — NEVER cataloged.",
+  "x-tessera-domain": "fcc-au",
+  "x-tessera-keys": {
+    "aml-obligation": "{obligation_id}",
+    "financial-crime-typology": "{typology_id}",
+    "austrac-guidance": "{guidance_id}",
+    "sanctions-regime": "{regime_id}",
+    "enforcement-precedent": "{action_id}",
+    "legal-instrument": "{instrument_id}"
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "ingested_by": { "type": "string" },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "refresh_date": { "type": "string", "format": "date" },
+        "supersedes": { "type": "string" }
+      },
+      "required": ["ingested_by", "refresh_date"]
+    },
+    "legal-instrument": {
+      "type": "object",
+      "description": "An authoritative governing legal instrument from the Federal Register of Legislation (legislation.gov.au) — the Act itself, its register id, and its current in-force status. Anchors the catalog's obligations to the source-of-truth law and its currency.",
+      "properties": {
+        "instrument_id": { "type": "string", "description": "Federal Register id", "examples": ["C2006A00169", "C2011A00038", "C1945A00032"] },
+        "title": { "type": "string", "examples": ["Anti-Money Laundering and Counter-Terrorism Financing Act 2006", "Autonomous Sanctions Act 2011"] },
+        "collection": { "type": "string", "examples": ["Act"] },
+        "in_force": { "type": "boolean" },
+        "status": { "type": "string", "examples": ["InForce", "Repealed"] },
+        "making_date": { "type": "string" },
+        "register_url": { "type": "string", "format": "uri", "description": "https://www.legislation.gov.au/<id>/latest/text" },
+        "administered_by": { "type": "string", "examples": ["AUSTRAC", "DFAT"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["instrument_id", "title", "provenance"]
+    },
+    "aml-obligation": {
+      "type": "object",
+      "description": "A statutory AML/CTF obligation binding a reporting entity under the AML/CTF Act 2006 (Cth) — enrolment, AML/CTF program, customer due diligence (KYC), ongoing CDD, suspicious-matter reporting (SMR), threshold-transaction reporting (TTR), international-funds-transfer reporting (IFTI), record-keeping — including 2024/2026 reform changes.",
+      "properties": {
+        "obligation_id": { "type": "string", "examples": ["enrol-with-austrac", "adopt-amlctf-program", "customer-due-diligence-kyc", "ongoing-customer-due-diligence", "suspicious-matter-report-smr", "threshold-transaction-report-ttr", "international-funds-transfer-ifti", "record-keeping"] },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "framework": { "enum": ["amlctf-act", "amlctf-rules", "amlctf-reform"] },
+        "governing_provision": { "type": "string", "examples": ["AML/CTF Act 2006 (Cth) s41"] },
+        "administered_by": { "type": "string", "examples": ["AUSTRAC"] },
+        "status": { "type": "string", "examples": ["current", "proposed", "in-force", "commenced"] },
+        "effective_date": { "type": "string" },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["obligation_id", "title", "provenance"]
+    },
+    "financial-crime-typology": {
+      "type": "object",
+      "description": "A money-laundering / terrorism-financing typology with its observable red-flag indicators — durable 'what the crime looks like' knowledge, not a customer assessment.",
+      "properties": {
+        "typology_id": { "type": "string", "examples": ["structuring", "third-party-money-mules", "trade-based-ml", "cuckoo-smurfing", "shell-company-layering", "cryptocurrency-laundering"] },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "indicators": { "type": "array", "items": { "type": "string" }, "description": "observable red flags" },
+        "sector": { "type": "string" },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["typology_id", "name", "provenance"]
+    },
+    "austrac-guidance": {
+      "type": "object",
+      "description": "An AUSTRAC guidance topic with its key expectations and the obligation it elaborates.",
+      "properties": {
+        "guidance_id": { "type": "string", "examples": ["amlctf-programs", "customer-identification-kyc", "ongoing-cdd", "reporting-obligations", "risk-assessment"] },
+        "title": { "type": "string" },
+        "summary": { "type": "string" },
+        "related_obligation": { "type": "string", "description": "aml-obligation id it elaborates" },
+        "status": { "type": "string", "examples": ["current", "updated", "withdrawn"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["guidance_id", "title", "provenance"]
+    },
+    "sanctions-regime": {
+      "type": "object",
+      "description": "A sanctions regime administered for Australia (DFAT) — Australian autonomous sanctions, UNSC sanctions, thematic regimes — with the core screening/no-dealing/reporting obligations it imposes.",
+      "properties": {
+        "regime_id": { "type": "string", "examples": ["australian-autonomous-sanctions", "unsc-sanctions", "thematic-cyber-sanctions", "russia-sanctions"] },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "legal_basis": { "type": "string", "examples": ["Autonomous Sanctions Act 2011 (Cth)", "Charter of the United Nations Act 1945 (Cth)"] },
+        "obligations": { "type": "array", "items": { "type": "string" }, "description": "e.g. sanctions screening, prohibition on dealing, permit/reporting duties" },
+        "administered_by": { "type": "string", "examples": ["DFAT (Australian Sanctions Office)"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["regime_id", "name", "provenance"]
+    },
+    "enforcement-precedent": {
+      "type": "object",
+      "description": "A published AUSTRAC enforcement / civil-penalty outcome — a durable 'what AML/CTF non-compliance costs' lesson. No unrelated personal details.",
+      "properties": {
+        "action_id": { "type": "string", "examples": ["austrac-2026-westpac", "austrac-2026-crown"] },
+        "entity": { "type": "string", "description": "the regulated entity penalised" },
+        "date": { "type": "string" },
+        "issue": { "type": "string", "description": "the AML/CTF failure" },
+        "outcome": { "type": "string", "description": "penalty / enforceable undertaking" },
+        "lesson": { "type": "string" },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["action_id", "provenance"]
+    }
+  }
+}

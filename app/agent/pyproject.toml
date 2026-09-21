@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentcore"
+version = "0.1.0"
+requires-python = ">=3.12,<3.14"
+
+dependencies = [
+    "aws-opentelemetry-distro >= 0.10.0",
+    "bedrock-agentcore >= 1.0.3",
+    "fastapi >= 0.115.0",
+    "uvicorn >= 0.32.0",
+    "ag-ui-protocol >= 0.1.0",
+    "ag-ui-strands >= 0.1.0",
+    "httpx >= 0.27.0",
+    # Cap below 2.0: mcp 2.x moved streamablehttp_client out of mcp.client.streamable_http,
+    # which src/main.py imports (Strands MCP gateway client). 1.x keeps that import path.
+    "mcp >= 1.19.0, < 2.0.0",
+    "strands-agents >= 1.13.0",
+    "strands-agents-tools == 0.5.3",
+    # Browser platform tool: drives the Amazon Bedrock AgentCore managed Browser
+    # sandbox via Playwright over CDP (connect_over_cdp to a REMOTE Chromium —
+    # so only the pip package is needed; NO `playwright install` browser binary
+    # is baked into the container).
+    "playwright >= 1.48.0"
+]

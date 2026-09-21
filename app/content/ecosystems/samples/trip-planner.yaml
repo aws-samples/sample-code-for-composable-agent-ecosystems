@@ -1,0 +1,179 @@
+ecosystem:
+  name: trip-planner
+  description: "Plan an end-to-end trip from user inputs (origin, destination, dates, duration, preferences, budget) — recommending flights, hotels/Airbnb based on budget and reviews, producing an itinerary with hour-by-hour detail on key days and time-blocks on rest/transit days, and a pre-trip checklist (insurance, reservations, confirmations, leave requests, etc.)."
+  version: '1.0'
+strategy: orchestrated
+report: true
+category: Travel & Lifestyle
+tags:
+- travel
+- itinerary
+- planning
+- concierge
+quality:
+  challenger: per_level
+  challenger_gate:
+    block_below: ADEQUATE
+  grounding: true
+  gates:
+    citation: ask
+    format: ask
+    grounding: ask
+    output_kind: ask
+outcome:
+  kind: file_artifact
+  artifacts:
+  - id: trip_dossier
+    agent: dossier_drafter
+    format: pdf
+    save_as: trip_dossier.pdf
+    download_label: Download Trip Dossier (PDF)
+entry_point: destination_researcher
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: trip_planner_findings
+    write:
+    - all
+    read:
+    - all
+  - name: destination_catalog
+    path: /catalog/destination/
+    write:
+    - destination_researcher
+    read:
+    - all
+    auto_persist: true
+  - name: accommodation_catalog
+    path: /catalog/accommodation/
+    write:
+    - stay_scout
+    read:
+    - all
+    auto_persist: true
+  - name: experience_catalog
+    path: /catalog/experience/
+    write:
+    - experience_curator
+    read:
+    - all
+    auto_persist: true
+  - name: route_catalog
+    path: /catalog/route/
+    write:
+    - flight_scout
+    read:
+    - all
+    auto_persist: true
+  - name: travel_requirement_catalog
+    path: /catalog/travel-requirement/
+    write:
+    - pretrip_checklist
+    read:
+    - all
+    auto_persist: true
+agents:
+- id: destination_researcher
+  name: Destination Researcher
+  registry_id: tessera/destination_researcher
+  swarm: research
+  tools:
+  - web_search
+  - memory_write
+  prompt: "You profile the destination for the traveler's specific dates. Cover: seasonality and weather for the travel window, must-see sights and neighborhoods, notable local events/festivals on those dates, safety notes, currency and rough cost-of-living, language basics, and transit fundamentals (airport→city, intra-city options, typical taxi/transit costs). Use web_search to ground every concrete claim (weather norms, event dates, advisories) and cite sources inline. Be specific — give numbers and names, not generalities. Findings auto-publish to /trip_planner_findings for downstream agents."
+- id: flight_scout
+  name: Flight Scout
+  registry_id: tessera/flight_scout
+  swarm: research
+  tools:
+  - web_search
+  - memory_write
+  prompt: "You research flight options for the user's origin → destination on the given dates within their budget. Produce a shortlist of 3–5 realistic options spanning cheap / balanced / premium, each with: airline(s), route + layovers, total travel time, typical fare range (cite source + date checked), baggage notes, and which booking channel tends to be cheapest (OTA vs direct). Note nearby alternative airports if they materially change price. Use web_search for current fare ranges and flag every price as approximate with a 'checked on <date>' note. Findings auto-publish to /trip_planner_findings."
+- id: stay_scout
+  name: Stay Scout
+  registry_id: tessera/stay_scout
+  swarm: research
+  depends_on:
+  - destination_researcher
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: "Read destination context from /trip_planner_findings, then research lodging. Produce two shortlists: (1) hotels — 3–5 options across budget tiers with nightly rate range, review score + source, neighborhood, and why it fits; (2) Airbnb-style rentals — 3–5 options with similar detail. Then add a Neighborhood Guidance section: 2–4 areas ranked for this traveler's preferences/budget with pros, cons, vibe, and proximity to the must-sees identified by the Destination Researcher. Cite review aggregators and flag prices as 'checked on <date>'. Findings auto-publish."
+- id: experience_curator
+  name: Experience Curator
+  registry_id: tessera/experience_curator
+  swarm: research
+  depends_on:
+  - destination_researcher
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Read destination findings, then curate activities, restaurants, and day-trips matched to the user''s stated preferences and budget. For each: name, what it is, why it fits this traveler, approximate cost, opening hours / best time to visit, booking-ahead requirements, and a citation. Group into: signature experiences (book ahead), flexible activities, food highlights, and day-trip options. Aim for enough depth that the Itinerary Planner has real choice. Findings auto-publish to /trip_planner_findings.'
+- id: itinerary_planner
+  name: Itinerary Planner
+  registry_id: tessera/itinerary_planner
+  swarm: synthesis
+  depends_on:
+  - stay_scout
+  - experience_curator
+  tools:
+  - memory_read
+  - memory_write
+  prompt: "Read stay + experience findings (and destination context) from /trip_planner_findings. Build the day-by-day itinerary across the trip duration. Use HOUR-BY-HOUR granularity on key sightseeing days (e.g. 09:00 — depart hotel; 09:30 — Sight A (1.5h, €15); 11:30 — walk to…) and TIME-BLOCK granularity on arrival, transit, and rest days (e.g. 'Morning: arrive + check-in; Afternoon: light wander in <neighborhood>; Evening: low-key dinner'). Respect opening hours, realistic travel times between points, meal breaks, jet-lag on day 1, and pacing (don't stack three big sights in one day). Anchor the trip around the recommended base neighborhood. Output as a clean structured day-by-day plan ready for the dossier."
+- id: pretrip_checklist
+  name: Pre-Trip Checklist Agent
+  registry_id: tessera/pretrip_checklist
+  swarm: research
+  depends_on:
+  - destination_researcher
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: "Build a checklist fully tailored to the user's origin → destination pair. Use web_search to ground destination-specific facts (visa requirements for that passport, recommended vaccinations, travel-advisory level, plug type, any entry forms). Organize into timed buckets: 6–8 weeks before (visa, vaccinations, insurance, leave request, big bookings), 2–3 weeks before (reservations for top experiences flagged by Experience Curator, currency, eSIM/roaming, driving permit if relevant), 1 week before (confirmations, check-in alerts, packing list tailored to weather/activities), and day-of (documents, chargers, transit to airport). Cite official sources for visa/health items. Findings auto-publish to /trip_planner_findings."
+- id: dossier_drafter
+  name: Dossier Drafter
+  registry_id: tessera/dossier_drafter
+  swarm: drafter
+  depends_on:
+  - flight_scout
+  - itinerary_planner
+  - pretrip_checklist
+  tools:
+  - memory_read
+  - code_interpreter
+  output_kind: drafter
+  output_format:
+    type: pdf
+    save_as: trip_dossier.pdf
+    validate: true
+  prompt: "You assemble the final polished single PDF travel dossier. Read everything from /trip_planner_findings (destination profile, flight shortlist, stay shortlist + neighborhood guidance, curated experiences, day-by-day itinerary, pre-trip checklist) plus your direct upstream inputs. Structure the PDF: Cover (destination, dates, traveler), 1) Trip Snapshot, 2) Getting There — Flight Shortlist, 3) Where to Stay — Hotels, Airbnb, Neighborhood Guidance, 4) Day-by-Day Itinerary (preserve hour-by-hour vs time-block formatting), 5) Experiences & Food Index, 6) Pre-Trip Checklist (timed buckets), 7) Quick-Reference Appendix (emergency numbers, embassy, key phrases, currency). Use code_interpreter to render a clean, well-typeset PDF (e.g. via reportlab or weasyprint from HTML) — proper headings, tables for shortlists, readable itinerary blocks. Save as trip_dossier.pdf. Preserve every citation from upstream agents."
+swarms:
+  research:
+    agents:
+    - destination_researcher
+    - flight_scout
+    - stay_scout
+    - experience_curator
+    - pretrip_checklist
+    strategy: graph
+  synthesis:
+    agents:
+    - itinerary_planner
+    strategy: graph
+  drafter:
+    agents:
+    - dossier_drafter
+    strategy: graph
+parallel_swarms:
+- research
+- synthesis
+- drafter
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518
+domains:
+- travel-planning

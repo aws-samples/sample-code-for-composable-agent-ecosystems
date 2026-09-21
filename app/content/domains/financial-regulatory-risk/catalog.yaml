@@ -1,0 +1,42 @@
+# Declarative ingest for the financial-regulatory-risk domain.
+#
+# This domain is primarily BOTTOM-UP (seeded_from model-risk-continuous-review +
+# operational-resilience-war-room; models/controls/scenarios/precedents are written back
+# from runs). This source adds the one TOP-DOWN, authoritative grounding it was missing:
+# key APRA cross-industry prudential standard obligations (CPS 220/230/234).
+#
+# Sourcing note (authoritative-first): APRA prudential standards have NO official
+# structured API and are published as PDFs (legislation.gov.au holds only cluttered,
+# mostly-repealed "determination" instruments, not clause text). So — following the
+# proven cyber-security-risk pattern (nist-ai-rmf-playbook / acsc-e8-maturity) — the
+# standards are PARSED ONCE into a structured file (catalog-content/apra-cps.json) and
+# ingested DETERMINISTICALLY via transport:s3 + mode:map. No live fetch, no LLM
+# extraction, no Bedrock throttle risk. Re-parse the file to refresh on APRA revision.
+ingest:
+  sources:
+    - name: apra-cps-standards
+      produces: [regulatory-requirement]
+      fetch:
+        transport: s3
+        key: catalog-content/apra-cps.json
+      normalize:
+        mode: map
+        entity_type: regulatory-requirement
+        key_field: requirement_id
+        select: "requirements"
+        fields:
+          requirement_id: "requirement_id"
+          regulation: "regulation"
+          clause: "clause"
+          name: "name"
+          description: "description"
+          references: "references"
+        const:
+          framework: apra-prudential-standard
+          administered_by: APRA
+        provenance: {ingested_by: catalog-ingest, sources: [apra-cps-standards]}
+
+  refresh:
+    schedule: "rate(90 days)"
+    sanity_drop: 0.5
+  synthesis: none

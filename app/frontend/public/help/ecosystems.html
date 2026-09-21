@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tessera Help — Ecosystems</title>
+<meta name="description" content="Browse, select, and run Tessera ecosystems. Each ecosystem orchestrates multiple AI agents for a specific workflow." />
+<link rel="stylesheet" href="help.css" />
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Ecosystems</h1>
+  <p class="subtitle">Browse, select, and manage multi-agent workflows.</p>
+</header>
+
+<nav class="nav-bar">
+  <a href="index.html">Overview</a>
+  <a href="ecosystems.html" class="active">Ecosystems</a>
+  <a href="running.html">Running</a>
+  <a href="builder.html">Builder</a>
+  <a href="tools.html">Tool Catalog</a>
+  <a href="quality.html">Quality</a>
+  <a href="agent-types.html">Agent Types</a>
+  <a href="quality-gates.html">Quality Gates</a>
+  <a href="files.html">Files</a>
+  <a href="faq.html">FAQ</a>
+</nav>
+
+<section>
+  <h2>Ecosystem Grid</h2>
+  <p>The main Ecosystems view shows all available ecosystems as cards. Each card displays:</p>
+  <ul class="feature-list">
+    <li><strong>Strategy badge</strong> — orchestrated (DAG) or choreography (event-driven)</li>
+    <li><strong>Agent count</strong> — number of agents in the ecosystem</li>
+    <li><strong>Name and description</strong> — what the ecosystem does</li>
+    <li><strong>System badge</strong> — 🔒 SYSTEM ecosystems are managed by the system and cannot be edited or deleted</li>
+  </ul>
+  <p>To select an ecosystem, choose a card. The action bar at the top activates once an ecosystem is selected.</p>
+</section>
+
+<section>
+  <h2>Action Bar</h2>
+  <p>With an ecosystem selected, the action bar provides:</p>
+  <table>
+    <thead><tr><th>Button</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><strong>▶ Run</strong></td><td>Open the run modal to launch the ecosystem with a mission and inputs</td></tr>
+      <tr><td><strong>📁 Files</strong></td><td>Manage documents attached to this ecosystem (see <a href="files.html">Files</a>)</td></tr>
+      <tr><td><strong>📜 History</strong></td><td>View past runs — statuses, timestamps, and the ability to redrive failed runs</td></tr>
+      <tr><td><strong>⚡ Optimize</strong></td><td>Trigger AI analysis of recent runs to propose quality/time/cost improvements</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Launching a Run</h2>
+  <p>Choosing <strong>▶ Run</strong> opens a <strong>conversational</strong> launch dialog. Instead of a single mission box, a run planner interviews you — one focused question at a time — to build a complete brief for the ecosystem, and you can attach files to any run. See <a href="running.html">Running → Starting a Run</a> for the full flow.</p>
+  <div class="tip">Prefer to type the mission yourself? Switch to "Type it myself" in the dialog for a plain mission box.</div>
+</section>
+
+<section>
+  <h2>Run History</h2>
+  <p>The History modal shows all past runs for the selected ecosystem with:</p>
+  <ul class="feature-list">
+    <li><strong>Status</strong> — succeeded, failed, or running</li>
+    <li><strong>Timestamp</strong> — when the run started</li>
+    <li><strong>Redrive</strong> — for failed runs, resume execution from the point of failure</li>
+    <li><strong>Resume from here</strong> — choose any node in a run's DAG to start a new run that reuses completed upstream steps (works for <em>failed and succeeded</em> runs)</li>
+    <li><strong>Optimize</strong> — trigger the optimizer against a specific past run's telemetry</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Optimizing an Ecosystem</h2>
+  <p>The <strong>⚡ Optimize</strong> button triggers the platform optimizer, which:</p>
+  <ol class="steps">
+    <li>Loads telemetry from recent runs (agent durations, tool usage, grounding results)</li>
+    <li>Runs quality/time/cost analysts to identify improvements</li>
+    <li>Produces a patch — proposed changes to the ecosystem YAML</li>
+    <li>Presents the patch in an apply panel where you can review and accept changes</li>
+  </ol>
+  <div class="warn">System-managed ecosystems (🔒) cannot be optimized — they are managed by the system itself.</div>
+</section>
+
+<section>
+  <h2>Authorization &amp; Sharing</h2>
+  <p>Every ecosystem has an <strong>owner</strong> — the user who created it. Access is enforced by AWS Verified Permissions (Cedar policies):</p>
+  <ul class="feature-list">
+    <li><strong>Owner</strong> — full control: run, edit, share, delete.</li>
+    <li><strong>Admins</strong> — can manage any ecosystem.</li>
+    <li><strong>Others</strong> — can only see/run an ecosystem if it has been shared with them (or a group they belong to).</li>
+    <li><strong>System (🔒)</strong> — platform-managed; not editable via the UI by anyone.</li>
+  </ul>
+  <p>To share, select an ecosystem and choose <strong>🔗 Share</strong>. In the Sharing dialog you:</p>
+  <ol class="steps">
+    <li>Pick a <strong>user</strong> or <strong>group</strong> as the principal</li>
+    <li>Choose a permission level:
+      <ul class="feature-list">
+        <li><strong>run</strong> — launch runs only</li>
+        <li><strong>edit</strong> — modify the configuration</li>
+        <li><strong>full</strong> — edit plus manage sharing</li>
+      </ul>
+    </li>
+    <li><strong>Grant</strong> — the principal appears under <strong>Current Access</strong>; revoke anytime with ✕</li>
+  </ol>
+  <p>Owners see an access summary on the ecosystem card. Admins can review and manage all sharing from <strong>Admin → Sharing</strong>.</p>
+</section>
+
+<section>
+  <h2>Platform vs User Ecosystems</h2>
+  <p><strong>System-managed ecosystems</strong> are shipped with Tessera and maintained by the Tessera team. They have a 🔒 SYSTEM badge and cannot be edited, deleted, or optimized via the UI.</p>
+  <p><strong>User ecosystems</strong> are created via the Builder or AI suggestion. You have full control: edit, optimize, attach files, and delete.</p>
+</section>
+
+<div class="footer">
+  <a href="index.html">← Back to Help Overview</a>
+</div>
+
+</div>
+</body>
+</html>

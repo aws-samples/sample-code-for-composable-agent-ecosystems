@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tessera Help — Ecosystem Builder</title>
+<meta name="description" content="Create and edit multi-agent ecosystems with AI assistance or manual configuration in the Tessera Builder." />
+<link rel="stylesheet" href="help.css" />
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Ecosystem Builder</h1>
+  <p class="subtitle">Create and edit multi-agent ecosystems with AI assistance or manual configuration.</p>
+</header>
+
+<nav class="nav-bar">
+  <a href="index.html">Overview</a>
+  <a href="ecosystems.html">Ecosystems</a>
+  <a href="running.html">Running</a>
+  <a href="builder.html" class="active">Builder</a>
+  <a href="tools.html">Tool Catalog</a>
+  <a href="quality.html">Quality</a>
+  <a href="agent-types.html">Agent Types</a>
+  <a href="quality-gates.html">Quality Gates</a>
+  <a href="files.html">Files</a>
+  <a href="faq.html">FAQ</a>
+</nav>
+
+<section>
+  <h2>Creating a New Ecosystem</h2>
+  <p>Choose <strong>⚙ Builder</strong> in the sidebar, then <strong>＋ New ecosystem</strong>. You have two paths:</p>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">✨ AI-Assisted</div>
+      <div class="card-desc">Describe what you want in natural language. Tessera suggests a complete ecosystem config — agents, tools, dependencies, memory. Review and accept, then fine-tune.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Manual (Skip)</div>
+      <div class="card-desc">Start with a blank config and build from scratch. Add agents one by one, wire dependencies, assign tools.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Builder Layout</h2>
+  <p>The builder is a three-column layout:</p>
+  <table>
+    <thead><tr><th>Column</th><th>Contents</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Left — Ecosystem Config</strong></td><td>Name, description, strategy, quality features, memory, namespaces, inputs</td></tr>
+      <tr><td><strong>Center — Agent Editor</strong></td><td>Agent list + detailed editor for the selected agent</td></tr>
+      <tr><td><strong>Right — Preview</strong></td><td>Live graph visualization or generated YAML. Resizable via drag handle.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Ecosystem Settings</h2>
+  <h3>Coordination Strategy</h3>
+  <ul class="feature-list">
+    <li><strong>Orchestrated</strong> — agents run in a DAG defined by <code>depends_on</code>. Agents with no dependencies run in parallel.</li>
+    <li><strong>Choreography</strong> — event-driven. Agents declare <code>triggers</code> (events they listen to) and <code>emits</code> (events they produce).</li>
+  </ul>
+
+  <h3>Quality Features</h3>
+  <ul class="feature-list">
+    <li><strong>Report agent</strong> — auto-injected final agent that synthesizes all findings into a coherent report</li>
+    <li><strong>Challenger agent</strong> — auto-injected agent that stress-tests upstream findings, looking for gaps and contradictions</li>
+    <li><strong>Grounding checks</strong> — enables internal + external verification of agent claims</li>
+  </ul>
+
+  <h3>Memory Strategies</h3>
+  <p>Select which memory types agents can use:</p>
+  <ul class="feature-list">
+    <li><strong>Semantic</strong> — vector-based retrieval of relevant past context</li>
+    <li><strong>Episodic</strong> — chronological event memory</li>
+    <li><strong>Summarization</strong> — compressed summaries of long interactions</li>
+    <li><strong>User preference</strong> — learned user preferences</li>
+    <li><strong>Custom</strong> — application-specific memory</li>
+  </ul>
+
+  <h3>Shared Namespaces</h3>
+  <p>Define named memory spaces with read/write permissions per agent. Example: a "shared" namespace writable by analyst agents, readable by all.</p>
+
+  <h3>Ecosystem Inputs</h3>
+  <p>Define input fields shown to users at launch time. Types: text, file, select. Mark fields as required.</p>
+</section>
+
+<section>
+  <h2>Managing Agents</h2>
+  <h3>Adding Agents</h3>
+  <p>Choose <strong>+ Add Agent</strong>. Choose AI-assisted (describe the agent's purpose) or add a blank agent.</p>
+
+  <h3>Agent Configuration</h3>
+  <table>
+    <thead><tr><th>Field</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Agent ID</strong></td><td>Unique identifier (auto-generated, not editable after creation)</td></tr>
+      <tr><td><strong>Display Name</strong></td><td>Human-readable name shown in the UI</td></tr>
+      <tr><td><strong>Swarm</strong></td><td>Optional group label — agents in the same swarm run as a parallel unit</td></tr>
+      <tr><td><strong>Depends on</strong></td><td>Comma-separated list of upstream agent IDs this agent waits for</td></tr>
+      <tr><td><strong>Tools</strong></td><td>Comma-separated list of tools this agent can use</td></tr>
+      <tr><td><strong>Tool budgets</strong></td><td>Per-tool call limits. Leave blank to use platform defaults.</td></tr>
+      <tr><td><strong>System Prompt</strong></td><td>The agent's instructions — what it does, how it should behave</td></tr>
+    </tbody>
+  </table>
+  <p>In choreography mode, additional fields appear: <strong>Triggers</strong> (events to listen for) and <strong>Emits</strong> (events to produce).</p>
+
+  <h3>Clone & Remove</h3>
+  <p>Use <strong>Clone</strong> to duplicate an agent as a starting point. Use <strong>Remove</strong> to delete (requires at least one agent).</p>
+</section>
+
+<section>
+  <h2>Tool Budgets</h2>
+  <p>Each tool has a platform default call limit (shown in the editor). You can override per agent:</p>
+  <div class="tip">Tool budgets prevent runaway costs. If an agent hits its budget for a tool, it must proceed without further calls to that tool.</div>
+  <table>
+    <thead><tr><th>Tool</th><th>Default (leaf)</th><th>Default (synthesizer)</th></tr></thead>
+    <tbody>
+      <tr><td>web_search / web_search</td><td>6</td><td>0</td></tr>
+      <tr><td>memory_read</td><td>5</td><td>15</td></tr>
+      <tr><td>memory_write</td><td>3</td><td>5</td></tr>
+      <tr><td>code_interpreter</td><td>3</td><td>5</td></tr>
+      <tr><td>calculator</td><td>10</td><td>10</td></tr>
+      <tr><td>generateUI</td><td>5</td><td>8</td></tr>
+      <tr><td>http_request</td><td>6</td><td>2</td></tr>
+    </tbody>
+  </table>
+  <p>An agent is classified as a <strong>synthesizer</strong> if it has <code>depends_on</code> (receives upstream output); otherwise it's a <strong>leaf</strong>.</p>
+</section>
+
+<section>
+  <h2>Graph Preview</h2>
+  <p>The right panel shows a live DAG visualization. Nodes represent agents; edges represent <code>depends_on</code> relationships. You can:</p>
+  <ul class="feature-list">
+    <li>Drag edges to rewire dependencies directly on the graph</li>
+    <li>Resize the panel by dragging the left edge</li>
+    <li>Switch to YAML tab to see the generated configuration</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Save & Deploy</h2>
+  <p>Choose <strong>💾 Save & Deploy</strong> to open the deploy wizard. This:</p>
+  <ol class="steps">
+    <li>Validates the ecosystem configuration</li>
+    <li>Saves the YAML to the backend</li>
+    <li>Compiles the YAML to a Step Functions state machine (ASL)</li>
+    <li>The ecosystem becomes immediately available in the Ecosystems view</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Loading Existing Configurations</h2>
+  <p>The left panel shows a <strong>Load existing</strong> section listing all user ecosystems. Choose one to load it into the builder for editing. System-managed ecosystems are excluded (they're not editable).</p>
+</section>
+
+<div class="footer">
+  <a href="index.html">← Back to Help Overview</a>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,95 @@
+# Declarative ingest for the responsible-ai domain — a CROSS-CUTTING principle catalog
+# with a crosswalk to the NFR domains + assessing lenses. Authored as a `static` source
+# (the crosswalk is derived knowledge, not on any single web page), so ingest is
+# deterministic and reliable — no fetch, no large-page extraction. Anchored on Australia's
+# AI Ethics Principles and aligned to NIST AI RMF + the AWS Responsible-AI dimensions.
+#
+# A specific system's per-principle pass/fail for a run is a CONCLUSION — never cataloged.
+ingest:
+  sources:
+    - name: au-ai-ethics-principles
+      produces: [rai-principle]
+      fetch:
+        transport: static
+        data:
+          - principle_id: human-societal-wellbeing
+            name: Human, societal and environmental wellbeing
+            description: "AI systems should benefit individuals, society and the environment throughout their lifecycle."
+            frameworks: [au-ai-ethics, nist-ai-rmf]
+            nfr_domains: [Conduct, Business Disruption]
+            evidencing_lenses: [conduct_lens]
+            what_good_looks_like: "Demonstrated net customer/community benefit; harms to vulnerable groups identified and mitigated."
+            source: "Australia's AI Ethics Principles (DISR)"
+          - principle_id: human-centred-values
+            name: Human-centred values
+            description: "AI systems should respect human rights, diversity, and the autonomy of individuals."
+            frameworks: [au-ai-ethics]
+            nfr_domains: [Conduct, Privacy]
+            evidencing_lenses: [conduct_lens, privacy_data_lens]
+            what_good_looks_like: "Respects individual autonomy; no manipulation; human dignity preserved in automated interactions."
+            source: "Australia's AI Ethics Principles (DISR)"
+          - principle_id: fairness
+            name: Fairness
+            description: "AI systems should be inclusive and accessible, and must not involve or result in unfair discrimination against individuals, communities or groups."
+            frameworks: [au-ai-ethics, nist-ai-rmf, aws-rai]
+            nfr_domains: [Conduct, Model]
+            evidencing_lenses: [conduct_lens, regulatory_lens]
+            what_good_looks_like: "Disparate-impact testing across cohorts; proxies monitored; no unfair or discriminatory outcomes."
+            source: "Australia's AI Ethics Principles (DISR); NIST AI RMF"
+          - principle_id: privacy-protection-security
+            name: Privacy protection and security
+            description: "AI systems should respect and uphold privacy rights and data protection, and ensure the security of data."
+            frameworks: [au-ai-ethics, nist-ai-rmf, aws-rai]
+            nfr_domains: [Privacy, Data, Cyber]
+            evidencing_lenses: [privacy_data_lens, cyber_tech_lens]
+            what_good_looks_like: "APP-compliant handling incl. cross-border (APP 8); encryption, access control, breach response; data minimisation."
+            source: "Australia's AI Ethics Principles (DISR); Privacy Act 1988"
+          - principle_id: reliability-safety
+            name: Reliability and safety
+            description: "AI systems should reliably operate in accordance with their intended purpose."
+            frameworks: [au-ai-ethics, nist-ai-rmf, aws-rai]
+            nfr_domains: [Model, Tech, Business Disruption]
+            evidencing_lenses: [regulatory_lens, cyber_tech_lens]
+            what_good_looks_like: "Independent validation, drift monitoring, robustness/adversarial testing, safe-fail, tested fallback/exit."
+            source: "Australia's AI Ethics Principles (DISR); NIST AI RMF; APRA CPS 220/230"
+          - principle_id: transparency-explainability
+            name: Transparency and explainability
+            description: "There should be transparency and responsible disclosure so people know when they are being significantly impacted by AI and can find out when an AI system is engaging with them."
+            frameworks: [au-ai-ethics, nist-ai-rmf, aws-rai]
+            nfr_domains: [Privacy, Conduct]
+            evidencing_lenses: [privacy_data_lens, conduct_lens]
+            what_good_looks_like: "Disclosure that AI is in use; automated-decision transparency (APP 1); explanation of significant decisions."
+            source: "Australia's AI Ethics Principles (DISR)"
+          - principle_id: contestability
+            name: Contestability
+            description: "When an AI system significantly impacts a person, group or environment, there should be a timely process to allow people to challenge the use or output of the AI system."
+            frameworks: [au-ai-ethics]
+            nfr_domains: [Conduct]
+            evidencing_lenses: [conduct_lens, regulators_eye_challenger]
+            what_good_looks_like: "A timely, accessible process to challenge/appeal an AI decision; human review on request; redress."
+            source: "Australia's AI Ethics Principles (DISR)"
+          - principle_id: accountability
+            name: Accountability
+            description: "Those responsible for the different phases of the AI system lifecycle should be identifiable and accountable for the outcomes, and human oversight should be enabled."
+            frameworks: [au-ai-ethics, nist-ai-rmf, aws-rai]
+            nfr_domains: [People, Regulatory]
+            evidencing_lenses: [people_lens, accountability_mapper]
+            what_good_looks_like: "Named accountable person (FAR) with no gaps; enabled human oversight/override; auditable governance."
+            source: "Australia's AI Ethics Principles (DISR); Financial Accountability Regime"
+      normalize:
+        mode: agent
+        entity_type: rai-principle
+        key: "{principle_id}"
+        key_field: principle_id
+        guidance: >-
+          The input is a list of Responsible-AI principle records. Emit ONE rai-principle record
+          per item, preserving every field VERBATIM (principle_id, name, description, frameworks,
+          nfr_domains, evidencing_lenses, what_good_looks_like, source). Do not invent, merge, or
+          drop items; do not alter the crosswalk fields.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [au-ai-ethics-principles]}
+
+  refresh:
+    schedule: "rate(90 days)"
+    sanity_drop: 0.5
+  synthesis: none

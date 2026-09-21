@@ -1,0 +1,706 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tessera.dev/schemas/cyber-security-risk.records.json",
+  "title": "cyber-security-risk domain \u2014 catalog record contract",
+  "description": "Shared schema for the entity-keyed records the risk-reasoning producer writes to the cyber-security-risk domain catalog and that risk-assessment (+ sibling cyber ecosystems) read. One $def per entity type; the type's key pattern is in x-tessera-keys and is what the runtime keys the record by (/tessera/catalog/<type>/<entity-key>). See docs/spec-risk-reasoning.md \u00a72.",
+  "x-tessera-domain": "cyber-security-risk",
+  "x-tessera-keys": {
+    "risk": "{risk_id}",
+    "attack-technique": "{technique_id}",
+    "vulnerability": "{cve_or_ref}",
+    "security-control": "{control_id}",
+    "breach": "{org}-{date}",
+    "org-profile": "{org}",
+    "risk-method-profile": "{risk_type}",
+    "gai-risk": "{gai_risk_id}",
+    "regulatory-obligation": "{obligation_id}",
+    "ai-governance-control": "{control_id}",
+    "ai-incident": "{incident_id}",
+    "framework-crosswalk": "{crosswalk_id}"
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "description": "Every durable record carries provenance + refresh semantics (supersede, not overwrite-blind).",
+      "properties": {
+        "ingested_by": {
+          "type": "string",
+          "description": "producer agent id"
+        },
+        "source_run": {
+          "type": "string",
+          "description": "session id of the ingest run"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "authoritative source ids used"
+        },
+        "refresh_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "supersedes": {
+          "type": "string",
+          "description": "prior refresh_date this record replaces, if any"
+        }
+      },
+      "required": [
+        "ingested_by",
+        "refresh_date"
+      ]
+    },
+    "risk": {
+      "type": "object",
+      "description": "A catalogued, reusable risk (authoritative register entry). NOT a per-org assessment.",
+      "properties": {
+        "risk_id": {
+          "type": "string",
+          "pattern": "^RSK-[A-Z]+-[0-9]+$",
+          "examples": [
+            "RSK-DATA-001"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "examples": [
+            "data-protection",
+            "identity",
+            "ai-agentic",
+            "supply-chain"
+          ]
+        },
+        "severity_default": {
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "CRITICAL"
+          ]
+        },
+        "exposure_range": {
+          "type": "string",
+          "examples": [
+            "$10M-$200M"
+          ]
+        },
+        "sources": {
+          "type": "object",
+          "description": "cross-links into sibling catalog entities + source taxonomies",
+          "properties": {
+            "attack_techniques": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "\u2192 /catalog/attack-technique/<id>"
+            },
+            "veris_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "owasp_llm": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "owasp_agentic": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "cri_controls": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "\u2192 /catalog/security-control/<id>"
+            },
+            "enisa_category": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "base_rates": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "annual_frequency_fsi": {
+              "type": "string"
+            },
+            "median_loss_fsi": {
+              "type": "string"
+            }
+          }
+        },
+        "fair_defaults": {
+          "type": "object",
+          "description": "90% confidence ranges [min, max] used as Monte-Carlo priors by the consumer.",
+          "properties": {
+            "tef_range": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "vulnerability_range": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "primary_loss_range": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "secondary_loss_range": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          }
+        },
+        "mapped_controls": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "frameworks_applicable": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            [
+              "NIST 800-53",
+              "PCI-DSS",
+              "APRA CPS 234",
+              "DORA"
+            ]
+          ]
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      },
+      "required": [
+        "risk_id",
+        "title",
+        "category",
+        "severity_default",
+        "sources",
+        "provenance"
+      ]
+    },
+    "attack-technique": {
+      "type": "object",
+      "description": "A MITRE ATT&CK / OWASP Agentic technique (durable reference fact). Target of the R.1 ingestion proof.",
+      "properties": {
+        "technique_id": {
+          "type": "string",
+          "examples": [
+            "T1059",
+            "T1048",
+            "ASI04"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "framework": {
+          "enum": [
+            "mitre-attack",
+            "owasp-agentic",
+            "owasp-llm"
+          ]
+        },
+        "tactics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            [
+              "execution",
+              "defense-evasion"
+            ]
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "platforms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "data_sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "detections": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mitigations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "control ids / mitigation refs \u2192 /catalog/security-control/<id>"
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      },
+      "required": [
+        "technique_id",
+        "name",
+        "framework",
+        "tactics",
+        "provenance"
+      ]
+    },
+    "vulnerability": {
+      "type": "object",
+      "description": "A known vulnerability/weakness.",
+      "properties": {
+        "cve_or_ref": {
+          "type": "string",
+          "examples": [
+            "CVE-2024-3094"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "affected_products": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cvss": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "exploitation_status": {
+          "enum": [
+            "none",
+            "poc",
+            "active",
+            "weaponized"
+          ]
+        },
+        "fixes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      },
+      "required": [
+        "cve_or_ref",
+        "title",
+        "provenance"
+      ]
+    },
+    "security-control": {
+      "type": "object",
+      "description": "A control/safeguard and what it mitigates.",
+      "properties": {
+        "control_id": {
+          "type": "string",
+          "examples": [
+            "SC-28",
+            "PR.DS-01"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "frameworks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mitigates_techniques": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "\u2192 /catalog/attack-technique/<id>"
+        },
+        "implementation": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      },
+      "required": [
+        "control_id",
+        "title",
+        "provenance"
+      ]
+    },
+    "breach": {
+      "type": "object",
+      "description": "A historical breach/incident with lessons.",
+      "properties": {
+        "org": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "vector": {
+          "type": "string"
+        },
+        "impact": {
+          "type": "string"
+        },
+        "root_cause": {
+          "type": "string"
+        },
+        "techniques": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lessons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      },
+      "required": [
+        "org",
+        "date",
+        "provenance"
+      ]
+    },
+    "org-profile": {
+      "type": "object",
+      "description": "An assessed organisation's durable profile \u2014 reused across its assessments. Org-scoped; never cross-org.",
+      "properties": {
+        "org": {
+          "type": "string"
+        },
+        "jurisdiction": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            [
+              "AU",
+              "EU",
+              "US"
+            ]
+          ]
+        },
+        "size": {
+          "type": "string",
+          "examples": [
+            "tier-1 financial institution"
+          ]
+        },
+        "industry": {
+          "type": "string"
+        },
+        "data_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            [
+              "PCI",
+              "PII",
+              "PHI"
+            ]
+          ]
+        },
+        "fair_org_params": {
+          "type": "object",
+          "description": "org-specific overrides applied on top of a risk's fair_defaults",
+          "properties": {
+            "revenue": {
+              "type": "string"
+            },
+            "customer_count": {
+              "type": "string"
+            },
+            "regulatory_regimes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      },
+      "required": [
+        "org",
+        "provenance"
+      ]
+    },
+    "risk-method-profile": {
+      "type": "object",
+      "description": "How the consumer should weight the six frameworks for a given risk type. Durable, reusable.",
+      "properties": {
+        "risk_type": {
+          "enum": [
+            "tail",
+            "linear",
+            "compliance",
+            "operational"
+          ]
+        },
+        "weighting": {
+          "type": "object",
+          "description": "framework -> role",
+          "additionalProperties": {
+            "enum": [
+              "primary",
+              "supporting",
+              "background",
+              "n/a"
+            ]
+          },
+          "examples": [
+            {
+              "taleb": "primary",
+              "premortem": "primary",
+              "bowtie": "supporting",
+              "fair": "supporting",
+              "traditional": "background",
+              "decision_tree": "n/a"
+            }
+          ]
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      },
+      "required": [
+        "risk_type",
+        "weighting",
+        "provenance"
+      ]
+    },
+    "gai-risk": {
+      "type": "object",
+      "description": "A generative/agentic-AI risk (e.g. NIST AI 600-1). Reusable catalog entry.",
+      "properties": {
+        "gai_risk_id": {
+          "type": "string",
+          "examples": [
+            "GAI-RISK-CBRN",
+            "GAI-RISK-CONFAB"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      },
+      "required": [
+        "gai_risk_id"
+      ]
+    },
+    "regulatory-obligation": {
+      "type": "object",
+      "description": "A regulatory obligation (e.g. an EU AI Act article) that a system must satisfy.",
+      "properties": {
+        "obligation_id": {
+          "type": "string",
+          "examples": [
+            "eu-ai-act-art-6"
+          ]
+        },
+        "framework": {
+          "type": "string",
+          "examples": [
+            "eu-ai-act"
+          ]
+        },
+        "article": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      },
+      "required": [
+        "obligation_id"
+      ]
+    },
+    "ai-governance-control": {
+      "type": "object",
+      "description": "An AI-governance control (e.g. a NIST AI RMF subcategory) usable as a mitigation.",
+      "properties": {
+        "control_id": {
+          "type": "string",
+          "examples": [
+            "GOVERN-1.1"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "function": {
+          "type": "string",
+          "examples": [
+            "GOVERN",
+            "MAP",
+            "MEASURE",
+            "MANAGE"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      },
+      "required": [
+        "control_id"
+      ]
+    },
+    "ai-incident": {
+      "type": "object",
+      "description": "A reviewed real-world AI incident (precedent for scenario grounding).",
+      "properties": {
+        "incident_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      },
+      "required": [
+        "incident_id"
+      ]
+    },
+    "framework-crosswalk": {
+      "type": "object",
+      "description": "A crosswalk mapping equivalent controls/obligations across governance frameworks.",
+      "properties": {
+        "crosswalk_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "mappings": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      },
+      "required": [
+        "crosswalk_id"
+      ]
+    }
+  }
+}

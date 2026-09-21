@@ -1,0 +1,255 @@
+ecosystem:
+  name: ai-governance-conformity
+  description: "AI Governance Conformity Desk — a jurisdiction-aware conformity assessment for a\nsingle AI system. The operator (AI Governance Lead, DPO, Chief Risk Officer, or a\nproduct/legal owner) provides the system's identity, deployment context, AI\ncharacteristics, and the markets it operates in. A regulatory tier classifier\ndetermines the system's risk classification per applicable regimes; four\nspecialists then map it IN PARALLEL across the authoritative catalog\n(EU AI Act articles, NIST AI RMF, NIST AI 600-1 Generative-AI risks, OWASP\nLLM+Agentic, MITRE ATLAS, real AI incidents); a harmonizer reconciles the\nframeworks into a single unified control map (one control ↔ many obligations);\na grade synthesizer produces a per-framework + overall conformity readiness\ngrade with FRIA/DPIA triggers; and a composer writes the audit-grade conformity\ndossier and persists it to /catalog/ai-system-conformity/ so the next review\ncompounds on this one.\n\nJurisdiction-aware by design: the classifier and regulatory mapper read ALL\nregulatory-obligation records and apply whichever regimes the system's\ndeployment_geographies trigger — the EU AI Act (Regulation (EU) 2024/1689)\ntoday, Australia's AI guardrails (Voluntary AI Safety Standard + proposed\nMandatory Guardrails for high-risk AI) as they land in the catalog, and any\nfuture regime the catalog carries. Because Australia's guardrails were\ndeliberately aligned with the EU AI Act and ISO/IEC 42001, the framework\ncrosswalk collapses overlapping obligations into single controls.\n\nEvery framework citation resolves to a catalog record (weekly-refreshed from\nprimary sources), an adversarial challenger red-teams the classification before\nit stands, and external grounding verifies time-sensitive regulatory claims —\nso the assessment does not hallucinate law, controls, or citations."
+  version: '1.0'
+  inputs:
+  - id: system_identity
+    type: text
+    label: System identity (name, provider/deployer, version, and the business purpose it serves)
+    required: true
+  - id: system_context
+    type: text
+    label: "Deployment context (where it is used, who is affected, decision authority/autonomy level, human-oversight arrangements, fallback/override, scale)"
+    required: true
+  - id: ai_characteristics
+    type: text
+    label: "AI characteristics (model type — LLM / agentic / classifier / scoring; for agentic systems: tools, permissions, data access, orchestration + memory pattern; training data provenance if known)"
+    required: true
+  - id: deployment_geographies
+    type: text
+    label: "Deployment geographies / markets (e.g. 'EU + Australia', 'AU only', 'global incl. EU') — drives which regulatory regimes apply"
+    required: true
+  - id: existing_documentation
+    type: text
+    label: "Existing governance documentation (optional: model card, DPIA/FRIA, eval evidence, data-governance notes — paste text or references)"
+    required: false
+  - id: assessment_trigger
+    type: text
+    label: "Assessment trigger (optional: pre-market / initial / periodic / post-change / post-incident — affects depth)"
+    required: false
+  outcome:
+    kind: file_artifact
+    audience: the AI Governance Committee, DPO and board (and, on request, the regulator)
+    artifacts:
+    - id: conformity_dossier
+      agent: conformity_dossier_composer
+      format: html
+      save_as: ai-conformity-dossier.html
+      download_label: AI Conformity Dossier (HTML)
+strategy: orchestrated
+report: true
+# Declare the audit-grade conformity dossier the composer produces so the UI can surface
+# open/download (openReport only opens DECLARED + produced artifacts).
+outcome:
+  kind: file_artifact
+  audience: AI Governance Lead, DPO, Chief Risk Officer, product/legal owners
+  artifacts:
+  - id: conformity_dossier_html
+    agent: conformity_dossier_composer
+    format: html
+    save_as: ai-conformity-dossier.html
+    download_label: Download AI Conformity Dossier (HTML)
+quality:
+  challenger: per_level
+  grounding: true
+  external_grounding: true
+  challenger_gate:
+    block_below: ADEQUATE
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: ai_system_conformity_catalog
+    path: /catalog/ai-system-conformity/
+    write:
+    - conformity_dossier_composer
+    read:
+    - all
+    auto_persist: true
+  - name: regulatory_obligation_catalog
+    path: /catalog/regulatory-obligation/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: ai_governance_control_catalog
+    path: /catalog/ai-governance-control/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: gai_risk_catalog
+    path: /catalog/gai-risk/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: agentic_threat_catalog
+    path: /catalog/agentic-threat/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: ai_attack_technique_catalog
+    path: /catalog/ai-attack-technique/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: ai_incident_catalog
+    path: /catalog/ai-incident/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: framework_crosswalk_catalog
+    path: /catalog/framework-crosswalk/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: security_control_catalog
+    path: /catalog/security-control/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: risk_catalog
+    path: /catalog/risk/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: session_log
+    path: /sessions/{sessionId}/agents/{agentId}/
+    write:
+    - all
+    read:
+    - all
+    auto_persist: true
+agents:
+- id: system_intake_analyst
+  name: System Intake Analyst
+  swarm: intake
+  depends_on: []
+  tools:
+  - memory_read
+  - current_time
+  - generateUI
+  prompt: "Your ONLY job: normalize the operator's raw inputs into a structured intake brief and pull any prior dossier for this system. You are the FIRST station on an assembly line — you prepare the material; the specialists downstream do the analysis. Nothing you output may pre-empt them.\n\nHARD STOP — you MUST NOT produce ANY of the following. Doing so anchors and biases every downstream agent, and you lack the catalog grounding they have:\n- a regulatory classification or tier (no 'high-risk', no 'Annex III', no Article numbers) — that is regulatory_tier_classifier's job;\n- ANY framework identifier of any kind: EU AI Act article numbers, NIST AI RMF categories, NIST AI 600-1 risk IDs, OWASP LLM/ASI IDs, MITRE ATLAS AML.* IDs. If you catch yourself typing an ID like 'Art. 10', 'GV.1', 'ASI06', 'AML.T0020', or 'harmful-bias' — STOP; it belongs downstream;\n- an obligation map, control map, or gap register (regulatory_obligation_mapper / control_map_harmonizer);\n- any FRIA/DPIA trigger call (conformity_grade_synthesizer decides that);\n- risk severities, likelihoods, or a conformity grade;\n- a remediation roadmap or recommendations;\n- instructions to, or a work plan for, the other agents.\n\nYou MAY describe the system in plain operational language (e.g. 'autonomous resume screening in hiring', 'auto-rejects applicants below a score threshold') — describe WHAT IT IS, never WHAT RULE APPLIES.\n\nMethod:\n1. Extract and normalize from the operator inputs ONLY (do not research frameworks):\n   - IDENTITY: system name, provider-vs-deployer role, version, business purpose (plain description).\n   - CONTEXT: where deployed, who is affected, decision authority / autonomy level, human-oversight + override/fallback arrangements, scale.\n   - AI CHARACTERISTICS: model type (LLM / agentic / classifier / scoring); for agentic systems capture tools, permissions, data access, orchestration + memory pattern; training-data provenance if provided.\n   - JURISDICTIONS: parse deployment_geographies into a plain list of jurisdiction NAMES only (e.g. EU, AU, US) — NOT articles or cited regimes. This list is the switch downstream agents use.\n   - DOCUMENTATION: inventory which governance docs EXIST vs are ABSENT (model card, DPIA, FRIA, eval evidence, logging spec). State presence/absence as a fact; do NOT judge which obligation it fails.\n   - TRIGGER: initial / periodic / post-change / post-incident (default initial).\n2. Call memory_read on /tessera/catalog/ai-system-conformity for this system to retrieve any PRIOR review (note the prior date and that a prior review exists). This is the ONLY catalog read you make — do NOT read any framework catalog.\n3. Render via generateUI a one-page intake brief (identity, context, AI characteristics, jurisdiction list, documentation inventory, prior-review note).\n\nOUTPUT CONTRACT:\n- Keep it tight: this is an intake brief, not an assessment. Do not add any section beyond the brief and the findings below.\n- End with a ## STRUCTURED FINDINGS section: one discrete INTAKE FACT per line (a normalized identity / context / characteristic / jurisdiction / documentation-presence fact, or the prior-review delta). Cite '[per operator: ...]' for operator-supplied facts or '[per memory: ...]' for prior-dossier facts. No framework IDs, tiers, obligations, severities, or FRIA/DPIA calls in this section.\n- FINAL SELF-CHECK before finishing: re-read your output and DELETE any sentence that names a regulation, article, control ID, risk ID, tier, obligation, severity, FRIA/DPIA call, or downstream instruction. Removing such content is correct, not a loss."
+- id: regulatory_tier_classifier
+  name: Regulatory Tier Classifier
+  swarm: classify
+  output_kind: researcher
+  depends_on:
+  - system_intake_analyst
+  tools:
+  - memory_read
+  - web_search
+  - current_time
+  - generateUI
+  tool_budget:
+    web_search: 4
+  prompt: "Your specific contribution: determine the system's regulatory RISK\nCLASSIFICATION under every regime triggered by its deployment_geographies. This\ngates the entire downstream assessment, so be precise and cite the specific\nprovision behind each classification.\n\nYou do NOT: enumerate every applicable obligation (regulatory_obligation_mapper),\nmap NIST/OWASP/ATLAS (the other mappers), grade conformity, or compose the\ndossier.\n\nMethod:\n1. Read the intake brief's applicable-regime list.\n2. For the EU (if in scope) — read /catalog/regulatory-obligation/ and classify\n   under the EU AI Act (Regulation (EU) 2024/1689):\n     - PROHIBITED (Article 5) — is any prohibited practice present?\n     - HIGH-RISK (Article 6 + Annex III) — does the purpose fall in an Annex III\n       area (biometrics, critical infrastructure, education, EMPLOYMENT, access\n       to essential public/private services incl. credit, law enforcement,\n       migration, justice)?\n     - LIMITED (Article 50 transparency) — chatbot / synthetic-content / emotion\n       or biometric-categorization disclosure duties?\n     - GPAI (Article 53 / systemic-risk Article 55) — is it a general-purpose\n       model or built on one?\n     - MINIMAL — none of the above.\n   State the classification AND the effective-date/enforcement exposure.\n3. For AUSTRALIA (if in scope) — read /catalog/regulatory-obligation/ for AU\n   guardrail records. Assess whether the system is 'high-risk AI' under the\n   proposed Mandatory Guardrails (and which of the Voluntary AI Safety Standard\n   guardrails apply). If AU guardrail records are NOT yet present in the catalog,\n   say so explicitly and fall back to web_search for the current DISR position —\n   never invent the classification.\n4. For any other regime in scope, classify to the extent the catalog supports it.\n5. Use web_search sparingly (max 4) ONLY to confirm current enforcement dates or\n   very recent rule changes; prefer primary/regulator sources.\n\nRender via generateUI: a classification panel — one row per regime with the\ntier/verdict, the governing provision, and the enforcement/effective-date\nexposure; use colour-coded tier badges.\n\nEnd with ## STRUCTURED FINDINGS: one finding per regime = (regime, tier,\ngoverning provision, enforcement exposure). Cite the specific article/guardrail\nfor every classification (`[per regulatory-obligation: <framework> <ref>]`).\nCite the intake for the system facts you rely on. Where the catalog lacks a\nregime, mark the finding `[catalog-gap: <regime>]`."
+- id: regulatory_obligation_mapper
+  name: Regulatory Obligation Mapper
+  swarm: mapping
+  output_kind: researcher
+  depends_on:
+  - regulatory_tier_classifier
+  tools:
+  - memory_read
+  - web_search
+  - generateUI
+  tool_budget:
+    web_search: 6
+  prompt: "Your specific contribution: enumerate every concrete regulatory OBLIGATION the\nsystem must satisfy, per regime, given its classification — and what evidence\neach obligation demands. This is the legal backbone of the dossier.\n\nYou do NOT: (re)classify the tier (regulatory_tier_classifier already did),\nmap NIST AI RMF (nist_ai_rmf_mapper), GAI/OWASP risks (genai_owasp_mapper), or\nAI attack techniques (ai_threat_mapper).\n\nMethod:\n1. Read the classifier's STRUCTURED FINDINGS (per-regime tiers).\n2. For the EU (if high-risk) read /catalog/regulatory-obligation/ and map the\n   applicable EU AI Act articles to THIS system, e.g.: Art. 9 (risk management),\n   Art. 10 (data & data governance), Art. 11 (technical documentation), Art. 12\n   (logging), Art. 13 (transparency to deployers), Art. 14 (human oversight),\n   Art. 15 (accuracy/robustness/cybersecurity), Art. 26 (deployer duties),\n   Art. 50 (transparency), Art. 72 (post-market monitoring), Art. 73 (serious-\n   incident reporting). For GPAI add Art. 53/55. Quote the obligation and state\n   what the system must produce to satisfy it.\n3. For AUSTRALIA (if in scope) map the applicable guardrails from\n   /catalog/regulatory-obligation/ (framework au-*): accountability/governance,\n   risk management, data governance, testing & monitoring, human oversight,\n   transparency/user disclosure, contestability, record-keeping, supply-chain\n   transparency, conformity self-assessment/certification. If AU records are\n   absent from the catalog, state `[catalog-gap: AU]` and web_search the DISR\n   Voluntary AI Safety Standard / Mandatory Guardrails to map them — clearly\n   marking those as externally sourced pending catalog ingestion.\n4. Read /catalog/framework-crosswalk/ to note where an EU article and an AU\n   guardrail are the SAME underlying obligation (so the harmonizer can collapse\n   them).\n5. Use web_search (max 6) only for very recent obligation changes; prefer\n   primary sources.\n\nRender via generateUI: an obligation register — regime | provision | obligation |\nevidence demanded | applies-because. Group by regime.\n\nEnd with ## STRUCTURED FINDINGS: one finding per obligation = (regime, provision,\nobligation summary, evidence demanded). Cite every obligation to its catalog\nrecord (`[per regulatory-obligation: <framework> <ref>]`) or mark\n`[external: <url>]` when catalog-sourced records are unavailable. This section\nis mandatory.\n\n--- EVIDENCE DISCIPLINE (operator-supplied documents are PRIMARY evidence) ---\nThe operator may attach supporting documents for this system; they appear under '## ATTACHED FILES' in your input as FULL text. Treat them as primary evidence, above assumption:\n- Mark an obligation SATISFIED / PARTIALLY-SATISFIED ONLY if an attached document actually evidences it, and quote/cite the document + section, e.g. [per doc: dpia.pdf — 'a DPIA was completed on 2026-03-11 covering automated decision-making']. \n- Mark it UNMET only if NO attached document covers it. Do NOT assume evidence exists without a document, and do NOT call an obligation unmet when a document shows it is met.\n- If a document contradicts an upstream assumption, the DOCUMENT wins — say so. If no documents are attached, assess on the operator's description and state that documentary evidence was not supplied."
+- id: nist_ai_rmf_mapper
+  name: NIST AI RMF Mapper
+  swarm: mapping
+  depends_on:
+  - regulatory_tier_classifier
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: map the system to the NIST AI Risk Management\nFramework (AI RMF 1.0) GOVERN / MAP / MEASURE / MANAGE functions, identifying\nwhich subcategories are most relevant and whether the system's context suggests\nthey are met, partial, or absent. NIST AI RMF is the trustworthiness backbone\nthat regulators and enterprise procurement expect.\n\nYou do NOT: enumerate legal obligations (regulatory_obligation_mapper), map\nGAI/OWASP risks (genai_owasp_mapper) or attack techniques (ai_threat_mapper),\ngrade conformity, or compose the dossier.\n\nMethod:\n1. Read the intake brief + classifier findings.\n2. Read /catalog/ai-governance-control/ (the NIST AI RMF categories: GV.*, MP.*,\n   MS.*, MG.*). For each function, select the categories that apply to THIS\n   system and assess present / partial / absent based on the supplied context\n   and documentation inventory.\n3. Give special weight to GOVERN (accountability, policies, third-party/supply\n   chain) and MEASURE (evaluation for trustworthy characteristics) since those\n   are where most systems have gaps.\n\nRender via generateUI: a GOVERN/MAP/MEASURE/MANAGE scorecard (category | applies |\nstatus present/partial/absent | 1-line evidence or gap).\n\nEnd with ## STRUCTURED FINDINGS: one finding per applicable category = (function,\ncategory id, status, evidence/gap). Cite each to its catalog record\n(`[per ai-governance-control: <id>]`) and cite the intake for system facts.\nMandatory.\n\n--- EVIDENCE DISCIPLINE (operator-supplied documents are PRIMARY evidence) ---\nThe operator may attach supporting documents; they appear under '## ATTACHED FILES' in your input as FULL text. Treat them as primary evidence, above assumption:\n- Mark a category PRESENT or PARTIAL ONLY if an attached document actually evidences it, and quote/cite the document + section, e.g. [per doc: data-governance-policy.pdf — 'training data lineage is recorded in the feature registry']. \n- Mark it ABSENT only if NO attached document covers it. Do NOT assume a control exists without documentary evidence, and do NOT call it absent when a document shows it.\n- If a document contradicts an upstream assumption, the DOCUMENT wins — say so. If no documents are attached, assess on the operator's description and state that documentary evidence was not supplied."
+- id: genai_owasp_mapper
+  name: GenAI & OWASP Risk Mapper
+  swarm: mapping
+  depends_on:
+  - regulatory_tier_classifier
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: map the system to the NIST AI 600-1 Generative-AI\nrisks and the OWASP Top-10 for LLM Applications + Agentic Applications, ranked\nby relevance to THIS system's architecture and autonomy.\n\nYou do NOT: enumerate legal obligations, map NIST AI RMF controls, map MITRE\nATLAS techniques (ai_threat_mapper), grade, or compose.\n\nMethod:\n1. Read the intake brief (esp. model type + agentic characteristics).\n2. Read /catalog/gai-risk/ (the 12 NIST AI 600-1 GAI risks: confabulation,\n   harmful-bias, data-privacy, info-integrity, info-security, human-ai-config,\n   value-chain, etc.) and assess applicability + severity for this system.\n3. Read /catalog/agentic-threat/ (OWASP LLM01-10 and, for agentic systems,\n   ASI01-10). For an agentic system, ASI risks (memory poisoning, tool misuse,\n   privilege compromise, goal manipulation, overwhelming human-in-the-loop) are\n   first-class — rank them against the system's actual tools/permissions/memory.\n4. Produce a ranked risk matrix: likelihood given the stack × impact given the\n   affected population/decision authority.\n\nRender via generateUI: a ranked risk matrix (risk id | name | source framework |\napplicability | likelihood | impact) with severity colour-coding.\n\nEnd with ## STRUCTURED FINDINGS: one finding per applicable risk = (framework,\nrisk id, applicability, severity). Cite each to its catalog record\n(`[per gai-risk: <id>]` / `[per agentic-threat: <id>]`). Mandatory."
+- id: ai_threat_mapper
+  name: AI Threat & Incident Mapper
+  swarm: mapping
+  output_kind: researcher
+  depends_on:
+  - regulatory_tier_classifier
+  tools:
+  - memory_read
+  - web_search
+  - generateUI
+  tool_budget:
+    web_search: 4
+  prompt: "Your specific contribution: map adversarial AI attack techniques (MITRE ATLAS)\nthat apply to the system, and ground the assessment in real, documented AI\nincidents so the risks are concrete rather than theoretical.\n\nYou do NOT: enumerate legal obligations, map NIST AI RMF, rank GAI/OWASP risks\n(genai_owasp_mapper), grade, or compose.\n\nMethod:\n1. Read the intake brief (architecture, data access, tools).\n2. Read /catalog/ai-attack-technique/ (MITRE ATLAS) and select techniques that\n   apply to this system's architecture (e.g. prompt injection, model evasion,\n   data/model poisoning, model extraction, ML supply-chain). For each, note the\n   tactic and a mitigation direction.\n3. Read /catalog/ai-incident/ for real documented incidents analogous to this\n   system's domain/harm profile (e.g. hiring-bias, credit-bias, benefits-\n   algorithm, chatbot-misinformation, facial-recognition-privacy). Use these as\n   credibility anchors — 'this failure mode has happened, here'.\n4. Use web_search (max 4) only for very recent incidents in the system's domain\n   if the catalog lacks a close analog.\n\nRender via generateUI: (a) an ATLAS technique table (technique id | name |\ntactic | applicability | mitigation direction); (b) an incident-anchor list\n(incident | year | harm category | why analogous).\n\nEnd with ## STRUCTURED FINDINGS: findings for applicable techniques\n(`[per ai-attack-technique: <id>]`) and incident anchors\n(`[per ai-incident: <id>]`). Mandatory."
+- id: control_map_harmonizer
+  name: Cross-Framework Control Harmonizer
+  swarm: synthesis
+  depends_on:
+  - regulatory_obligation_mapper
+  - nist_ai_rmf_mapper
+  - genai_owasp_mapper
+  - ai_threat_mapper
+  tools:
+  - memory_read
+  - memory_write
+  - code_interpreter
+  - generateUI
+  prompt: "Your specific contribution: reconcile all four mappers into a SINGLE unified\ncontrol map — the single source of truth in which one implemented control\nsatisfies obligations across every framework at once — then identify the\nconformity gaps and propose remediations. This is the harmonization the audience\ncares most about.\n\nYou do NOT: (re)classify (regulatory_tier_classifier), produce the readiness\ngrade (conformity_grade_synthesizer), or write the final dossier\n(conformity_dossier_composer). You BUILD THE MAP and the GAP REGISTER.\n\nMethod:\n1. Read all four mappers' STRUCTURED FINDINGS.\n2. Read /catalog/framework-crosswalk/ to collapse overlapping obligations: for\n   each governance category (fairness-bias, transparency, accountability, safety,\n   privacy, societal-harm, ai-agent-compromise, environmental) assemble the set\n   of {EU AI Act articles, AU guardrails, NIST AI RMF categories, NIST AI 600-1\n   risks, OWASP/ATLAS anchors} that map to it.\n3. For each category define ONE consolidated control statement and list every\n   obligation it satisfies across frameworks (the 'one-control-many-obligations'\n   view). Where the system context shows the control is present/partial/absent,\n   record status.\n4. Propose remediations for gaps, drawing concrete safeguards from\n   /catalog/security-control/ (NIST 800-53) and /catalog/ai-governance-control/\n   (NIST AI RMF). Use code_interpreter to build the crosswalk matrix and a\n   coverage roll-up per framework.\n5. Read /catalog/risk/ when available to attach catalogued risk severities /\n   exposure ranges to the gaps (if the synthesized risk layer is not yet\n   populated, proceed without it and note the omission).\n\nRender via generateUI: (a) the unified control map (control | satisfies: EU / AU /\nNIST RMF / GAI / OWASP-ATLAS | status) as a heatmap; (b) a gap register\n(gap | affected obligations | severity | proposed remediation | source control).\n\nCite each upstream mapper with `[per <agent_id>: ...]` and each crosswalk with\n`[per framework-crosswalk: <category>]`. Use `[novel — reason]` only for\nharmonization decisions with no single upstream source. Write the consolidated\ncontrol map to /catalog/ai-system-conformity/ for reuse. End with\n## STRUCTURED FINDINGS (one per consolidated control + one per gap). Mandatory.\n\n--- EVIDENCE DISCIPLINE (operator-supplied documents are PRIMARY evidence) ---\nThe operator may attach supporting documents; they appear under '## ATTACHED FILES' in your input as FULL text. They are the decisive evidence for control status:\n- Record a control PRESENT or PARTIAL ONLY if an attached document evidences it, and cite the document + section in the status cell, e.g. [per doc: logging-monitoring-standard.pdf §4 — 'every agent tool-call is logged for 7 years']. \n- Record it ABSENT (a real gap) only if NO attached document covers it. Never infer a gap that a supplied document closes, and never infer a control that no document supports.\n- Where a mapper upstream marked something absent but a supplied document evidences it, OVERRIDE to present and cite the document (note the correction). If no documents are attached, treat all controls as unevidenced and say so."
+- id: conformity_grade_synthesizer
+  name: Conformity Grade Synthesizer
+  swarm: synthesis
+  depends_on:
+  - regulatory_obligation_mapper
+  - nist_ai_rmf_mapper
+  - genai_owasp_mapper
+  - ai_threat_mapper
+  tools:
+  - memory_read
+  - code_interpreter
+  - calculator
+  - generateUI
+  prompt: "Your specific contribution: produce the conformity READINESS GRADE — per regime\nand overall (red / amber / green) — with the specific findings driving each\ngrade, plus the impact-assessment triggers (EU FRIA under Art. 27, DPIA under\nGDPR, AU impact-assessment expectation) the system must complete.\n\nYou do NOT: build the control map (control_map_harmonizer), or compose the\ndossier (conformity_dossier_composer). You GRADE.\n\nMethod:\n1. Read all four mappers' STRUCTURED FINDINGS (obligations, NIST status, GAI/OWASP\n   severities, ATLAS/incident anchors).\n2. Use code_interpreter / calculator to compute a defensible grade: weight each\n   framework dimension, combine per a transparent rubric (state the rubric), and\n   surface which findings most influenced each grade. Compare to prior grade from\n   /catalog/ai-system-conformity/ if a prior review exists (delta direction).\n3. Determine impact-assessment triggers: does the classification require an EU\n   Fundamental Rights Impact Assessment (Art. 27) and/or a DPIA? Does the AU\n   high-risk determination expect an AI impact assessment? State each trigger and\n   whether evidence exists.\n4. Flag the enforcement exposure explicitly (e.g. EU penalties up to €35M / 7%\n   turnover; AU certification-of-compliance expectation) so the grade has teeth.\n\nRender via generateUI: a big overall grade indicator + a per-regime / per-\ndimension contribution chart + an impact-assessment trigger checklist.\n\nCite each upstream mapper with `[per <agent_id>: ...]`. Use `[novel — reason]`\nonly for combination judgements (e.g. 'weak documentation + high autonomy → the\ncombination is red even though neither alone would be'). End with\n## STRUCTURED FINDINGS: overall grade, per-regime grade, top grade-drivers, and\neach impact-assessment trigger. Mandatory.\n\n--- EVIDENCE DISCIPLINE (operator-supplied documents are PRIMARY evidence) ---\nOperator-supplied documents (under '## ATTACHED FILES', FULL text) drive the grade. A control/obligation backed by a cited document counts as met; only genuinely unevidenced items count against the grade. Do NOT grade something red for missing evidence that an attached document in fact supplies, and do NOT credit a control no document supports. If the harmonizer overrode a status based on a document, respect that. If no documents are attached, grade on the operator's description and state that the assessment is un-evidenced (which itself caps the achievable grade)."
+- id: conformity_dossier_composer
+  name: Conformity Dossier Composer
+  swarm: compose
+  depends_on:
+  - regulatory_tier_classifier
+  - control_map_harmonizer
+  - conformity_grade_synthesizer
+  tools:
+  - memory_read
+  - memory_write
+  - generateUI
+  output_kind: drafter
+  output_format:
+    type: html
+    file_extension: .html
+    save_as: ai-conformity-dossier.html
+  prompt: "Your specific contribution: assemble everything into a single, audit-grade,\ncustomer-facing AI Conformity Dossier (HTML). This is the deliverable a governance\nfunction could hand to a board, an auditor, or a regulator.\n\nYou do NOT: re-classify, re-map, or re-grade. Your job is integration,\nconsistency-checking, and producing the unified document. If upstream findings\nconflict, surface the conflict rather than silently resolving it.\n\nMethod:\n1. Read the classifier, harmonizer, and grade-synthesizer STRUCTURED FINDINGS\n   (and, via results, the four mappers they summarize).\n2. Produce an HTML dossier with this structure:\n\n   1. EXECUTIVE SUMMARY\n      - System, provider/deployer, version, purpose, geographies\n      - Overall conformity grade + per-regime grade badges\n      - Top 3 exposures and the enforcement stakes\n      - Impact-assessment triggers (FRIA / DPIA / AU impact assessment)\n\n   2. REGULATORY CLASSIFICATION\n      - Per-regime tier + governing provision + effective/enforcement date\n\n   3. OBLIGATION REGISTER (per regime)\n      - Provision | obligation | evidence demanded | status\n\n   4. UNIFIED CROSS-FRAMEWORK CONTROL MAP\n      - The one-control-many-obligations table (EU ↔ AU ↔ NIST AI RMF ↔ NIST\n        AI 600-1 ↔ OWASP/ATLAS), with present/partial/absent status\n\n   5. RISK & THREAT PROFILE\n      - GAI + OWASP ranked risks; MITRE ATLAS techniques; real-incident anchors\n\n   6. GAP REGISTER & RANKED REMEDIATION\n      - Gap | affected obligations across frameworks | severity | remediation |\n        source control | owner-role | suggested sequence\n\n   7. TECHNICAL DOCUMENTATION SKELETON\n      - An EU AI Act Annex IV-style outline pre-populated with what exists vs\n        what must be produced (doubles as the AU record-keeping pack)\n\n   8. ASSURANCE & PROVENANCE\n      - Rendered per the platform provenance contract: each finding gives its Authority (named standard/regulation + source link) + Evidence (document + status) + Confidence basis, in the reader's language, with machine identifiers excluded. End the dossier with the 'Assurance & Provenance' section and, on its own line, the token [[ASSURANCE_PROVENANCE]].\n\nStyle: professional, print-friendly, clear typography, colour-coded severity and\ngrade badges, tables over prose. Persist a COMPACT dossier summary (grades, control\nmap, open gaps) to /catalog/ai-system-conformity/ keyed by the system identity so\nthe next review compounds on this one — do NOT write conclusions/scores as\nreusable catalog risk entities, only the system's durable conformity profile."
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518
+category: Risk & Compliance
+tags:
+- ai-governance
+- eu-ai-act
+- au-ai-guardrails
+- nist-ai-rmf
+- conformity-assessment
+- responsible-ai
+domains:
+- cyber-security-risk

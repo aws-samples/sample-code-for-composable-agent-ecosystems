@@ -1,0 +1,64 @@
+# tessera-self ingest descriptor (spec-self-awareness.md §4).
+# The reflexive connectors read Tessera's OWN substrate as the authoritative source.
+# Connectors marked `status: planned` require new connector code (§4) before they run.
+# `intent` is NOT auto-ingested — it is human-ratified via propose/ratify governance.
+ingest:
+  refresh: rate(7 days)
+  synthesis: none
+  sources:
+
+  # ── Operational layer — the FIRST-SLICE runnable connector (§4.5) ──────────
+  - name: eco-ingest
+    status: planned            # new connector: reflexive over S3 ecos + Step Functions
+    produces: [ecosystem, capability, run-evidence]
+    fetch:
+      transport: reflexive_ecos
+      # reads: s3://<ecosystems-bucket>/ecosystems/*.yaml,
+      #        stepfunctions:describe-state-machine, runs bucket + platform-optimizer telemetry
+    normalize:
+      mode: agent            # deterministic parse + grounded agent pass for purpose/when-to-use
+      guidance: >-
+        Emit one `ecosystem` record per deployed eco: purpose, problem_solved,
+        inputs_accepted, deliverable, domains_mounted, agents, quality_posture,
+        maturity, deploy_status. Ground every field in the eco YAML / SFN; cite the
+        eco id in provenance.source_ref (layer=runtime-observed). Derive `capability`
+        records from quality/tools. NEVER assert a capability an eco does not use.
+
+  - name: domain-ingest
+    status: planned
+    produces: [domain-catalog]
+    fetch:
+      transport: reflexive_domains   # catalog-api types + record counts + active version
+    normalize: {mode: fetch}
+
+  # ── Structural layer (§4.2) ────────────────────────────────────────────────
+  - name: code-ingest
+    status: planned            # new connector: AST/code-intelligence over the repo
+    produces: [component, data-flow, platform-tool, integration]
+    fetch: {transport: reflexive_code}   # lambdas/, cdk/, tessera_platform/, frontend/
+    normalize:
+      mode: agent
+      guidance: >-
+        One `component` per module/handler: responsibility grounded in and citing a
+        real symbol (path#symbol, layer=code-grounded). No behaviour claim without a
+        source_ref. Emit data-flow edges + platform-tool + integration records.
+
+  # ── Design layer (§4.3) ────────────────────────────────────────────────────
+  - name: doc-ingest
+    status: planned
+    produces: [design-decision, feature-spec, invariant]
+    fetch: {transport: reflexive_docs}   # docs/design.md, docs/spec-*.md, README principles
+    normalize: {mode: agent, guidance: "Extract decisions+rationale, specs, invariants; layer=design-asserted."}
+
+  # ── Narrative layer (§4.4) ─────────────────────────────────────────────────
+  - name: history-ingest
+    status: planned
+    produces: [evolution-event]
+    fetch: {transport: reflexive_git}    # git log + change-logs + phase markers
+    normalize: {mode: fetch}
+
+  # ── Intentional layer (§4.1) — human-ratified, NOT auto-ingested ───────────
+  # Seeded from docs/tessera-intent.draft.md via the propose/ratify governance
+  # (lambdas/domains). Records land as status:proposed until a human ratifies,
+  # flipping provenance.layer=intent-declared, source_ref=ratified-by:<user>@<date>.
+  # produces: [goal, principle, non-goal, value-prop, roadmap-item]

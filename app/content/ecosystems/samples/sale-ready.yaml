@@ -1,0 +1,436 @@
+ecosystem:
+  name: sale-ready
+  description: "Pre-sale strategy intelligence for property vendors. Produces a comprehensive\nVendor Strategy Pack — the document a selling agent presents at the listing\nappointment. Covers market positioning, pricing strategy, campaign planning,\npresentation advice, disclosure requirements, and visual assets.\n"
+  version: '1.0'
+  outcome:
+    kind: file_artifact
+    artifacts:
+    - id: visual_assets
+      agent: visual_asset_generator
+      format: pdf
+      save_as: visual_assets.pdf
+      download_label: Visual Assets (Charts & Maps)
+    - id: vendor_pack
+      agent: vendor_pack_composer
+      format: pdf
+      save_as: vendor_strategy_pack.pdf
+      download_label: Vendor Strategy Pack (PDF)
+strategy: orchestrated
+report: true
+quality:
+  challenger: per_level
+  grounding: true
+  challenger_gate:
+    block_below: ADEQUATE
+entry_point: property_profiler
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: property_data
+    write:
+    - all
+    read:
+    - all
+  - name: market_intel
+    write:
+    - all
+    read:
+    - all
+  - name: strategy
+    write:
+    - all
+    read:
+    - all
+  - name: property_catalog
+    path: /catalog/property/
+    write:
+    - property_profiler
+    read:
+    - all
+    auto_persist: true
+  - name: suburb_catalog
+    path: /catalog/suburb/
+    write:
+    - suburb_demand_analyst
+    read:
+    - all
+    auto_persist: true
+  - name: strata_scheme_catalog
+    path: /catalog/strata-scheme/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: comparable_sale_catalog
+    path: /catalog/comparable-sale/
+    write:
+    - comparable_sales_analyst
+    read:
+    - all
+    auto_persist: true
+  - name: selling_agent_catalog
+    path: /catalog/selling-agent/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: development_application_catalog
+    path: /catalog/development-application/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: council_catalog
+    path: /catalog/council/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: planning_precedent_catalog
+    path: /catalog/planning-precedent/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: planning_control_catalog
+    path: /catalog/planning-control/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: service_availability_catalog
+    path: /catalog/service-availability/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: overlay_catalog
+    path: /catalog/overlay/
+    write:
+    - risk_disclosure_analyst
+    read:
+    - all
+    auto_persist: true
+  - name: building_catalog
+    path: /catalog/building/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: title_catalog
+    path: /catalog/title/
+    write: []
+    read:
+    - all
+    auto_persist: false
+inputs:
+- id: address
+  type: text
+  label: Property address
+  required: true
+- id: property_type
+  type: select
+  label: Property type
+  options:
+  - House
+  - Apartment
+  - Townhouse
+  - Land
+  - Rural
+  required: true
+- id: bedrooms
+  type: text
+  label: Bedrooms / Bathrooms / Parking (e.g. 4/2/2)
+  required: false
+- id: renovations
+  type: text
+  label: Recent renovations or improvements
+  required: false
+- id: vendor_expectation
+  type: text
+  label: Vendor's price expectation (if any)
+  required: false
+- id: preferred_method
+  type: select
+  label: Preferred sale method
+  options:
+  - Auction
+  - Private Treaty
+  - Expressions of Interest
+  - No preference
+  required: false
+agents:
+- id: property_profiler
+  name: Property Profiler
+  swarm: research
+  tools:
+  - web_search
+  - memory_write
+  - current_time
+  prompt: 'Your specific contribution: build a comprehensive property profile from
+
+    the address and user inputs. Research the property''s public record data.
+
+
+    STEP 1: Use web_search to find:
+
+    - Land size, lot dimensions, zoning
+
+    - Year built, construction type
+
+    - Council/LGA, planning overlays
+
+    - Last sale date and price (public record)
+
+    - Current estimated value range (from Domain/Realestate.com.au estimates)
+
+
+    STEP 2: Combine with user-provided inputs (bedrooms, renovations, type).
+
+
+    STEP 3: memory_write all findings to /tessera/property_data as structured records.
+
+
+    Emit ## STRUCTURED FINDINGS with the property profile summary.
+
+    '
+- id: market_position_analyst
+  name: Market Position Analyst
+  swarm: research
+  depends_on:
+  - property_profiler
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: "Your specific contribution: determine where this property sits in the\ncurrent market — is it entry-level, mid-market, premium, or trophy?\n\nSTEP 1: memory_read /tessera/property_data for the property profile.\n\nSTEP 2: web_search for:\n- Current active listings in the same suburb at similar spec\n- How many competing properties are on market right now\n- Average days on market for this suburb/type\n- Buyer demand indicators (auction clearance rates, search volumes)\n\nSTEP 3: Classify the property's market position:\n- Price segment (entry/mid/premium/trophy for the suburb)\n- Competition level (low/moderate/high — how many similar listings)\n- Demand signal (hot/warm/cool based on clearance + DOM)\n- Timing assessment (good/neutral/poor time to sell)\n\nSTEP 4: memory_write findings to /tessera/market_intel.\n\nCite sources. Emit ## STRUCTURED FINDINGS.\n"
+- id: comparable_sales_analyst
+  name: Comparable Sales Analyst
+  swarm: research
+  depends_on:
+  - property_profiler
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  - code_interpreter
+  prompt: 'Your specific contribution: find 6-10 comparable recent sales to
+
+    establish the property''s likely sale price range.
+
+
+    STEP 1: memory_read /tessera/property_data for specs.
+
+
+    STEP 2: web_search for recent sales (last 6 months) of similar
+
+    properties in the same suburb and adjacent suburbs. For each comp:
+
+    - Address, sale price, sale date, method (auction/private)
+
+    - Bedrooms/bathrooms/parking, land size
+
+    - Distance from subject property
+
+    - Key differences (renovated vs original, views, etc.)
+
+
+    STEP 3: Use code_interpreter to calculate:
+
+    - Price per sqm for each comp and the subject
+
+    - Median and range of comp prices
+
+    - Adjusted value estimate for the subject
+
+
+    STEP 4: memory_write comp data + valuation range to /tessera/market_intel.
+
+
+    Emit ## STRUCTURED FINDINGS with the valuation range and top 5 comps.
+
+    '
+- id: suburb_demand_analyst
+  name: Suburb Demand Analyst
+  swarm: research
+  depends_on:
+  - property_profiler
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: "Your specific contribution: profile the buyer pool — who is likely\nto buy this property and what are they looking for?\n\nSTEP 1: memory_read /tessera/property_data.\n\nSTEP 2: web_search for:\n- Suburb demographics (age, income, family composition)\n- Most common buyer type for this property spec (FHB, upgrader, downsizer, investor)\n- School catchment desirability\n- Transport and lifestyle amenities that drive demand\n- Recent population/demand growth trends\n\nSTEP 3: Build a buyer persona: who will bid on this property and why.\n\nSTEP 4: memory_write buyer profile to /tessera/market_intel.\n\nEmit ## STRUCTURED FINDINGS with the buyer persona and demand drivers.\n"
+- id: presentation_strategist
+  name: Presentation Strategist
+  swarm: research
+  depends_on:
+  - property_profiler
+  - suburb_demand_analyst
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Your specific contribution: recommend how to present the property
+
+    for maximum appeal to the identified buyer pool.
+
+
+    STEP 1: memory_read /tessera/property_data and /tessera/market_intel
+
+    (buyer persona from suburb_demand_analyst).
+
+
+    STEP 2: Recommend:
+
+    - Staging priorities (which rooms, what style matches buyer demographic)
+
+    - Photography angles and hero shots to emphasize
+
+    - Features to highlight in copy (what the buyer persona cares about)
+
+    - Minor improvements with high ROI (paint, landscaping, styling)
+
+    - What to declutter or fix before photography
+
+    - Floorplan: yes/no and why
+
+
+    STEP 3: memory_write presentation plan to /tessera/strategy.
+
+
+    Emit ## STRUCTURED FINDINGS with top 5 presentation recommendations.
+
+    '
+- id: pricing_strategist
+  name: Pricing Strategist
+  swarm: synthesis
+  depends_on:
+  - comparable_sales_analyst
+  - market_position_analyst
+  tools:
+  - memory_read
+  - memory_write
+  - code_interpreter
+  prompt: "Your specific contribution: recommend the optimal pricing strategy\n— guide price, reserve, and sale method.\n\nSTEP 1: memory_read /tessera/market_intel for comps and market position.\n\nSTEP 2: Determine:\n- Recommended price guide range (what to advertise)\n- Recommended reserve (vendor's walk-away)\n- Gap between guide and reserve (the \"auction premium\" expectation)\n- Sale method recommendation with rationale:\n  * Auction: if demand is high, competition is low, property is unique\n  * Private Treaty: if market is cool, property needs time, price-sensitive area\n  * EOI: if trophy/unique, hard to comp, confidential vendor\n\nSTEP 3: Use code_interpreter to model scenarios:\n- Best case / expected / worst case sale prices\n- Net proceeds after agent commission + marketing costs\n\nSTEP 4: memory_write pricing strategy to /tessera/strategy.\n\nCite [per comparable_sales_analyst] and [per market_position_analyst].\nEmit ## STRUCTURED FINDINGS.\n"
+- id: campaign_planner
+  name: Campaign Planner
+  swarm: synthesis
+  depends_on:
+  - pricing_strategist
+  - suburb_demand_analyst
+  - presentation_strategist
+  tools:
+  - memory_read
+  - memory_write
+  - current_time
+  prompt: "Your specific contribution: design the marketing campaign timeline\nand channel strategy.\n\nSTEP 1: memory_read /tessera/strategy and /tessera/market_intel.\n\nSTEP 2: Plan:\n- Campaign duration (typically 3-5 weeks for auction, longer for private treaty)\n- Week-by-week timeline: styling → photography → listing live → first open →\n  second open → final open → auction/closing date\n- Marketing channels: portal listings, social media, print, DM, database\n- Budget allocation recommendation (% split across channels)\n- Open home strategy: Saturday vs midweek, private inspections for premium\n- Pre-auction offer policy: accept/reject/refer to auction\n\nSTEP 3: memory_write campaign plan to /tessera/strategy.\n\nCite upstream agents. Emit ## STRUCTURED FINDINGS.\n"
+- id: risk_disclosure_analyst
+  name: Risk & Disclosure Analyst
+  swarm: research
+  depends_on:
+  - property_profiler
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Your specific contribution: identify what the vendor must disclose
+
+    and what pre-sale inspections to recommend.
+
+
+    STEP 1: memory_read /tessera/property_data.
+
+
+    STEP 2: web_search for:
+
+    - State-specific disclosure requirements (e.g. NSW Section 149 certificate)
+
+    - Known issues for this property type/age (asbestos if pre-1990, etc.)
+
+    - Planning changes that could affect value (nearby DA approvals)
+
+    - Strata issues if applicable (special levies, building defects)
+
+
+    STEP 3: Recommend pre-sale inspections:
+
+    - Building & pest (get ahead of buyer''s inspection)
+
+    - Strata report (if applicable)
+
+    - Survey (if boundary unclear)
+
+    - Pool compliance certificate (if pool)
+
+
+    STEP 4: memory_write disclosure checklist to /tessera/strategy.
+
+
+    Emit ## STRUCTURED FINDINGS with disclosure requirements + recommended inspections.
+
+    '
+- id: visual_asset_generator
+  name: Visual Asset Generator
+  swarm: synthesis
+  depends_on:
+  - comparable_sales_analyst
+  - suburb_demand_analyst
+  - market_position_analyst
+  - pricing_strategist
+  tools:
+  - code_interpreter
+  - memory_read
+  - memory_write
+  output_kind: drafter
+  output_format:
+    type: pdf
+    save_as: visual_assets.pdf
+    validate: false
+  prompt: "Your specific contribution: generate visual charts for the vendor pack.\n\nSTEP 1: memory_read /tessera/market_intel and /tessera/strategy.\n\nSTEP 2: Use code_interpreter with matplotlib to generate:\n\na) COMPARABLE SALES CHART — bar chart of comp sale prices with subject\n   property's estimated range shown as a shaded band\n\nb) SUBURB PRICE TREND — line chart of median prices over 5 years with\n   the recommended guide price marked\n\nc) DAYS ON MARKET GAUGE — simple gauge showing current average DOM\n   for the suburb vs the broader market\n\nd) BUYER DEMAND RADAR — radar/spider chart with axes: search volume,\n   auction clearance, population growth, rental yield, school demand\n\ne) CAMPAIGN TIMELINE — horizontal Gantt-style chart showing the\n   week-by-week campaign plan\n\nSTEP 3: Combine all charts into visual_assets.pdf using fpdf + add_image.\n\nEmit ## SUMMARY listing which assets were generated.\n"
+- id: vendor_pack_composer
+  name: Vendor Pack Composer
+  swarm: synthesis
+  depends_on:
+  - pricing_strategist
+  - campaign_planner
+  - risk_disclosure_analyst
+  - presentation_strategist
+  - visual_asset_generator
+  tools:
+  - code_interpreter
+  - memory_read
+  - memory_write
+  output_kind: drafter
+  output_format:
+    type: pdf
+    save_as: vendor_strategy_pack.pdf
+    validate: false
+  prompt: "Your specific contribution: produce the comprehensive Vendor Strategy Pack\nPDF — the document the selling agent presents at the listing appointment.\n\nREPORT STRUCTURE (multi-page, professional formatting via fpdf):\n\n1. COVER PAGE — Property address, hero description, agent branding placeholder\n2. EXECUTIVE SUMMARY — Market position, recommended price, sale method, timeline\n3. PROPERTY PROFILE — Features, land, zoning, last sale, improvements\n4. MARKET ANALYSIS — Position, competition, demand signals, timing\n5. COMPARABLE SALES — Table + chart (embed from visual_asset_generator)\n6. PRICING STRATEGY — Guide, reserve, scenarios (best/expected/worst)\n7. BUYER PROFILE — Who will buy, what they want, how to attract them\n8. PRESENTATION PLAN — Staging, photography, features to highlight\n9. CAMPAIGN PLAN — Timeline, channels, budget, open home strategy\n10. RISK & DISCLOSURE — What to disclose, pre-sale inspections\n11. NEXT STEPS — Immediate actions for the vendor\n\nMETHOD:\n- memory_read all namespaces for upstream findings\n- Build the PDF using fpdf with professional formatting\n- Embed charts from visual_asset_generator where relevant\n- Every claim cites its source agent\n\nEmit ## SUMMARY with page count and sections included.\n"
+swarms:
+  research:
+    agents:
+    - property_profiler
+    - market_position_analyst
+    - comparable_sales_analyst
+    - suburb_demand_analyst
+    - presentation_strategist
+    - risk_disclosure_analyst
+    strategy: graph
+  synthesis:
+    agents:
+    - pricing_strategist
+    - campaign_planner
+    - visual_asset_generator
+    - vendor_pack_composer
+    strategy: graph
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518
+category: Real Estate
+tags:
+- real estate
+- pre-sale strategy
+- vendor intelligence
+domains:
+- residential-property-au

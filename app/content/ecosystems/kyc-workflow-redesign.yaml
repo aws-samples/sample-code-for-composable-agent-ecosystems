@@ -1,0 +1,195 @@
+ecosystem:
+  name: kyc-workflow-redesign
+  description: Redesign the corporate/institutional KYC workflow with risk-based tiers
+    and automation to reduce forward operating costs
+  version: '1.0'
+strategy: orchestrated
+report: true
+tags:
+- kyc
+- workflow-redesign
+- risk-tiering
+- automation
+quality:
+  challenger: per_level
+  challenger_gate:
+    block_below: ADEQUATE
+  grounding: true
+  gates:
+    citation: ask
+    format: ask
+    grounding: ask
+    output_kind: ask
+outcome:
+  kind: file_artifact
+  audience: risk and compliance managers
+  artifacts:
+  - id: kyc_redesign_report
+    agent: redesign_drafter
+    format: html
+    save_as: kyc-workflow-redesign.html
+    download_label: Download KYC Redesign Report (HTML)
+entry_point: regulatory_analyst
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: kyc_workflow_redesign_findings
+    write:
+    - all
+    read:
+    - all
+agents:
+- id: regulatory_analyst
+  name: APAC Regulatory Analyst
+  registry_id: tessera/regulatory_analyst
+  swarm: research
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'You map the corporate KYC/CDD regulatory baseline for APAC, anchored on
+    MAS Notice 626 (Singapore) and HK AMLO / HKMA AML/CFT Guideline (Hong Kong). Produce:
+    (1) mandatory CDD data elements for corporate customers (legal entity ID, incorporation
+    docs, directors, authorized signatories, UBOs), (2) UBO threshold rules and layered-ownership
+    expectations, (3) risk-factor taxonomy the regulators expect firms to score on
+    (geography, industry, product, delivery channel, PEP exposure), (4) EDD triggers
+    (high-risk jurisdictions, PEPs, complex structures, non-face-to-face), (5) ongoing
+    monitoring and record-retention duties, (6) calibration deltas between MAS and
+    HKMA (EDD thresholds, non-face-to-face onboarding). Cite the specific notice/guideline
+    section for every claim. Flag anything that has changed materially in the last
+    24 months. Publish a structured findings note to shared memory.'
+- id: current_state_analyst
+  name: Current-State Workflow Analyst
+  registry_id: tessera/current_state_analyst
+  swarm: research
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: "Characterize the TYPICAL current-state corporate KYC workflow at an APAC\
+    \ bank / FI: end-to-end steps from prospect intake \u2192 entity verification\
+    \ \u2192 UBO unwrapping \u2192 screening (sanctions/PEP/adverse media) \u2192\
+    \ risk rating \u2192 approval \u2192 periodic review. For each step, capture:\
+    \ who performs it (RM, KYC analyst, QC, compliance), median cycle time, common\
+    \ rework loops, and known cost/pain drivers (manual doc chase, UBO tree assembly,\
+    \ screening false positives, four-eyes review, periodic refresh backlog). Use\
+    \ published industry benchmarks and vendor/consultancy studies where possible;\
+    \ cite sources. Do NOT invent internal metrics for the user's firm \u2014 mark\
+    \ those as \u2018assumed industry median, to be calibrated\u2019. Publish a structured\
+    \ current-state map with the top cost drivers ranked."
+- id: automation_scout
+  name: Automation Opportunity Scout
+  registry_id: tessera/automation_scout
+  swarm: research
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: "Identify where corporate KYC steps can be automated or straight-through-processed\
+    \ vs. must stay human-in-the-loop for regulatory or judgment reasons. Cover: corporate\
+    \ registry lookups and entity data enrichment, UBO chain traversal, document ingestion/IDP\
+    \ for incorporation docs, sanctions/PEP/adverse-media screening with disposition\
+    \ automation, risk-scoring engines, periodic-review triggering, and case management.\
+    \ For each, note: automation maturity (proven / emerging / experimental), where\
+    \ MAS/HKMA expect human judgment retained, and the typical FTE/cycle-time impact\
+    \ reported in the market. Cite sources. Publish an \u2018automation candidates\u2019\
+    \ list ranked by (impact \xD7 feasibility)."
+- id: tiering_designer
+  name: Risk-Tiering Designer
+  registry_id: tessera/tiering_designer
+  swarm: reasoning
+  depends_on:
+  - regulatory_analyst
+  tools:
+  - memory_read
+  - memory_write
+  prompt: "Read the regulatory analyst's findings from shared memory. Design a three-tier\
+    \ risk-based CDD model for corporate customers: SIMPLIFIED (low-risk, e.g. listed\
+    \ entities in equivalent jurisdictions, regulated FIs), STANDARD (default corporate),\
+    \ and ENHANCED (high-risk: complex structures, high-risk geographies, PEP-connected,\
+    \ cash-intensive industries, opaque UBOs). For each tier specify: entry criteria,\
+    \ required CDD data elements, UBO depth (e.g. 25% threshold vs. full chain), screening\
+    \ intensity, approval authority, refresh cadence, and MAS/HKMA justification.\
+    \ Then define the EDD trigger set that promotes a customer between tiers, both\
+    \ at onboarding and during ongoing monitoring. Ensure the design is defensible\
+    \ against MAS Notice 626 and HK AMLO expectations \u2014 cite the specific obligations\
+    \ each tier satisfies. Publish the tier spec to shared memory."
+- id: challenger
+  name: Design Challenger
+  registry_id: tessera/challenger
+  swarm: reasoning
+  depends_on:
+  - regulatory_analyst
+  - current_state_analyst
+  - automation_scout
+  - tiering_designer
+  tools:
+  - memory_read
+  - memory_write
+  prompt: "You are the critical reviewer. Read all upstream findings. Stress-test\
+    \ the proposed tiering and automation plan against: (a) MAS/HKMA examiner scrutiny\
+    \ \u2014 could a regulator argue any tier under-scopes CDD? (b) UBO risk \u2014\
+    \ does the simplified tier ever skip layers a regulator would expect? (c) Automation\
+    \ risk \u2014 are any \u2018automated\u2019 steps ones where regulators expect\
+    \ documented human judgment (e.g. adverse-media disposition, final risk rating)?\
+    \ (d) Operational risk \u2014 could rework loops or QC gaps offset the cost savings?\
+    \ Produce a ranked list of RISKS and required MITIGATIONS. Rate the overall design\
+    \ STRONG / ADEQUATE / WEAK with reasoning. Publish to shared memory."
+- id: redesign_drafter
+  name: Redesign Report Drafter
+  registry_id: tessera/redesign_drafter
+  swarm: drafting
+  depends_on:
+  - regulatory_analyst
+  - current_state_analyst
+  - automation_scout
+  - tiering_designer
+  - challenger
+  tools:
+  - memory_read
+  - code_interpreter
+  output_kind: drafter
+  output_format:
+    type: html
+    save_as: kyc-workflow-redesign.html
+    validate: true
+  prompt: "Read every upstream agent's findings from shared memory. Produce a single\
+    \ self-contained HTML report (inline CSS, no external assets) titled 'Corporate\
+    \ KYC Workflow Redesign \u2014 APAC (MAS / HKMA)'. Sections: (1) Executive Summary\
+    \ with forward-cost thesis, (2) Regulatory Baseline (MAS Notice 626 + HK AMLO/HKMA)\
+    \ with cited obligations, (3) Current-State Workflow + top cost drivers, (4) Target-State\
+    \ Workflow with a step-by-step table and clear STP vs. human-in-loop markers,\
+    \ (5) Risk-Based Tiering Model (Simplified / Standard / Enhanced) as a comparison\
+    \ table with entry criteria, CDD depth, UBO depth, screening, approval, refresh\
+    \ cadence, regulatory anchor, (6) EDD Trigger Matrix, (7) Automation Roadmap ranked\
+    \ by impact \xD7 feasibility with maturity ratings, (8) Forward Cost Impact \u2014\
+    \ a qualitative narrative + illustrative levers (cycle-time reduction, FTE re-deployment,\
+    \ false-positive reduction, refresh backlog compression); explicitly mark any\
+    \ numbers as illustrative unless sourced, (9) Risks & Mitigations from the challenger,\
+    \ (10) Implementation Sequencing (0-3 / 3-9 / 9-18 months), (11) Sources & Citations.\
+    \ Use code_interpreter to write kyc-workflow-redesign.html to disk. Keep the styling\
+    \ clean and printable."
+swarms:
+  research:
+    agents:
+    - regulatory_analyst
+    - current_state_analyst
+    - automation_scout
+    strategy: graph
+  reasoning:
+    agents:
+    - tiering_designer
+    - challenger
+    strategy: graph
+  drafting:
+    agents:
+    - redesign_drafter
+    strategy: graph
+parallel_swarms:
+- research
+- reasoning
+- drafting
+triggers:
+- type: manual
+owner: 24f8c4c8-9041-7091-59a1-f88ff840b6f8

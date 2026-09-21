@@ -1,0 +1,104 @@
+# PLATFORM ecosystem — system-managed catalog infrastructure (users cannot edit).
+# AGENTIC ingestion: for authoritative taxonomies that are published as prose / PDF /
+# HTML (no clean machine-readable feed) — e.g. OWASP LLM/Agentic, NIST AI RMF, ENISA,
+# ATT&CK x CRI. A web-search agent READS the authoritative source and normalises it
+# into durable catalog records, grounded against what it actually fetched (so it's
+# "LLM extracts, grounding verifies" — not "trust the LLM").
+#
+# ONE reusable template, run as ONE Step Functions execution PER agent-mode source
+# (pattern A — parallel per-source agents). The dispatcher (catalog-api) passes the
+# per-source mission (source, authoritative_url, produces, key_field, schema) via
+# forwardedProps.mission (## INPUT CONTEXT). The write TYPE is per-source: the
+# auto-persist namespace is templated `/catalog/{catalog_type}/`, resolved from the
+# mission by agent-invoker. Deterministic keyed writes — the LLM only extracts.
+#
+# Counterpart: bulk STRUCTURED feeds (STIX/OSCAL/JSON — ATT&CK, CISA KEV, VCDB, Wiz,
+# NIST 800-53) stay in the deterministic catalog-ingest Lambda. Spec: docs/spec-risk-reasoning.md.
+platform: true
+ecosystem:
+  name: catalog-agent-ingest
+  description: >
+    Agentic ingestion of authoritative security taxonomies that have no clean
+    machine-readable feed. A web-search agent fetches the authoritative source named
+    in the run mission, extracts the COMPLETE current taxonomy, and emits durable
+    catalog records (one per item), grounded against the fetched source. Runs once
+    per agent-mode source. Durable reference entities — NOT per-org assessments.
+  version: "1.0"
+
+domains: [cyber-security-risk]
+strategy: orchestrated
+report: false
+quality:
+  challenger: true
+  grounding: true
+  # Automated, headless producer (dispatched per source; no human present). Gates
+  # ANNOTATE but never pause (ask -> warn) so the run completes unattended — fidelity
+  # comes from (1) internal grounding of each emitted item against the agent's own
+  # web-fetch tool results and (2) the challenger's recorded verdict. Blocking-to-a-
+  # human would require the future HITL/Map path.
+  gates:
+    format: warn
+    grounding: warn
+    citation: warn
+    output_kind: warn
+
+memory:
+  shared_namespaces:
+    # Per-source write TYPE — `{catalog_type}` is resolved from the run mission by
+    # agent-invoker (e.g. agentic-threat, risk-method-profile). One reusable template,
+    # correct type per execution. auto_persist -> each emitted json record is written
+    # as its own keyed catalog record under /catalog/<type>/<key>.
+    - name: catalog_target
+      path: /catalog/{catalog_type}/
+      write: [catalog_ingestor]
+      read: [all]
+      auto_persist: true
+
+agents:
+  - id: catalog_ingestor
+    name: Catalog Source Ingestor
+    output_kind: analyst
+    depends_on: []
+    tools: [web_search, memory_write, code_interpreter]
+    prompt: >
+      You INGEST one authoritative security taxonomy into the catalog. The run mission
+      includes an `## INGESTION SPEC` block naming: `source` (id), `authoritative_url`,
+      `produces` (the catalog entity type), `key_field` (the stable id field), an
+      `id_scheme` (e.g. LLM01..LLM10), and a `record_schema` (the fields each record
+      must carry), plus a `scope` describing exactly which items to extract.
+
+      STEP 1 — FETCH: use web_search to retrieve the CURRENT contents of the
+      authoritative source at `authoritative_url` (and closely-related official pages
+      for that taxonomy ONLY). Prefer the official/first-party source named in the
+      mission over third-party summaries.
+      STEP 2 — EXTRACT: enumerate the COMPLETE current list of items in the taxonomy
+      exactly as published — every item, with its official id (matching `id_scheme`),
+      its official name, and a faithful 1-2 sentence description drawn from the source.
+      Do NOT invent items, ids, or counts. Do NOT drop items. If the source lists N
+      items, you emit N records. If you cannot confirm an item from the fetched source,
+      OMIT it rather than guess.
+
+      OUTPUT — emit BOTH:
+      (1) a `## STRUCTURED FINDINGS` section stating: the source, the URL(s) you
+          fetched, the total item count you found, and the list of ids — so the count
+          and ids are grounded and auditable; then
+      (2) ONE fenced ```json block PER item. Each object MUST include the `key_field`
+          named in the mission set to the official id, plus every field in
+          `record_schema` (typically: name, framework, description, references), plus a
+          `provenance` object: {ingested_by: "catalog-agent-ingest", sources: [<source>],
+          authoritative_url: <url>, refresh_date: <YYYY-MM-DD>}. Each json block becomes
+          ONE durable catalog record keyed by the id. Keep descriptions faithful to the
+          source — these are durable reference facts, never a per-org assessment.
+  - id: ingest_validator
+    name: Ingestion Fidelity Validator
+    output_kind: challenger
+    depends_on: [catalog_ingestor]
+    tools: [web_search]
+    prompt: >
+      Adversarially verify the ingestor's extraction against the authoritative source
+      named in the run mission's `## INGESTION SPEC`. Check: (a) COMPLETENESS — no published item is missing
+      (the count matches the official taxonomy); (b) FIDELITY — every emitted id/name
+      matches the official scheme and no item was invented or renamed; (c) GROUNDING —
+      each description is faithful to the source, not embellished. Log each problem as a
+      finding with severity. Any missing item, invented item, or wrong id is a BLOCKER
+      => verdict WEAK. If the extraction is complete and faithful, verdict STRONG.

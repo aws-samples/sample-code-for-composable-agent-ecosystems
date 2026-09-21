@@ -1,0 +1,35 @@
+domain: fsi-market-intelligence
+name: FSI Market Intelligence (AU/NZ)
+description: 'Durable AU/NZ financial-services market intelligence: industry personas, segments, recurring pain-points and tech-friction patterns reused across go-to-market and product research.'
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: fsi-persona
+  key: '{role}-{segment}'
+  description: A financial-services persona — role, goals, constraints, durable profile.
+  status: active
+- type: fsi-segment
+  key: '{segment}'
+  description: An FSI segment/sub-vertical — durable characteristics and dynamics.
+  status: active
+- type: pain-point
+  key: '{pain_id}'
+  description: A recurring pain-point — context, drivers, who feels it.
+  status: active
+- type: tech-friction-pattern
+  key: '{pattern_id}'
+  description: A recurring technology-friction pattern across personas/segments.
+  status: active
+conclusions_never_cataloged:
+- GTM recommendation for an engagement
+- persona prioritization for a run
+seeded_from: &id001
+- fsi-anz-personas-painpoints-tessera
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: bottom-up validated across belonging ecosystems (2026-06-30)

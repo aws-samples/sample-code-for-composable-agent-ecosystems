@@ -1,0 +1,146 @@
+# Declarative, versioned ingest for the fcc-au (financial crime compliance) domain.
+# Same shape + blue/green versioning as domains/au-financial-advice/catalog.yaml:
+# the generic ingest engine builds a fresh GREEN version, validates, then atomically
+# promotes (VER#/ACTIVE). Reads resolve the active version. No per-domain code.
+#
+# ALL sources are LIVE authoritative Home Affairs / AUSTRAC / DFAT pages. They are prose,
+# so every source uses the grounded agentic normalizer (mode: agent) — schema-driven +
+# cited. A customer's ML/TF risk rating, an SMR decision for a specific transaction, or a
+# specific entity's AML-program assessment are CONCLUSIONS — never ingested (see fcc-au.yaml).
+#
+# NOTE ON SOURCES: the Home Affairs AML/CTF pages are verified. AUSTRAC and DFAT publish at
+# stable domains but occasionally reorganise deep paths — if a fetch 404s, update the URL to
+# the current AUSTRAC guidance / DFAT sanctions landing page (mirrors how au-financial-advice
+# notes AFCA's WAF-block). Nothing here is invented — each URL is a .gov.au authority page.
+ingest:
+  sources:
+    # ── legal-instrument (authoritative governing Acts + currency, via the Federal
+    #    Register of Legislation OData API — structured, not scraped). One call, OData
+    #    `or` filter, returns all three governing Acts. ───────────────────────────
+    - name: legislation-fcc-acts
+      produces: [legal-instrument]
+      fetch: {transport: http_json, url: "https://api.prod.legislation.gov.au/v1/titles?$filter=id%20eq%20'C2006A00169'%20or%20id%20eq%20'C2011A00038'%20or%20id%20eq%20'C1945A00032'&$select=id,name,collection,isInForce,status,makingDate&$top=10", timeout: 120}  # pragma: allowlist secret — public AU legislation instrument IDs in a legislation.gov.au API URL, not a secret
+      normalize:
+        mode: map
+        entity_type: legal-instrument
+        key_field: instrument_id
+        select: "value"
+        fields:
+          instrument_id: "id"
+          title: "name"
+          collection: "collection"
+          in_force: "isInForce"
+          status: "status"
+          making_date: "makingDate"
+          register_url: "join('', ['https://www.legislation.gov.au/', id, '/latest/text'])"
+          references: "[join('', ['https://www.legislation.gov.au/', id, '/latest/text'])]"
+        provenance: {ingested_by: catalog-ingest, sources: [federal-register-of-legislation-fcc-au]}
+
+    # ── aml-obligation (core AML/CTF obligations + 2024 tranche-2 reforms) ───────
+    # Pre-parsed (catalog-content/austrac-fcc.json), ingested via s3 + map — the live
+    # Home Affairs prose pages were unreliable through the agentic normalizer.
+    - name: austrac-aml-obligations
+      produces: [aml-obligation]
+      fetch: {transport: s3, key: catalog-content/austrac-fcc.json}
+      normalize:
+        mode: map
+        entity_type: aml-obligation
+        key_field: obligation_id
+        select: "aml_obligations"
+        fields:
+          obligation_id: "obligation_id"
+          title: "title"
+          description: "description"
+          framework: "framework"
+          governing_provision: "governing_provision"
+          effective_date: "effective_date"
+          references: "references"
+        const: {administered_by: AUSTRAC, status: current}
+        provenance: {ingested_by: catalog-ingest, sources: [austrac-aml-obligations]}
+
+    # ── financial-crime-typology (ML/TF typologies + indicators) ────────────────
+    # Pre-parsed AUSTRAC typologies (catalog-content/austrac-fcc.json), ingested
+    # deterministically via s3 + map — the live prose index exceeded the normalizer.
+    - name: austrac-typologies
+      produces: [financial-crime-typology]
+      fetch: {transport: s3, key: catalog-content/austrac-fcc.json}
+      normalize:
+        mode: map
+        entity_type: financial-crime-typology
+        key_field: typology_id
+        select: "typologies"
+        fields:
+          typology_id: "typology_id"
+          name: "name"
+          description: "description"
+          indicators: "indicators"
+          sector: "sector"
+          references: "references"
+        provenance: {ingested_by: catalog-ingest, sources: [austrac]}
+
+    # ── austrac-guidance (AUSTRAC regulatory guidance) ──────────────────────────
+    # Pre-parsed (catalog-content/austrac-fcc.json), ingested via s3 + map.
+    - name: austrac-guidance
+      produces: [austrac-guidance]
+      fetch: {transport: s3, key: catalog-content/austrac-fcc.json}
+      normalize:
+        mode: map
+        entity_type: austrac-guidance
+        key_field: guidance_id
+        select: "guidance"
+        fields:
+          guidance_id: "guidance_id"
+          title: "title"
+          summary: "summary"
+          related_obligation: "related_obligation"
+          references: "references"
+        const: {status: current}
+        provenance: {ingested_by: catalog-ingest, sources: [austrac]}
+
+    # ── sanctions-regime (DFAT Australian sanctions) ────────────────────────────
+    # Pre-parsed sanctions regimes (catalog-content/austrac-fcc.json), ingested via s3 + map.
+    # The DFAT Consolidated List itself is an XLSX name-list (operational screening data,
+    # not catalog knowledge) — here we catalog the REGIMES/frameworks + their obligations.
+    - name: dfat-sanctions
+      produces: [sanctions-regime]
+      fetch: {transport: s3, key: catalog-content/austrac-fcc.json}
+      normalize:
+        mode: map
+        entity_type: sanctions-regime
+        key_field: regime_id
+        select: "sanctions_regimes"
+        fields:
+          regime_id: "regime_id"
+          name: "name"
+          description: "description"
+          legal_basis: "legal_basis"
+          obligations: "obligations"
+          references: "references"
+        const: {administered_by: "DFAT (Australian Sanctions Office)"}
+        provenance: {ingested_by: catalog-ingest, sources: [dfat]}
+
+    # ── enforcement-precedent (AUSTRAC civil-penalty / enforcement outcomes) ─────
+    # Landmark AUSTRAC civil-penalty matters (public record), pre-parsed into
+    # catalog-content/austrac-fcc.json and ingested via s3 + map.
+    - name: austrac-enforcement
+      produces: [enforcement-precedent]
+      fetch: {transport: s3, key: catalog-content/austrac-fcc.json}
+      normalize:
+        mode: map
+        entity_type: enforcement-precedent
+        key_field: action_id
+        select: "enforcement"
+        fields:
+          action_id: "action_id"
+          entity: "entity"
+          date: "date"
+          issue: "issue"
+          outcome: "outcome"
+          lesson: "lesson"
+          references: "references"
+        provenance: {ingested_by: catalog-ingest, sources: [austrac]}
+
+  refresh:
+    schedule: "rate(30 days)"
+    sanity_drop: 0.5
+  synthesis: none

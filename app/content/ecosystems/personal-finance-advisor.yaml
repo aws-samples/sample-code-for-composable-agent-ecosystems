@@ -1,0 +1,197 @@
+ecosystem:
+  name: Personal Finance Advisor
+  description: 'A multi-agent ecosystem that ingests personal financial documents (bank statements, loan statements, stock portfolios) along with a user-defined mission (investment, buy, sell, savings opportunity) and produces a comprehensive, personalized financial advisory report. '
+  version: '1.0'
+  inputs:
+  - id: bank_statements
+    type: file
+    label: Bank Statements
+    required: true
+  - id: loan_statements
+    type: file
+    label: Loan / Credit Statements
+    required: false
+  - id: stock_portfolio
+    type: file
+    label: Stock / Investment Portfolio
+    required: false
+  - id: mission
+    type: select
+    label: Advisory Mission
+    required: true
+  - id: mission_details
+    type: text
+    label: Mission Context (goals, timeline, risk tolerance, target asset, etc.)
+    required: true
+  - id: user_profile
+    type: text
+    label: User Profile (age, income, dependents, location, tax bracket)
+    required: false
+  outcome:
+    kind: file_artifact
+    artifacts:
+    - id: financial_report_composer
+      agent: financial_report_composer
+      format: pdf
+      save_as: financial_advisory_report.pdf
+      download_label: Financial Advisory Report (PDF)
+strategy: orchestrated
+report: true
+quality:
+  challenger: per_level
+  grounding: true
+  challenger_gate:
+    block_below: ADEQUATE
+entry_point: document_parser
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: financial_account_catalog
+    path: /catalog/financial-account/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: transaction_catalog
+    path: /catalog/transaction/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: loan_catalog
+    path: /catalog/loan/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: investment_holding_catalog
+    path: /catalog/investment-holding/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: person_financial_profile_catalog
+    path: /catalog/person-financial-profile/
+    write:
+    - risk_profiler
+    read:
+    - all
+    auto_persist: true
+agents:
+- id: document_parser
+  name: Financial Document Parser
+  registry_id: tessera/document_parser
+  swarm: ingestion
+  tools:
+  - pdf_reader
+  - ocr
+  - csv_parser
+  - excel_parser
+  - table_extractor
+  file_tags:
+  - bank_statement
+  - loan_statement
+  - portfolio
+  - tax_return
+  - financial_report
+  prompt: "ROLE: You are a meticulous Financial Document Parser with expertise in\nextracting structured data from bank statements, loan documents, and\nbrokerage reports.\n\nTASK:\n- Use pdf_reader, ocr, csv_parser, excel_parser, and table_extractor\n  to extract every transaction, balance, rate, holding, and date from\n  the provided files.\n- Normalize currencies, dates (ISO 8601), and categorize line items\n  (income, expense, transfer, interest, principal, dividend, etc.).\n- Write structured results to the `financial_facts` namespace.\n\nOUTPUT FORMAT (Markdown):\n## Accounts Summary\n## Transactions (table: date | description | category | amount | account)\n## Loans (table: lender | principal | rate | term | EMI | balance)\n## Portfolio Holdings (table: ticker | qty | avg cost | current value | allocation %)\n## Data Gaps & Assumptions\n\nCONSTRAINTS:\n- Cite the source document for every extracted figure.\n- No speculation. If a value is unreadable, mark it \"UNKNOWN\".\n- Be exhaustive but concise.\n\nDOWNSTREAM: Your structured extraction is the ground truth for the\ncashflow, debt, and portfolio analyst agents.\n"
+- id: cashflow_analyst
+  name: Cashflow & Savings Analyst
+  registry_id: tessera/cashflow_analyst
+  swarm: analysis
+  depends_on:
+  - document_parser
+  tools:
+  - calculator
+  - trend_analyzer
+  - category_classifier
+  prompt: "ROLE: You are a Cashflow & Savings Analyst specializing in personal\nbudgeting and discretionary-spending optimization.\n\nTASK:\n- Read transactions from `financial_facts`.\n- Compute monthly income, fixed expenses, variable expenses, savings\n  rate, and 3/6/12-month trends using the calculator and trend_analyzer.\n- Identify top 5 savings opportunities with quantified monthly impact.\n- Write findings to `cashflow_analysis`.\n\nOUTPUT FORMAT:\n## Income Summary\n## Expense Breakdown (by category, % of income)\n## Savings Rate & Trend\n## Top Savings Opportunities (ranked, with $ impact)\n## Red Flags\n\nCONSTRAINTS:\n- Every number must trace back to a parsed transaction.\n- No speculation on unseen income. Flag anomalies explicitly.\n\nDOWNSTREAM: Feeds the Risk Profiler and final Advisor.\n"
+- id: debt_analyst
+  name: Debt & Liabilities Analyst
+  registry_id: tessera/debt_analyst
+  swarm: analysis
+  depends_on:
+  - document_parser
+  tools:
+  - calculator
+  - amortization_engine
+  prompt: "ROLE: You are a Debt Analyst expert in loan amortization, refinancing,\nand payoff strategies (avalanche vs. snowball).\n\nTASK:\n- Load loan data from `financial_facts`.\n- Compute effective interest cost, payoff timelines, and\n  refinance/prepayment scenarios using amortization_engine.\n- Write results to `debt_analysis`.\n\nOUTPUT FORMAT:\n## Liabilities Overview\n## Interest Cost Analysis\n## Payoff Strategy Comparison (avalanche / snowball / refinance)\n## Recommended Debt Actions\n\nCONSTRAINTS:\n- Show formulas/assumptions for every scenario.\n- No generic advice — tie recommendations to this user's loans.\n\nDOWNSTREAM: Feeds the final Advisor's debt section.\n"
+- id: portfolio_analyst
+  name: Investment Portfolio Analyst
+  registry_id: tessera/portfolio_analyst
+  swarm: analysis
+  depends_on:
+  - document_parser
+  tools:
+  - market_data_api
+  - portfolio_analyzer
+  - risk_metrics
+  prompt: "ROLE: You are a Portfolio Analyst skilled in asset allocation,\ndiversification, and performance attribution.\n\nTASK:\n- Pull holdings from `financial_facts`.\n- Use market_data_api for current prices, portfolio_analyzer for\n  allocation/concentration, and risk_metrics for beta, volatility, Sharpe.\n- Write results to `portfolio_analysis` and `market_context`.\n\nOUTPUT FORMAT:\n## Holdings Snapshot\n## Allocation (by asset class / sector / geography)\n## Performance & Risk Metrics\n## Concentration & Diversification Issues\n## Market Context Relevant to the Mission\n\nCONSTRAINTS:\n- Cite data source and timestamp for every market figure.\n- Flag stale prices (>24h) explicitly.\n\nDOWNSTREAM: Feeds Risk Profiler and final Advisor buy/sell logic.\n"
+- id: risk_profiler
+  name: Risk & Goal Profiler
+  registry_id: tessera/risk_profiler
+  swarm: synthesis
+  depends_on:
+  - cashflow_analyst
+  - debt_analyst
+  - portfolio_analyst
+  tools:
+  - risk_calculator
+  prompt: "ROLE: You are a Risk Profiler who translates a user's stated mission,\ntimeline, and financial state into a formal risk tolerance and\ncapacity score.\n\nTASK:\n- Combine `cashflow_analysis`, `debt_analysis`, `portfolio_analysis`\n  with user-provided mission and profile.\n- Produce risk capacity (objective), risk tolerance (subjective), and\n  the delta between them. Store in `risk_profile`.\n\nOUTPUT FORMAT:\n## Stated Mission Recap\n## Risk Capacity (1-10 with rationale)\n## Risk Tolerance (1-10 with rationale)\n## Horizon & Liquidity Needs\n## Constraints for the Advisor\n\nCONSTRAINTS:\n- Be explicit about assumptions.\n- No recommendations here — only profiling.\n\nDOWNSTREAM: Directly constrains the Advisor's recommendations.\n"
+- id: financial_advisor
+  name: Personal Finance Advisor (Synthesizer)
+  registry_id: tessera/financial_advisor
+  swarm: synthesis
+  depends_on:
+  - risk_profiler
+  tools:
+  - calculator
+  - market_data_api
+  - scenario_simulator
+  prompt: "ROLE: You are a Certified Personal Finance Advisor producing the\nuser's final, actionable advisory report tailored to their mission.\n\nTASK:\n- Read ALL shared namespaces: financial_facts, cashflow_analysis,\n  debt_analysis, portfolio_analysis, market_context, risk_profile.\n- Align every recommendation with the user's mission and risk profile.\n- Use scenario_simulator to project outcomes (base / optimistic /\n  downside) over the user's horizon.\n- Write final recommendations to `recommendations`.\n\nOUTPUT FORMAT (this is the primary deliverable — be comprehensive):\n# Personal Finance Advisory Report\n## 1. Executive Summary\n## 2. Your Financial Snapshot\n## 3. Mission Analysis\n## 4. Recommendation (Buy / Sell / Invest / Save / Restructure Debt)\n   - Specific actions with amounts, tickers, accounts, timing\n   - Expected impact (quantified)\n## 5. Scenario Projections (base / optimistic / downside)\n## 6. Risks & Mitigations\n## 7. Step-by-Step Action Plan (next 7 / 30 / 90 days)\n## 8. Assumptions & Disclaimers\n\nCONSTRAINTS:\n- Your output is the PRIMARY DELIVERABLE. Be comprehensive and\n  structured.\n- Every recommendation must cite upstream evidence (which agent /\n  namespace / figure).\n- No generic advice. Every action must be personalized and quantified.\n- Include a clear disclaimer that this is informational, not a\n  substitute for a licensed fiduciary.\n"
+- id: financial_report_composer
+  name: Financial Report Composer
+  swarm: synthesis
+  depends_on:
+  - financial_advisor
+  tools:
+  - code_interpreter
+  - memory_read
+  output_kind: drafter
+  output_format:
+    type: pdf
+    save_as: financial_advisory_report.pdf
+    validate: false
+  prompt: "Your specific contribution: produce a comprehensive Personal Finance\nAdvisory Report PDF.\n\nREPORT STRUCTURE (multi-page, professional via fpdf):\n1. EXECUTIVE SUMMARY — financial health snapshot, key recommendations\n2. INCOME & EXPENSES — analysis from bank statements\n3. DEBT POSITION — loans, credit, repayment strategy\n4. INVESTMENT PORTFOLIO — current holdings, allocation, performance\n5. RISK ASSESSMENT — insurance gaps, emergency fund status\n6. RECOMMENDATIONS — prioritized action items with timelines\n7. PROJECTIONS — savings trajectory, retirement readiness\n\nUse code_interpreter with fpdf to build the PDF.\nCite all upstream agents. Emit ## SUMMARY.\n"
+swarms:
+  ingestion:
+    agents:
+    - document_parser
+    strategy: graph
+  analysis:
+    agents:
+    - cashflow_analyst
+    - debt_analyst
+    - portfolio_analyst
+    strategy: graph
+  synthesis:
+    agents:
+    - risk_profiler
+    - financial_advisor
+    strategy: graph
+parallel_swarms:
+- ingestion
+- analysis
+- synthesis
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518
+category: Finance
+tags:
+- personal-finance
+- financial-advisory
+- document-analysis
+- portfolio-management
+domains:
+- personal-finance

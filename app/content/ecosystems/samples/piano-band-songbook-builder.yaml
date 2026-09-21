@@ -1,0 +1,233 @@
+ecosystem:
+  name: piano-band-songbook-builder
+  description: A multi-agent ecosystem that curates a working songbook for piano performers in popular band configurations. Specialist leaf agents independently surface popular Western hits (new and old), extract authoritative key signatures and BPMs, and gather verified chord progressions and lyrics. Synthesizer agents then reconcile this into a unified catalog and produce one-page chord-and-lyric charts optimized for live piano performance.
+  version: '1.1'
+  outcome:
+    kind: file_artifact
+    artifacts:
+    - id: repertoire
+      agent: repertoire_curator
+      format: json
+      save_as: repertoire.json
+      download_label: Repertoire (JSON)
+    - id: songbook
+      agent: chart_designer
+      format: pdf
+      save_as: songbook.pdf
+      download_label: Piano Songbook (PDF)
+strategy: orchestrated
+report: true
+quality:
+  challenger: per_level
+  grounding: true
+  challenger_gate:
+    block_below: ADEQUATE
+entry_point: repertoire_curator
+memory:
+  strategies:
+  - semantic
+  - episodic
+  shared_namespaces:
+  - name: songbook
+    write:
+    - all
+    read:
+    - all
+  - name: chart_layouts
+    write:
+    - all
+    read:
+    - all
+  - name: performance_decisions
+    write:
+    - all
+    read:
+    - all
+  - name: song_catalog
+    path: /catalog/song/
+    write:
+    - repertoire_curator
+    read:
+    - all
+    auto_persist: true
+  - name: song_music_theory_catalog
+    path: /catalog/song-music-theory/
+    write:
+    - key_tempo_specialist
+    read:
+    - all
+    auto_persist: true
+  - name: song_structure_catalog
+    path: /catalog/song-structure/
+    write:
+    - chord_progression_specialist
+    read:
+    - all
+    auto_persist: true
+  - name: song_lyrics_metadata_catalog
+    path: /catalog/song-lyrics-metadata/
+    write:
+    - lyrics_specialist
+    read:
+    - all
+    auto_persist: true
+agents:
+- id: repertoire_curator
+  name: Repertoire Curator
+  registry_id: tessera/repertoire_curator
+  swarm: research
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  - current_time
+  tool_budget:
+    web_search: 6
+    memory_write: 25
+    memory_read: 5
+    code_interpreter: 5
+  output_kind: analyst
+  output_format:
+    type: json
+    file_extension: .json
+    save_as: repertoire.json
+    validate: true
+  prompt: "Your specific contribution: curating a balanced shortlist of 40-60 Western\npopular songs spanning eras (60s-70s classic rock, 80s pop, 90s/2000s hits,\n2010s-2020s contemporary chart-toppers) and genres (pop, rock, soul/R&B,\nsinger-songwriter, indie, country-crossover) that work well in piano-led\nband configurations (piano+vocal, piano trio, piano+guitar+bass+drums,\nlounge quartet, wedding/cover band).\n\nYou think like a working bandleader and music director. For each song you\npick, capture: title, primary artist, year, genre tag, chart performance\n(Billboard Hot 100 peak, RIAA certifications, Spotify monthly listener\ntier when known), and a one-line \"why piano performers want this\"\njustification (e.g., \"iconic piano intro,\" \"lush ballad in singer keys,\"\n\"crowd singalong,\" \"wedding staple\"). Use web_search to verify popularity\nwith current sources (chart histories, streaming popularity, cover-band\nsetlist aggregators like setlist.fm, popular wedding-band repertoire\nlists). Bias toward songs that genuinely feature or accommodate piano —\navoid pure EDM/rap that piano can't carry.\n\nFAST-FAIL RULE: If your first 2 web_search calls return empty/error/'service\nunavailable', immediately switch to offline-knowledge mode for the\nremainder of this turn, emit a `degraded_mode: true` flag in your output,\nand do NOT retry web_search.\n\nSTEP 1: Build the full 40-60 song JSON payload in code_interpreter:\n  {\n    \"songs\": [\n      { \"id\": \"<slug>\", \"title\": ..., \"artist\": ..., \"year\": ..., \"genre\": ...,\n        \"chart\": { \"hot100_peak\": <int|null>, \"riaa\": ..., \"streaming_tier\": ... },\n        \"piano_fit\": \"<one-line justification>\" },\n      ... 40-60 entries ...\n    ],\n    \"distribution\": { \"pre_2000_pct\": ..., \"post_2010_pct\": ..., \"by_genre\": {...} }\n  }\n\nSTEP 2: Emit it as the fenced ```json``` block (this becomes\nrepertoire.json via output_format).\n\nSTEP 3: REQUIRED — also chunk-write each song individually to the\n`songbook` namespace as `song:<slug>` records so downstream specialists\ncan locate per-song data via memory_read. Downstream agents do NOT have\naccess to the typed JSON artifact at runtime; shared memory is the ONLY\nhandoff. Pseudocode:\n  for song in songs:\n      memory_write('songbook', f'song:{song[\"id\"]} | {json.dumps(song)}')\n\nSTEP 4: Write ONE summary record (`catalog_summary | <stats>`) to the\n`songbook` namespace pointing to the artifact.\n\nSTEP 5: VERIFICATION GATE — before emitting STRUCTURED FINDINGS, call\nmemory_read('songbook', limit=80) and assert the count of `song:`-prefixed\nrecords equals len(songs). If the assertion fails, retry the chunk-writes;\ndo NOT proceed without verification.\n\nAim for breadth: no more than 3 songs per artist; ensure at least 30%\npre-2000 and at least 30% post-2010.\n"
+- id: key_tempo_specialist
+  name: Key Signature & Tempo Specialist
+  registry_id: tessera/key_tempo_specialist
+  swarm: research
+  depends_on:
+  - repertoire_curator
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  - calculator
+  tool_budget:
+    web_search: 8
+    memory_write: 25
+    memory_read: 15
+  prompt: "REQUIRED: emit your `## STRUCTURED FINDINGS` block as the FIRST content\nof your response, BEFORE any tool calls or generateUI rendering.\n\nSTEP 0 — PRECONDITION GATE: memory_read('songbook', query='song:') and\nassert >= 1 per-song record exist. If fewer, emit a STRUCTURED FINDINGS\nblock with claim 'BLOCKED: curator did not chunk-write per-song records'\nand HALT. Do NOT fabricate songs from training knowledge — that is a\nlane violation.\n\nFAST-FAIL RULE: If your first 2 web_search calls return empty/error,\nswitch to offline-knowledge mode and emit `degraded_mode: true`.\n\nYour specific contribution: determining the authoritative key signature\nand BPM for every song in the curated repertoire, plus flagging a\nrecommended performance key when the original studio key is awkward for\nlive vocal/piano work.\n\nSTEP 1: Iterate per song from the songbook namespace. For BPM, cross-reference\nat least two of: Tunebat, SongBPM, MusicStax, GetSongKey, Spotify audio\nfeatures, or published sheet music tempo markings. For key signature,\nprioritize: official sheet music publishers (Hal Leonard, Musicnotes,\nSheet Music Plus), Tunebat/SongKey camelot analyses, and confirmed\ntranscriptions. Resolve conflicts by trusting published sheet music\nover algorithmic detection.\n\nFor each song record:\n  - studio_key (e.g., \"G major\", \"Bb minor\")\n  - studio_bpm (integer; if rubato/free, mark \"rubato\" + approximate)\n  - time_signature (default 4/4 unless otherwise)\n  - feel (straight/swing/shuffle/halftime/12-8 ballad)\n  - common_alt_keys (list of typical cover-band transpositions and\n    why — e.g., \"F major for tenor singers,\" \"C major for easier piano\")\n\nUse the calculator for any tempo-doubling reconciliation (e.g., a song\nreported as 75 vs 150 BPM is the halftime/doubletime split — pick the\none that matches the foot-tap pulse).\n\nSTEP 2: memory_write each enriched record back to `songbook` as\n`key_tempo:<song_id> | <data>` (NO summary-only batches — per-song\nwrites are required for catalog_synthesizer to reconcile).\n\nSTEP 3: VERIFICATION GATE — memory_read your own namespace records and\nconfirm count matches input count before emitting STRUCTURED FINDINGS.\n"
+- id: chord_progression_specialist
+  name: Chord Progression & Form Specialist
+  registry_id: tessera/chord_progression_specialist
+  swarm: research
+  depends_on:
+  - repertoire_curator
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  tool_budget:
+    web_search: 8
+    memory_write: 25
+    memory_read: 15
+  prompt: "REQUIRED: emit your `## STRUCTURED FINDINGS` block as the FIRST content\nof your response, BEFORE any tool calls or generateUI rendering.\n\nSTEP 0 — PRECONDITION GATE: memory_read('songbook', query='song:') and\nassert >= 1 per-song record exist. If fewer, emit a STRUCTURED FINDINGS\nblock with claim 'BLOCKED: curator did not chunk-write per-song records'\nand HALT. Do NOT fabricate songs from training knowledge.\n\nFAST-FAIL RULE: If your first 2 web_search calls return empty/error,\nswitch to offline-knowledge mode and emit `degraded_mode: true`.\n\nYour specific contribution: capturing the verified chord progressions\nand song structure (intro / verse / pre-chorus / chorus / bridge / outro)\nfor every song in the curated repertoire, in the studio key, with\nsection labels and bar counts.\n\nSTEP 1: Iterate per song. Pull chord data from authoritative sources:\nUltimate-Guitar (high-rated/official tabs), Chordie, e-chords, Hooktheory,\nand — when available — published lead sheets and piano/vocal arrangements.\nPrefer entries flagged \"official\" or with the highest community ratings;\ncross-check at least two sources and reconcile discrepancies (favoring\npublished sheet music).\n\nFor each song, record:\n  - structure: ordered list of sections with bar counts\n  - chords_per_section: chord symbols using standard jazz/pop notation\n    (e.g., \"Cmaj7 | Am7 | Dm7 | G7\"), one chord per beat group\n  - signature_riffs_or_hooks: short notes about iconic piano figures\n    (e.g., \"octave Bb intro,\" \"broken-chord LH pattern,\" \"gospel triplet\n    fills\") — do NOT transcribe full notation, just describe\n  - rhythmic_notes: anything a piano player must know (stabs, anticipations,\n    stop-time, key change at final chorus)\n\nYou do NOT determine key/BPM (key_tempo_specialist handles that) or write\nthe lyrics (lyrics_specialist handles that). Stick to harmony and form.\n\nSTEP 2: memory_write each enriched record back to `songbook` as\n`chords:<song_id> | <data>` (per-song writes required, NO summary batches).\n\nSTEP 3: VERIFICATION GATE — memory_read your own namespace records and\nconfirm count matches input count before emitting STRUCTURED FINDINGS.\n"
+- id: lyrics_specialist
+  name: Lyrics & Vocal Phrasing Specialist
+  registry_id: tessera/lyrics_specialist
+  swarm: research
+  depends_on:
+  - repertoire_curator
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  tool_budget:
+    web_search: 8
+    memory_write: 25
+    memory_read: 15
+  prompt: "REQUIRED: emit your `## STRUCTURED FINDINGS` block as the FIRST content\nof your response, BEFORE any tool calls or generateUI rendering.\n\nSTEP 0 — PRECONDITION GATE: memory_read('songbook', query='song:') and\nassert >= 1 per-song record exist. If fewer, emit a STRUCTURED FINDINGS\nblock with claim 'BLOCKED: curator did not chunk-write per-song records'\nand HALT. Do NOT fabricate songs from training knowledge.\n\nFAST-FAIL RULE: If your first 2 web_search calls return empty/error,\nswitch to offline-knowledge mode and emit `degraded_mode: true`.\n\nYour specific contribution: gathering performance-ready lyric *metadata*\n(section structure, repeats/cues, vocal-cue tags, content flags) for\nevery song in the curated repertoire. Do NOT reproduce full copyrighted\nlyrics verbatim; instead capture section maps and cue tags useful for\nlive charts, with pointers to authoritative licensed sources.\n\nSTEP 1: Iterate per song. Cross-verify section structure against\nauthoritative sources: Genius, AZLyrics, official artist sites, licensed\nlyric databases.\n\nFor each song, record:\n  - section_map: ordered list of sections (verse 1 / chorus / verse 2\n    / bridge / outro) with line counts\n  - repeats_and_cues: notation of which sections repeat verbatim\n    (e.g., \"chorus 2 = chorus 1\") so the chart can collapse them\n  - vocal_cues: ad-libs, call-and-response, stop-time vocals, key\n    singalong moments worth marking on a live chart\n  - content_flags: explicit language or sensitive content notes for\n    venue-appropriate selection\n  - lyric_source_url: pointer to a licensed authoritative source\n\nYou do NOT handle harmony, structure bar counts, key, or BPM (other\nspecialists handle those). Stick to words-metadata and vocal phrasing.\n\nSTEP 2: memory_write each enriched record back to `songbook` as\n`lyrics:<song_id> | <data>` (per-song writes required).\n\nSTEP 3: VERIFICATION GATE — memory_read your own namespace records and\nconfirm count matches input count before emitting STRUCTURED FINDINGS.\n"
+- id: catalog_synthesizer
+  name: Songbook Catalog Synthesizer
+  registry_id: tessera/catalog_synthesizer
+  swarm: synthesis
+  depends_on:
+  - repertoire_curator
+  - key_tempo_specialist
+  - chord_progression_specialist
+  - lyrics_specialist
+  tools:
+  - memory_read
+  - memory_write
+  - code_interpreter
+  - generateUI
+  output_kind: synthesizer
+  prompt: "REQUIRED: emit your `## STRUCTURED FINDINGS` block as the FIRST content\nof your response, BEFORE any tool calls or generateUI rendering. (Run\n2158bb3a dropped the contract section under token pressure —\nhas_structured_findings=false. Do not repeat that mistake.)\n\nYour specific contribution: reconciling the four specialists' findings\ninto a single normalized song catalog — one canonical record per song\nwith metadata, key, BPM, structure, chords, and lyrics aligned and\nvalidated for internal consistency.\n\nYou read the `songbook` namespace and merge the parallel contributions\n(song:<id>, key_tempo:<id>, chords:<id>, lyrics:<id>). For each song\nyou produce a unified record and you actively flag and resolve issues:\n  - chord/lyric alignment: confirm every section that has lyrics also\n    has a chord progression with matching bar count; flag mismatches\n  - key/chord consistency: spot-check that the chord set is plausible\n    in the stated key (e.g., chords are diatonic or sensibly borrowed);\n    flag any chord chart that appears to be in a different key than\n    key_tempo_specialist reported and recommend which to trust\n  - missing-data report: list songs where any specialist failed to\n    produce data, so the chart_designer knows what to skip or stub\n  - performance_key recommendation: pick ONE recommended live key per\n    song combining studio key + common_alt_keys + typical band-vocal\n    ranges; document the rationale\n\nUse code_interpreter to run consistency checks (bar-count math,\ndiatonic-chord validation, BPM sanity) across the full catalog. Use\ngenerateUI to produce a master index table (Title | Artist | Year |\nKey | BPM | Feel | Difficulty | Flags) that the chart_designer and\nend users can browse.\n\nPersist each reconciled master record back to `songbook` as\n`master:<song_id> | <reconciled record>` so chart_designer can iterate.\n\nYou do NOT: curate the song list, determine key/BPM from primary\nsources, source chord progressions, or transcribe lyrics. Your job\nis reconciliation, validation, and producing the master index.\n\nCite each upstream agent's findings using `[per <agent_id>: <upstream finding>]`\nfor every claim that derives from them. Use `[novel — <reason>]` for any claim\nwith no upstream basis. Standalone synthesis without citations will be REJECTED.\n"
+  tool_budget:
+    memory_write: 25
+    memory_read: 15
+    code_interpreter: 5
+    generateUI: 8
+- id: chart_designer
+  name: One-Page Chord Chart Designer
+  registry_id: tessera/chart_designer
+  swarm: synthesis
+  depends_on:
+  - catalog_synthesizer
+  tools:
+  - memory_read
+  - memory_write
+  - generateUI
+  - code_interpreter
+  tool_budget:
+    memory_write: 25
+    memory_read: 15
+    code_interpreter: 5
+    generateUI: 20
+  output_kind: drafter
+  output_format:
+    type: pdf
+    file_extension: .pdf
+    save_as: songbook.pdf
+    validate: false
+  prompt: "REQUIRED: emit your `## STRUCTURED FINDINGS` block as the FIRST content\nof your response, BEFORE any tool calls or generateUI rendering.\n\nYour specific contribution: designing and producing the actual one-page\nchord-and-lyric chart for every validated song in the catalog, formatted\nfor a piano performer reading at a gig (music stand or tablet).\n\nSTEP 1: memory_read('songbook', query='master:') and load the\ncatalog_synthesizer reconciled master records. Skip any songs flagged\n\"missing data\" by the synthesizer and include them in a stub-list instead.\n\nSTEP 2: For each song, render its <section class=\"chart\"> HTML block\nwith this layout:\n  - HEADER: Title, Artist, Year | Key: <perf_key> | BPM: <bpm> | Time: <ts> | Feel: <feel>\n  - QUICK MAP: one-line section roadmap (e.g., \"Intro(4) - V1 - Ch - V2 - Ch - Br - Ch x2 - Out\")\n  - BODY: section-by-section with chord symbols ABOVE the lyric line,\n    chord changes positioned over the syllable they land on; repeated\n    sections collapsed with \"(repeat chorus)\" cues\n  - FOOTER: signature riff/hook notes, ending instruction (cold/fade/ritard),\n    and any vocal cues from lyrics_specialist\nApply the catalog_synthesizer's recommended performance_key — transpose\nchord symbols accordingly (lyrics don't change; only chord symbols shift).\n\nHard constraints: must fit one printed page (US Letter, ~10pt minimum\nreadable type, 0.5\" margins). Use code_interpreter to estimate line\ncounts and auto-condense (collapse repeats, abbreviate filler) when a\nsong would overflow.\n\nSTEP 3: REQUIRED — after each chart is rendered, persist a pointer\nrecord to the `chart_layouts` namespace so the challenger and report\nagents can verify chart production:\n  memory_write('chart_layouts', f'chart:{song_id} | rendered=true | bytes={len(html_block)}')\n\nSTEP 4: Assemble the full HTML document and emit it as the fenced\n```html``` block (becomes songbook.html via output_format). The HTML\nmust contain:\n  - <head> with inline CSS for print pagination (each chart fits one page)\n  - <body> with one <section class=\"chart\"> per song, ordered as in the\n    catalog index, plus a leading <section class=\"index\"> table-of-contents\n  - Self-contained: no external stylesheets / scripts (the platform may\n    archive or print the file standalone)\n\nSTEP 5: VERIFICATION GATE — before emitting STRUCTURED FINDINGS, assert\nthat memory_read('chart_layouts') returns >= len(catalog) entries. If not,\nemit a degraded SUMMARY and explicitly list missing songs.\n\nYou do NOT: re-research songs, re-derive keys/BPMs, re-source chord\nprogressions, re-transcribe lyrics, or re-validate the catalog. Your\njob is purely chart layout and rendering on top of validated data.\n\nCite each upstream agent's findings using `[per <agent_id>: <upstream finding>]`\nin your SUMMARY narrative. The HTML body is the deliverable artifact;\ncitations live in the SUMMARY block above the HTML.\n"
+- id: challenger_agent
+  name: Challenger
+  registry_id: tessera/challenger_agent
+  swarm: platform
+  depends_on:
+  - chart_designer
+  prompt: Platform challenger agent
+- id: report_agent
+  name: Report
+  registry_id: tessera/report_agent
+  swarm: platform
+  depends_on:
+  - chart_designer
+  - challenger_agent
+  prompt: Platform report agent
+swarms:
+  research:
+    agents:
+    - repertoire_curator
+    - key_tempo_specialist
+    - chord_progression_specialist
+    - lyrics_specialist
+    strategy: graph
+  synthesis:
+    agents:
+    - catalog_synthesizer
+    - chart_designer
+    strategy: graph
+  platform:
+    agents:
+    - challenger_agent
+    - report_agent
+    strategy: graph
+parallel_swarms:
+- research
+- synthesis
+- platform
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518
+category: Creative
+tags:
+- music-curation
+- performance-tools
+- songbook-generation
+- multi-agent-coordination
+domains:
+- music-performance

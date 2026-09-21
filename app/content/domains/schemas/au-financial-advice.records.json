@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tessera.dev/schemas/au-financial-advice.records.json",
+  "title": "au-financial-advice domain — catalog record contract",
+  "description": "Entity-keyed reference records the AU financial-advice catalog holds. Populated by the declarative, blue/green-versioned ingest (domains/au-financial-advice/catalog.yaml) from authoritative live sources (ABS API, RBA, ATO, ASIC, MoneySmart, AFCA, legislation) — structured feeds via their transport, unstructured .gov.au via the grounded agentic normalizer. Client data (fact-find, portfolio) is a RUN INPUT; conclusions (SoA / new client advice record, client assessments, next-best-actions) are NEVER cataloged.",
+  "x-tessera-domain": "au-financial-advice",
+  "x-tessera-keys": {
+    "regulatory-figure": "{measure}-{fy}",
+    "advice-obligation": "{obligation_id}",
+    "regulatory-guidance": "{rg_id}",
+    "advice-strategy": "{strategy_id}",
+    "product-type": "{product_type_id}",
+    "disclosure-document": "{doc_type_id}",
+    "determination-precedent": "{determination_id}",
+    "market-indicator": "{indicator}-{as_at}",
+    "planning-assumption": "{assumption}-{as_at}"
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "ingested_by": { "type": "string" },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "refresh_date": { "type": "string", "format": "date" },
+        "supersedes": { "type": "string" }
+      },
+      "required": ["ingested_by", "refresh_date"]
+    },
+    "regulatory-figure": {
+      "type": "object",
+      "description": "A dated statutory figure — super cap/threshold, SG rate, TBC, preservation age, income-tax bracket, Div 293 threshold, Age-Pension test threshold/taper — by financial year.",
+      "properties": {
+        "figure_key": { "type": "string", "description": "{measure}-{fy}" },
+        "measure": { "type": "string", "examples": ["concessional-cap", "non-concessional-cap", "super-guarantee-rate", "transfer-balance-cap", "preservation-age", "tax-free-threshold", "div293-threshold", "age-pension-max-single", "assets-test-threshold-homeowner-couple", "income-taper-rate"] },
+        "fy": { "type": "string", "examples": ["2026-27"] },
+        "value": { "type": "string", "description": "verbatim value incl. unit", "examples": ["$32,500", "12%", "67"] },
+        "unit": { "type": "string", "examples": ["AUD", "percent", "years"] },
+        "effective_date": { "type": "string" },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["figure_key", "measure", "fy", "value", "provenance"]
+    },
+    "advice-obligation": {
+      "type": "object",
+      "description": "A statutory or Code obligation binding AU advice — Best Interests Duty (s961B), appropriate advice (s961G), priority of client's interest (s961J), Code of Ethics standard, conflicted-remuneration ban, ongoing-fee consent, DDO, breach reporting, TPB duty. Carries DBFO reform status.",
+      "properties": {
+        "obligation_id": { "type": "string", "examples": ["best-interests-duty-s961b", "appropriate-advice-s961g", "priority-of-client-s961j", "code-standard-2", "conflicted-remuneration-ban", "ongoing-fee-consent", "ddo"] },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "framework": { "enum": ["corporations-act", "code-of-ethics", "bid", "rg", "dbfo", "tpb", "ddo"] },
+        "governing_provision": { "type": "string", "examples": ["Corporations Act 2001 s961B"] },
+        "administered_by": { "type": "string", "examples": ["ASIC", "Treasury", "FSCP", "TPB"] },
+        "status": { "type": "string", "examples": ["current", "modified-by-dbfo", "removed-by-dbfo", "proposed"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["obligation_id", "title", "provenance"]
+    },
+    "regulatory-guidance": {
+      "type": "object",
+      "description": "An ASIC Regulatory Guide relevant to advice, with current/updated/withdrawn status (several change under DBFO).",
+      "properties": {
+        "rg_id": { "type": "string", "examples": ["rg-175", "rg-90", "rg-244", "rg-246", "rg-274"] },
+        "title": { "type": "string" },
+        "summary": { "type": "string" },
+        "administered_by": { "type": "string", "examples": ["ASIC"] },
+        "status": { "type": "string", "examples": ["current", "updated", "withdrawn"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["rg_id", "title", "provenance"]
+    },
+    "advice-strategy": {
+      "type": "object",
+      "description": "A reusable, durable advice strategy pattern (how it works + when appropriate) — NOT a client-specific recommendation.",
+      "properties": {
+        "strategy_id": { "type": "string", "examples": ["salary-sacrifice", "contribution-splitting", "transition-to-retirement", "downsizer-contribution", "debt-recycling", "recontribution", "account-based-pension", "spouse-contribution", "government-co-contribution"] },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "when_appropriate": { "type": "string" },
+        "key_considerations": { "type": "array", "items": { "type": "string" } },
+        "related_figures": { "type": "array", "items": { "type": "string" }, "description": "regulatory-figure measures this strategy depends on" },
+        "risks": { "type": "array", "items": { "type": "string" } },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["strategy_id", "name", "description", "provenance"]
+    },
+    "product-type": {
+      "type": "object",
+      "description": "A financial product CATEGORY and its characteristics/typical use — not a specific product (specific products are DDO/PDS lookups at run time).",
+      "properties": {
+        "product_type_id": { "type": "string", "examples": ["super-accumulation", "super-pension", "managed-fund", "etf", "shares", "term-deposit", "annuity", "life-insurance", "tpd-insurance", "income-protection", "smsf", "investment-bond", "managed-account"] },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "typical_use": { "type": "string" },
+        "key_features": { "type": "array", "items": { "type": "string" } },
+        "key_risks": { "type": "array", "items": { "type": "string" } },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["product_type_id", "name", "provenance"]
+    },
+    "disclosure-document": {
+      "type": "object",
+      "description": "An advice document type with its purpose, mandatory content, governing provision, and DBFO status (e.g. SoA being replaced by the new client advice record).",
+      "properties": {
+        "doc_type_id": { "type": "string", "examples": ["fsg", "soa", "client-advice-record", "roa", "pds", "tmd", "fee-consent", "opt-in"] },
+        "name": { "type": "string" },
+        "purpose": { "type": "string" },
+        "mandatory_content": { "type": "array", "items": { "type": "string" } },
+        "governing_provision": { "type": "string" },
+        "status": { "type": "string", "examples": ["current", "replaced-by-client-advice-record", "proposed"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["doc_type_id", "name", "provenance"]
+    },
+    "determination-precedent": {
+      "type": "object",
+      "description": "A published AFCA determination or ASIC/FSCP enforcement outcome — durable 'what non-compliant advice looks like' lesson. No complainant personal details.",
+      "properties": {
+        "determination_id": { "type": "string", "examples": ["afca-1043210", "asic-25-123mr"] },
+        "body": { "type": "string", "enum": ["AFCA", "ASIC", "FSCP"] },
+        "date": { "type": "string" },
+        "product_or_service": { "type": "string" },
+        "issue": { "type": "string", "description": "what the advice did wrong" },
+        "outcome": { "type": "string" },
+        "lesson": { "type": "string" },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["determination_id", "body", "provenance"]
+    },
+    "market-indicator": {
+      "type": "object",
+      "description": "A dated market/economic indicator used in advice context (RBA cash rate, ABS CPI).",
+      "properties": {
+        "indicator_key": { "type": "string", "description": "{indicator}-{as_at}" },
+        "indicator": { "type": "string", "examples": ["rba-cash-rate", "cpi-annual", "cpi-index"] },
+        "as_at": { "type": "string", "format": "date" },
+        "value": { "type": "string" },
+        "unit": { "type": "string", "examples": ["percent", "index"] },
+        "source_release": { "type": "string" },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["indicator_key", "indicator", "as_at", "value", "provenance"]
+    },
+    "planning-assumption": {
+      "type": "object",
+      "description": "A dated projection assumption (long-term return, inflation, wage growth, fees) — e.g. ASIC MoneySmart calculator defaults — used for retirement/investment projections.",
+      "properties": {
+        "assumption_key": { "type": "string", "description": "{assumption}-{as_at}" },
+        "assumption": { "type": "string", "examples": ["investment-return", "inflation", "wage-growth", "fees"] },
+        "as_at": { "type": "string", "format": "date" },
+        "value": { "type": "string" },
+        "unit": { "type": "string", "examples": ["percent"] },
+        "source_release": { "type": "string" },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["assumption_key", "assumption", "as_at", "value", "provenance"]
+    }
+  }
+}

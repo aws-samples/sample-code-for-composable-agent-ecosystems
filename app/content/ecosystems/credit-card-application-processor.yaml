@@ -1,0 +1,204 @@
+ecosystem:
+  name: credit-card-application-processor
+  description: 'Process a single credit card application end-to-end: verify applicant
+    data, assess credit risk, and produce a decision packet'
+  version: '1.0'
+strategy: orchestrated
+report: true
+domains:
+- personal-finance
+# Ecosystem Evaluation Harness (docs/spec-ecosystem-evaluation.md). GENERIC keys;
+# the field names / expected values below are THIS eco's own output vocabulary —
+# no domain logic lives in platform code. gate: warn (informational). golden_set points
+# at the curated cases in the runs bucket (uploaded to evaluations/<eco>/v1/cases.jsonl).
+evaluation:
+  # __RUNS_BUCKET__ is substituted with the deployment's runs bucket (TESSERA_RUNS_BUCKET)
+  # at eval time — never a hardcoded, account-specific, squattable bucket name.
+  golden_set: s3://__RUNS_BUCKET__/evaluations/credit-card-application-processor/v1/cases.jsonl
+  replicates: 3
+  run_mode: headless
+  trajectory: false
+  metrics:
+  - id: decision_acc
+    field: decision
+    scorer: categorical
+    cost_weights: { false_approve: 5, false_decline: 1 }
+  - id: risk_tier_acc
+    field: risk_tier
+    scorer: categorical
+  - id: refers_when_thin
+    field: decision
+    scorer: abstention
+    expected_value: REFER
+  - id: evidence_faithful
+    field: "*"
+    scorer: citation_resolves
+  thresholds:
+    decision_acc: 0.9
+    evidence_faithful: 1.0
+    refers_when_thin: 1.0
+  gate: warn
+  online:
+    enabled: true
+    baseline_sample_rate: 0.1
+    always_eval_when: [gate_fired, human_override, { faithfulness_below: 0.8 }]
+tags:
+- credit
+- underwriting
+- risk
+- applications
+quality:
+  challenger: per_level
+  challenger_gate:
+    block_below: ADEQUATE
+  grounding: true
+  gates:
+    citation: ask
+    format: ask
+    grounding: ask
+    output_kind: ask
+outcome:
+  kind: file_artifact
+  artifacts:
+  - id: decision_packet
+    agent: packet_drafter
+    format: pdf
+    save_as: decision_packet.pdf
+    download_label: Download Decision Packet (PDF)
+entry_point: intake_verifier
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: credit_card_application_processor_findings
+    write:
+    - all
+    read:
+    - all
+agents:
+- id: intake_verifier
+  name: Intake & Data Verifier
+  registry_id: tessera/intake_verifier
+  swarm: verification
+  tools:
+  - memory_write
+  prompt: "You are the Intake & Data Verifier for a credit card application. Given\
+    \ the applicant's submitted application data, you must: (1) confirm all required\
+    \ fields are present (legal name, DOB, SSN/ID, address history, employment, stated\
+    \ income, requested credit line, housing status); (2) flag any missing/inconsistent\
+    \ fields; (3) perform plausibility checks (age \u2265 18, address format, income\
+    \ vs. employment consistency, ID format). Publish a structured verification report:\
+    \ {completeness_status, verified_fields, missing_fields, inconsistencies, plausibility_flags,\
+    \ applicant_summary}. Be explicit about what you cannot verify without external\
+    \ systems (KYC/OFAC/employer confirmation) \u2014 mark these as 'requires_external_verification'.\
+    \ Do NOT fabricate verifications you cannot perform."
+- id: credit_analyst
+  name: Credit Analyst
+  registry_id: tessera/credit_analyst
+  swarm: verification
+  tools:
+  - memory_write
+  prompt: "You are the Credit Analyst. Given the applicant's credit-related data (credit\
+    \ report summary, tradelines, stated income, existing debt obligations), compute\
+    \ and publish the credit-worthiness signals: credit score band (Deep Subprime/Subprime/Near\
+    \ Prime/Prime/Super Prime per industry bands), debt-to-income ratio (DTI = monthly\
+    \ debt payments / gross monthly income), revolving utilization %, number and severity\
+    \ of delinquencies (30/60/90+ days), public records (bankruptcies, liens, collections),\
+    \ length of credit history, recent inquiries, and thin-file flag. Note: 90+ days\
+    \ delinquent is the international standard definition of default. Publish {score,\
+    \ score_band, dti, utilization, delinquencies, public_records, credit_history_months,\
+    \ recent_inquiries, thin_file, computed_signals_summary}. If input data is insufficient\
+    \ for any signal, mark it 'insufficient_data' \u2014 do not guess."
+- id: risk_assessor
+  name: Risk Assessor
+  registry_id: tessera/risk_assessor
+  swarm: synthesis
+  depends_on:
+  - intake_verifier
+  - credit_analyst
+  tools:
+  - memory_read
+  - memory_write
+  prompt: "You are the Risk Assessor. Read the Intake Verifier's report and the Credit\
+    \ Analyst's signals from shared memory. Synthesize a risk profile: (1) assign\
+    \ an overall risk tier (Low / Moderate / Elevated / High); (2) list the top 3-5\
+    \ risk drivers with evidence citing the specific verified fields/signals; (3)\
+    \ list mitigating factors; (4) estimate probability-of-default qualitatively (given\
+    \ no proprietary PD model is available) with reasoning grounded in the standard\
+    \ factors (score, DTI, utilization, delinquencies, history length); (5) flag any\
+    \ policy-blocker conditions (e.g., active bankruptcy, identity red flag, insufficient\
+    \ income). Publish {risk_tier, risk_drivers[], mitigating_factors[], pd_qualitative,\
+    \ policy_blockers[], rationale}. Cite the source finding (agent + field) for every\
+    \ claim. Do not invent thresholds \u2014 describe qualitatively."
+- id: decisioner
+  name: Decision Officer
+  registry_id: tessera/decisioner
+  swarm: synthesis
+  depends_on:
+  - risk_assessor
+  tools:
+  - memory_read
+  - memory_write
+  prompt: "You are the Decision Officer. Read the risk profile and upstream findings\
+    \ from shared memory. Render a decision: APPROVE, DECLINE, or REFER (manual review).\
+    \ For APPROVE: recommend a credit line range and APR tier consistent with the\
+    \ risk tier, and list conditions (e.g., income verification required at booking).\
+    \ For DECLINE: cite the specific adverse-action reasons in plain language suitable\
+    \ for a Regulation B / FCRA adverse-action notice (top principal reasons). For\
+    \ REFER: list what a human underwriter must resolve. Publish {decision, credit_line_recommendation,\
+    \ apr_tier, conditions[], adverse_action_reasons[], referral_items[], decision_rationale}.\
+    \ Every element must trace back to a finding from an upstream agent \u2014 cite\
+    \ them. State explicitly that final approval, exact pricing, and adverse-action\
+    \ letter language must conform to the issuer's written credit policy and applicable\
+    \ regulations (ECOA/Reg B, FCRA)."
+- id: packet_drafter
+  name: Decision Packet Drafter
+  registry_id: tessera/packet_drafter
+  swarm: drafting
+  depends_on:
+  - decisioner
+  tools:
+  - memory_read
+  - code_interpreter
+  output_kind: drafter
+  output_format:
+    type: pdf
+    save_as: decision_packet.pdf
+    validate: true
+  prompt: "You are the Decision Packet Drafter. Read all upstream findings (intake\
+    \ verification, credit signals, risk profile, decision) from shared memory. Build\
+    \ a single, well-formatted PDF titled 'Credit Card Application Decision Packet'\
+    \ with these sections: (1) Cover page \u2014 applicant name, application ID/date,\
+    \ decision headline; (2) Applicant Summary \u2014 verified fields, missing/inconsistent\
+    \ items, plausibility flags; (3) Credit Profile \u2014 score band, DTI, utilization,\
+    \ delinquencies, history, public records; (4) Risk Assessment \u2014 risk tier,\
+    \ drivers, mitigants, qualitative PD, policy blockers; (5) Decision \u2014 approve/decline/refer\
+    \ with credit line & APR tier (or adverse-action reasons / referral items), conditions,\
+    \ full rationale; (6) Disclosures & Caveats \u2014 note that this packet is a\
+    \ decision-support artifact and final booking is subject to issuer policy and\
+    \ regulatory notices (ECOA/Reg B, FCRA). Use the code_interpreter to render the\
+    \ PDF (e.g., via reportlab or weasyprint) and save it as decision_packet.pdf.\
+    \ Keep formatting clean: headings, tables for numeric signals, and citations linking\
+    \ each conclusion back to its source agent."
+swarms:
+  verification:
+    agents:
+    - intake_verifier
+    - credit_analyst
+    strategy: graph
+  synthesis:
+    agents:
+    - risk_assessor
+    - decisioner
+    strategy: graph
+  drafting:
+    agents:
+    - packet_drafter
+    strategy: graph
+parallel_swarms:
+- verification
+- synthesis
+- drafting
+triggers:
+- type: manual
+owner: 54f8b438-a051-700a-5df3-1d813770b9df

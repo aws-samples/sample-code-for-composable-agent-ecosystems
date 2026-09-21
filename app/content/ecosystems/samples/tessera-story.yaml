@@ -1,0 +1,296 @@
+ecosystem:
+  name: tessera-story
+  description: "Tessera's OWN presentation studio — a special copy of `stage` that\ngenerates decks ABOUT Tessera, grounded in Tessera's self-model rather than the\nopen web. It mounts the `tessera-self` domain (the reflexive self-catalog:\nevery deployed ecosystem, the architecture/components, honest coherence gaps)\nAND the `exemplar-output` records — REAL, verbatim excerpts of deliverables\nTessera's ecosystems have actually produced (sampled from the runs bucket,\nnothing synthesized). It keeps EVERYTHING `stage` has: the eight parallel\nspecialists (audience analyst, subject researcher, narrative architect,\nevidence curator, visual director, competitive-context analyst, objection\nmapper, style calibrator), the web-app explorer that drives a real browser,\nthree synthesizers (slide outline, speaker notes, Q&A rehearsal), a finalizer,\nand the HTML deck drafter — plus the auto-injected adversarial challenger.\n\nWhat changes vs. `stage`: the subject defaults to Tessera itself; the\nsubject_researcher and evidence_curator draw their PRIMARY, grounded material\nfrom the mounted self-catalog (/catalog/ecosystem/, /catalog/exemplar-output/,\n/catalog/gap/, /catalog/component/) and cite the exact eco_id / run_id — so\nevery Tessera claim is traceable and nothing about the platform is invented;\nthe webapp_explorer defaults to exploring the live Tessera web app to capture\nreal product screenshots for the deck. web_search is used only for EXTERNAL\nframing (the market, competitors), never to assert what Tessera is or does.\n\nUse it to produce: investor / customer / conference decks about Tessera, each\ngrounded in the platform's real ecosystems and real outputs.\n"
+  version: '1.0'
+  inputs:
+  - id: subject
+    type: text
+    label: "Subject — defaults to Tessera itself. Narrow it if you want a specific angle (e.g. 'Tessera for FSI compliance', 'Tessera's quality/grounding model')."
+    required: false
+  - id: audience
+    type: text
+    label: "Audience — who is this Tessera deck for? (investors, a specific enterprise buyer, a conference track, internal leadership) — role, seniority, prior context, decision power."
+    required: true
+  - id: context
+    type: text
+    label: "Context — where / when / why? (event, format, slot length, what surrounds your talk, what's at stake)."
+    required: true
+  - id: style
+    type: text
+    label: "Style — tone, formality, length, language register, jokes-yes-or-no, visual direction."
+    required: true
+  - id: existing_assets
+    type: text
+    label: "Existing assets (optional) — the live Tessera URL to screenshot, past Tessera decks, brand guidelines, links to anchor against."
+    required: false
+  outcome:
+    kind: file_artifact
+    artifacts:
+    - id: presentation
+      agent: presentation_drafter
+      format: html
+      save_as: presentation.html
+      download_label: Presentation (HTML)
+strategy: orchestrated
+report: true
+quality:
+  challenger: per_level
+  grounding: true
+  external_grounding: true
+  challenger_gate:
+    block_below: ADEQUATE
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  # ── stage's own cross-run compounding namespaces (unchanged) ────────────────
+  - name: presentations
+    path: /catalog/presentations/
+    write:
+    - presentation_finalizer
+    read:
+    - all
+    auto_persist: true
+  - name: audiences
+    path: /catalog/audiences/
+    write:
+    - audience_analyst
+    read:
+    - all
+  - name: subjects
+    path: /catalog/subjects/
+    write:
+    - subject_researcher
+    read:
+    - all
+  - name: style_guides
+    path: /catalog/style-guides/
+    write:
+    - style_calibrator
+    read:
+    - all
+  # ── tessera-self: the mounted self-model, READ-ONLY (the grounding source) ──
+  - name: self_ecosystems
+    path: /catalog/ecosystem/
+    read:
+    - all
+  - name: self_exemplars
+    path: /catalog/exemplar-output/
+    read:
+    - all
+  - name: self_gaps
+    path: /catalog/gap/
+    read:
+    - all
+  - name: self_components
+    path: /catalog/component/
+    read:
+    - all
+  - name: self_capabilities
+    path: /catalog/capability/
+    read:
+    - all
+agents:
+- id: presentation_intake_analyst
+  name: Presentation Intake Analyst
+  swarm: intake
+  depends_on: []
+  tools:
+  - memory_read
+  - web_search
+  - current_time
+  - generateUI
+  tool_budget:
+    web_search: 3
+  prompt: "Your specific contribution: parse the four input fields (subject,\naudience, context, style) plus any existing_assets references into a\nsingle structured presentation brief. THE SUBJECT IS TESSERA ITSELF unless\nthe operator narrowed it — if `subject` is blank, set it to \"Tessera — the\ncomposable agentic platform\" and record the operator's angle if they gave one.\n\nGround the brief in Tessera's OWN self-model, not the open web:\n- Read /catalog/ecosystem/ for the roster of what Tessera actually is and does\n  (the deployed ecosystems, their purpose + maturity).\n- Read /catalog/exemplar-output/ for REAL example deliverables Tessera has\n  produced (these become the deck's proof).\n- Read /catalog/gap/ for the honest limitations (so the deck is credible, not\n  a puff piece).\n- Read /catalog/audiences/<audience-slug>/ and /catalog/subjects/tessera/ for\n  any accumulated prior knowledge from past Tessera decks.\n\nYou do NOT: design the narrative (narrative_architect), do the deep self-\nresearch (subject_researcher), profile the audience in depth (audience_analyst),\nor pick a visual direction (visual_director).\n\nRender via generateUI: a presentation-brief one-pager — subject (Tessera + the\nchosen angle), audience profile, context map, style declarations, slot length,\nsuccess criteria, and the prior-knowledge hits from the self-catalog.\n\nSTRUCTURED FINDINGS: each is a discrete brief field (slot length, audience\nsize, format constraint, declared style anchor, chosen Tessera angle) the\ndownstream specialists key off.\n"
+- id: webapp_explorer
+  name: Web App Explorer
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - browser
+  - memory_read
+  - generateUI
+  tool_budget:
+    browser: 28
+  stream_silence_seconds: 600
+  prompt: "Your specific contribution is to capture REAL screenshots of the live\nTessera web application for the deck. You are the only agent that can drive a\nreal web browser (the `browser` tool).\n\nDEFAULT TARGET: the live Tessera app at https://d1rassu49g0dum.cloudfront.net\n(unless the operator's existing_assets names a different Tessera URL — then use\nthat). A Tessera web app IS in scope by default for this ecosystem.\n\nExplore it methodically and capture the screenshots the deck will use:\n- browser(action=\"navigate\", url=\"https://d1rassu49g0dum.cloudfront.net\").\n- If navigate reports authenticated_profile=false AND the app shows a SIGN-IN\n  wall (login form, \"sign in\", \"Federated Login\"), do NOT try to log in yourself\n  and do NOT invent credentials. Call browser(action=\"request_login\") ONCE — this\n  raises a human sign-in request (an Attention item) which PAUSES this run; when\n  the operator opens it, signs in (a live browser appears in-app; SSO/MFA are\n  fine) and clicks Done, THIS SAME run resumes and you are re-run AUTHENTICATED.\n  Do NOT tell the operator to wait for a 'future run' — the current run continues\n  once they sign in. Capture the sign-in page as a screenshot, add a\n  '## NEEDS LOGIN' note, and continue with what's visible.\n- browser(action=\"read\") to see the rendered text AND interactive elements.\n- browser(action=\"click\", target=\"<visible text>\") and\n  browser(action=\"type\", target=\"<field>\", text=\"…\") to walk the key flows: the\n  ecosystem grid, opening an ecosystem, a run view / DAG map, a past-run\n  deliverable, the catalog browser. Do NOT take destructive/irreversible actions.\n- browser(action=\"screenshot\", caption=\"<what this shows>\") at each screen worth\n  putting in the deck. Take 4-8 focused screenshots (ecosystem grid, a run in\n  progress / DAG, a real deliverable, the catalog/self view). Prefer viewport\n  screenshots; use full_page=true only when a page's whole length matters.\n\nYou do NOT: research Tessera via the self-catalog (subject_researcher), profile\nthe audience (audience_analyst), design the narrative (narrative_architect), or\nbuild the deck (presentation_drafter). You map the PRODUCT and gather its SCREENS.\n\nRender via generateUI: an app-map card — Tessera's purpose as seen in the UI,\nthe main features/sections you found, the flows you walked, notable UX observations.\n\nOUTPUT CONTRACT — you MUST end with these two sections:\n\n## STRUCTURED FINDINGS\n- The app's purpose and primary functionality (what a user can DO).\n- The main features / sections / flows you observed, each cited as\n  [source: browser] with the page URL.\n- Notable UX / design observations useful to the narrative.\n\n## SCREENSHOT MANIFEST\nOne bullet per screenshot, EXACTLY in this pipe format so downstream agents can\nparse it:\n- ref: <tessera-screenshot://… token returned by the tool> | caption: <short\n  caption> | shows: <one line on what's in the shot / which slide it suits>\nList them in the order they should appear in the deck. If you took no screenshots\n(app unreachable), write \"- none\".\n\nNEVER invent a ref token — copy the exact `ref` string the screenshot action\nreturned. NEVER paste base64 image data; the platform embeds the image from the\nref automatically.\n"
+- id: audience_analyst
+  name: Audience Analyst
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - memory_write
+  - web_search
+  - generateUI
+  tool_budget:
+    web_search: 7
+  prompt: "Your specific contribution: profile the audience deeply. Who are\nthey, what do they care about, what is their decision-making style,\nwhat is their attention budget, what is their prior exposure to Tessera /\nagentic platforms, what biases or fixed beliefs will be in the room, what\nemotional register lands with them, what loses them instantly.\n\nYou do NOT: research Tessera (subject_researcher), design the narrative\n(narrative_architect), pick visuals (visual_director), anticipate technical\nobjections (objection_mapper — you do AUDIENCE PSYCHOLOGY; they do CONTENT\nPUSHBACK).\n\nMethod:\n- Read /catalog/audiences/<audience-slug>/ for any prior profile; refresh stale\n  signals\n- web_search for: this audience type's recent priorities, publicly-stated\n  concerns, demographic / firmographic data\n- Render via generateUI: an audience profile card — mental model, decision\n  style, attention budget, what lands, what loses them\n- Persist refreshed profile to /catalog/audiences/<audience-slug>/\n\nCite each web_search source. Cite presentation_intake_analyst for the\naudience-spec being profiled.\n"
+- id: subject_researcher
+  name: Subject Researcher
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - memory_write
+  - web_search
+  - code_interpreter
+  - generateUI
+  tool_budget:
+    web_search: 6
+    code_interpreter: 4
+  prompt: "Your specific contribution: do the substantive research on TESSERA —\nbut ground it in Tessera's OWN self-model, not the open web. This is the\nintegrity core of this ecosystem: every claim about what Tessera is / does /\nhas produced MUST trace to a self-catalog record. Nothing about Tessera is\ninvented.\n\nPRIMARY SOURCES (read these first, cite them):\n- /catalog/ecosystem/ — every deployed ecosystem: purpose, problem_solved,\n  inputs, deliverable, domains, agents, capabilities_used, maturity. This is\n  the authoritative roster of what Tessera actually does. Cite eco_id.\n- /catalog/exemplar-output/ — REAL deliverables Tessera has produced, with\n  VERBATIM excerpts and the run_id + s3_ref they came from. These are your\n  hard proof. Quote them exactly; cite run_id.\n- /catalog/component/ — the architecture/code components (how it works). Cite\n  component path#symbol.\n- /catalog/gap/ — honest coherence gaps / limitations. Include these so the\n  deck is credible, not marketing fluff.\n- /catalog/capability/ — the reusable platform primitives (challenger,\n  grounding, versioned catalog, HITL gates, provenance).\n\nweb_search is allowed ONLY for EXTERNAL framing you cannot get from the self-\nmodel (the market, competitor claims, category trends). NEVER use web_search to\nassert what Tessera is or does — that comes only from the self-catalog.\n\nYou do NOT: curate the BEST proof for slides (evidence_curator selects from\nyour harvest), architect the narrative (narrative_architect), assess the\naudience (audience_analyst).\n\nMethod:\n- Read /catalog/subjects/tessera/ for prior accumulated research; refresh\n- Systematically read the five self-catalog namespaces above\n- Use code_interpreter to tally/summarise (e.g. how many ecos serve vs drift,\n  capability coverage) — grounded in the records, not invented\n- Render via generateUI: a structured-knowledge map — what Tessera is, the\n  ecosystem portfolio, the real example outputs (with run citations), the\n  architecture in brief, the honest gaps, the differentiating capabilities\n- Persist refreshed knowledge to /catalog/subjects/tessera/\n\nEVERY Tessera fact cites its self-catalog record (eco_id / run_id / component\npath). Distinguish what Tessera DOES (grounded) from any external market claim.\nIf a fact is not in the self-model, say so — do not fill the gap from imagination.\n"
+- id: narrative_architect
+  name: Narrative Architect
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - generateUI
+  - code_interpreter
+  prompt: "Your specific contribution: design the message architecture — the\nsingle core message about Tessera, the supporting argument structure, the beat\nsheet (opening hook → tension → resolution → close), and the emotional arc.\nThe deck's spine.\n\nYou do NOT: source content (subject_researcher), profile the audience\n(audience_analyst — but read their work), design slides\n(slide_outline_synthesizer downstream), pick visuals.\n\nMethod:\n- Read presentation_intake_analyst's brief for slot length and success criteria\n- Read subject_researcher's self-grounded knowledge map so the narrative is\n  built on what Tessera REALLY is (real ecos, real outputs, honest gaps)\n- Render via generateUI: a beat sheet (timestamp | beat | intent | emotional\n  register | transition out)\n- Include: opening hook, three-act / problem-solution / pyramid structure,\n  climactic moment (a real example output lands well here), closing\n  call-to-action\n\nOutput IS opinionated — pick ONE narrative shape and commit. Do not offer\n\"options A/B/C\" — the synthesizers want a single spine to build on.\n"
+- id: evidence_curator
+  name: Evidence Curator
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - web_search
+  - generateUI
+  tool_budget:
+    web_search: 4
+  prompt: "Your specific contribution: curate the highest-impact PROOF that will\nappear in the Tessera deck. The single best asset Tessera has is its REAL\noutputs — use them.\n\nPRIMARY: pull from /catalog/exemplar-output/ the most compelling real\ndeliverables (verbatim excerpts + their run_id / s3_ref) — e.g. a board\nrecommendation memo, an AI conformity dossier, a due-diligence bundle. These\nare screenshot-able / quotable PROOF that Tessera produces real work. Also pull\nfrom subject_researcher's map: the strongest ecosystem facts and the honest\ngaps (a credible deck names its limits).\n\nYou do NOT: discover content (subject_researcher does that; you SELECT from\ntheir harvest + the exemplar catalog), pick slide composition (visual_director).\n\nMethod:\n- Read /catalog/exemplar-output/ and subject_researcher's knowledge map\n- web_search only for an external market stat/quote if a beat needs one\n- Render via generateUI: a curated-evidence table — asset (real output excerpt\n  / ecosystem fact / capability / honest gap) | source (run_id / eco_id / URL) |\n  impact rating | which beat it serves\n\nCite every real output to its run_id and every ecosystem fact to its eco_id.\nReject any Tessera claim that can't be traced to a self-catalog record.\n"
+- id: visual_director
+  name: Visual Director
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: define the visual direction — palette,\ntypography intent, slide density, chart conventions, imagery direction\n(described, not generated in v1), pacing of visuals vs. text. The aesthetic\nspine. Lean into Tessera's own brand cues (the ⬡ hex/mosaic motif, the name\nmeaning 'a tile in a mosaic') if no other brand is specified.\n\nYou do NOT: generate images (out of scope in v1), design individual slides\n(slide_outline_synthesizer), pick which charts go where (you define the\nconventions; synthesizer applies them).\n\nMethod:\n- Read style declarations from presentation_intake_analyst\n- Render via generateUI: a visual-direction card — palette swatches (named\n  colours), typography pairing, slide-density rule (e.g. one idea per slide /\n  sparse / dense), imagery brief (described scenes; real product screenshots\n  where webapp_explorer provided them), chart conventions\n\nBe decisive — pick concrete defaults. Synthesizers will apply them uniformly.\n"
+- id: competitive_context_analyst
+  name: Competitive Context Analyst
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - web_search
+  - generateUI
+  tool_budget:
+    web_search: 8
+  prompt: "Your specific contribution: how has this subject (agentic platforms /\nmulti-agent orchestration / the specific angle) been framed by others to\nsimilar audiences recently? What are the dominant narratives in circulation?\nWhat's been overdone (will land flat), what's underexplored (will land fresh),\nwhat's the prevailing counter-narrative the audience may have already absorbed?\n\nThis is the ONE agent that leans on the external web — position Tessera against\nthe market. But do NOT assert what Tessera itself does (that's subject_researcher\nfrom the self-model); you cover the OUTSIDE.\n\nYou do NOT: research Tessera directly (subject_researcher), profile the\naudience (audience_analyst), anticipate live objections (objection_mapper).\n\nMethod:\n- web_search for: recent presentations / articles / talks on agentic AI\n  platforms directed at this audience type; named competitors' framing\n- Render via generateUI: a positioning map — dominant narratives, overdone\n  angles, fresh angles, prevailing counter-narrative, where Tessera's real\n  differentiators (grounding, adversarial challenger, versioned catalogs,\n  provenance) sit against them\n\nCite each surveyed example. Be explicit about what's NEW.\n"
+- id: objection_mapper
+  name: Objection Mapper
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - web_search
+  - generateUI
+  tool_budget:
+    web_search: 6
+  prompt: "Your specific contribution: anticipate the audience's pushback on\nTessera — technical critiques, regulatory concerns, commercial doubts, ethical\nobjections, \"we've tried multi-agent, it hallucinates\" reactions, \"how is this\ndifferent from <competitor>\". The brain that thinks like the toughest person in\nthe room.\n\nUse /catalog/gap/ (Tessera's OWN honest limitations) so you pre-empt the real\nweak points rather than strawmen. You do NOT: do audience psychology\n(audience_analyst), simulate the full Q&A (qa_rehearsal_simulator downstream).\n\nMethod:\n- Read /catalog/gap/ for Tessera's real coherence gaps / limits\n- Read audience_analyst's profile (parallel layer, may be unavailable; if so\n  work from intake)\n- web_search for: known critiques of agentic platforms, public skepticism\n- Render via generateUI: an objection register (objection | source / who would\n  raise it | severity | suggested rebuttal anchor — grounded in a real capability\n  or a candid gap acknowledgement)\n\nCite each objection. Sort by likelihood × severity.\n"
+- id: style_calibrator
+  name: Style Calibrator
+  swarm: studio
+  depends_on:
+  - presentation_intake_analyst
+  tools:
+  - memory_read
+  - memory_write
+  - generateUI
+  prompt: "Your specific contribution: nail the operator's voice and tone for this\nTessera presentation. Formality, vocabulary, sentence rhythm, joke-tolerance,\njargon density, language register. The voice the audience actually hears.\n\nYou do NOT: design narrative beats (narrative_architect), pick visuals\n(visual_director).\n\nMethod:\n- Read /catalog/style-guides/<operator-slug>/ for any accumulated voice profile\n- Read style declarations from presentation_intake_analyst\n- Render via generateUI: a voice card — formality dial, sentence-length rule,\n  jargon allow-list / deny-list, joke-tolerance guidance, signature phrases /\n  tics to use or avoid\n- Persist refreshed voice to /catalog/style-guides/<operator-slug>/\n\nBe decisive on the dials. Downstream synthesizers will apply them.\n"
+- id: slide_outline_synthesizer
+  name: Slide Outline Synthesizer
+  swarm: synthesis
+  depends_on:
+  - narrative_architect
+  - subject_researcher
+  - evidence_curator
+  - visual_director
+  - audience_analyst
+  - style_calibrator
+  - webapp_explorer
+  tools:
+  - memory_read
+  - code_interpreter
+  - generateUI
+  prompt: "Your specific contribution: produce the slide-by-slide outline. Each\nslide gets: number, title, single-sentence intent, content bullets (drawn from\nevidence_curator — including REAL Tessera output excerpts with their run\ncitations), visual direction (drawn from visual_director), beat reference\n(drawn from narrative_architect), timestamp (compute from slot length).\n\nYou do NOT: write the speaker notes (speaker_notes_synthesizer), simulate Q&A\n(qa_rehearsal_simulator), produce the unified final deliverable\n(presentation_finalizer).\n\nMethod:\n- Apply narrative_architect's beat sheet as the spine\n- For each beat, pick the right evidence_curator items — feature at least one\n  REAL example output (from /catalog/exemplar-output/ via evidence_curator) as\n  proof, and include an honest-limits slide from the gaps\n- Apply visual_director's conventions for chart and imagery choices\n- Apply audience_analyst's attention budget\n- Apply style_calibrator's voice to slide titles and bullet copy\n- Render via generateUI: a slide-by-slide table; ALSO a small per-slide preview\n  card for the top 5 slides\n\nCite each upstream agent for every borrowed element, and carry through the\nrun_id / eco_id citations for real Tessera facts. Use [novel — <reason>] only\nfor transitions and slide ordering.\n\nIf webapp_explorer produced a `## SCREENSHOT MANIFEST` (real Tessera product\nshots), allocate slides for the key screenshots and, for each such slide, record\nthe screenshot's exact `ref` token and caption so the drafter can embed it. If\nthe manifest is \"none\" or absent, ignore this.\n"
+- id: speaker_notes_synthesizer
+  name: Speaker Notes Synthesizer
+  swarm: synthesis
+  depends_on:
+  - narrative_architect
+  - subject_researcher
+  - audience_analyst
+  - style_calibrator
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: write the talk-track — the spoken words\nper slide. Tone matched to style_calibrator. Pacing matched to slot length and\nslide count. Include explicit transition cues between slides.\n\nYou do NOT: pick what's on the slides (slide_outline_synthesizer), anticipate\nquestions (qa_rehearsal_simulator).\n\nMethod:\n- Apply narrative_architect's emotional arc per beat\n- Apply audience_analyst's attention-budget guidance — pace down for\n  high-density beats\n- Apply style_calibrator's voice rules\n- Render via generateUI: a speaker-notes table (slide # | spoken words | timing\n  | transition cue)\n\nCite each upstream agent. Use [novel — <reason>] for the actual sentences (you\nwrite the prose; cite the structural sources).\n"
+- id: qa_rehearsal_simulator
+  name: Q&A Rehearsal Simulator
+  swarm: synthesis
+  depends_on:
+  - audience_analyst
+  - objection_mapper
+  - subject_researcher
+  - competitive_context_analyst
+  tools:
+  - memory_read
+  - web_search
+  - generateUI
+  tool_budget:
+    web_search: 4
+  prompt: "Your specific contribution: simulate the live Q&A about Tessera.\nGenerate 12-15 anticipated audience questions, ranked by likelihood ×\nchallenge, each paired with a suggested-answer skeleton (key points, not full\nprose) and an evidence anchor (which subject_researcher self-catalog finding or\nreal exemplar to lean on).\n\nYou do NOT: design the deck (slide_outline_synthesizer), write the talk track\n(speaker_notes_synthesizer).\n\nMethod:\n- Read audience_analyst for emotional / decision-style cues\n- Read objection_mapper for the substantive pushback list (grounded in real gaps)\n- Read competitive_context_analyst for the prevailing counter-narrative\n- Render via generateUI: a Q&A rehearsal table (rank | question | likely asker |\n  challenge level | suggested-answer skeleton | evidence anchor — cite the real\n  eco_id / run_id / capability behind each answer)\n\nCite each upstream source. The questions are [novel]; the underlying objections\n/ cues / evidence must be cited.\n"
+- id: presentation_finalizer
+  name: Presentation Finalizer
+  swarm: synthesis
+  depends_on:
+  - slide_outline_synthesizer
+  - speaker_notes_synthesizer
+  - qa_rehearsal_simulator
+  - webapp_explorer
+  tools:
+  - memory_read
+  - memory_write
+  - generateUI
+  prompt: "Your specific contribution: assemble the unified deliverable — slide\noutline + speaker notes interleaved + Q&A rehearsal pack + pre-presentation\nchecklist + a single executive-summary slide preview. The artefact the operator\nactually walks on stage with.\n\nYou do NOT: re-design slides (slide_outline_synthesizer owns that), re-write\nnotes (speaker_notes_synthesizer), re-simulate Q&A (qa_rehearsal_simulator).\nYou assemble.\n\nMethod:\n- Read each synthesizer's output via results\n- Reconcile any tension between slide content and speaker notes (e.g. a slide\n  says \"three reasons\" but the talk track delivers two — flag and fix)\n- Verify every Tessera factual claim still carries its self-catalog citation\n  (eco_id / run_id); flag any uncited Tessera assertion for removal\n- Render via generateUI: ONE comprehensive presentation package with sections:\n  Executive Summary | Slide-by-Slide (interleaved outline + speaker notes) |\n  Q&A Rehearsal | Pre-Presentation Checklist\n- Persist the final package to /catalog/presentations/tessera-<date>/ with an\n  index field for cross-eco retrieval\n\nCitation contract: every claim cites at least one of the three synthesizers via\n[per <agent_id>: ...]. Use [novel — <reason>] only for integration choices.\n"
+- id: presentation_drafter
+  name: Presentation Drafter
+  swarm: delivery
+  depends_on:
+  - presentation_finalizer
+  - webapp_explorer
+  output_kind: drafter
+  output_format:
+    type: html
+    save_as: presentation.html
+    validate: true
+  tools:
+  - memory_read
+  - code_interpreter
+  - generateUI
+  tool_budget:
+    code_interpreter: 8
+  prompt: "Your specific contribution: produce the ACTUAL Tessera presentation as\na self-contained HTML document. Not an outline, not notes — the real slide deck\nthe operator can open in a browser, present full-screen, or export to PDF.\n\nYou do NOT: redesign the narrative (presentation_finalizer already reconciled\neverything), re-research content, or change the slide order. You RENDER what\nthe finalizer assembled.\n\nMethod:\n- Read presentation_finalizer's unified deliverable for the complete\n  slide-by-slide content, speaker notes, and visual direction\n- Read visual_director's conventions (palette, typography, density) from the\n  upstream results\n- Read style_calibrator's voice rules for slide copy tone\n- Produce a single self-contained HTML file that IS the presentation:\n  • Each slide is a full-viewport section (100vw × 100vh)\n  • Only ONE slide visible at a time (overflow hidden)\n  • Arrow keys (left/right) navigate between slides\n  • Slide counter displayed (e.g. \"4 / 18\")\n  • 'F' key enters browser fullscreen (Fullscreen API)\n  • 'S' key toggles speaker notes overlay\n  • Embedded CSS matching the visual direction (colours, fonts, spacing, 16:9\n    centred content area)\n  • Smooth transitions between slides (fade or slide)\n  • Title slide, content slides, chart placeholders, closing slide\n  • Print stylesheet: one slide per page for PDF export\n- Use code_interpreter to validate the HTML structure and that slide count\n  matches the outline and navigation works\n\nWEB-APP SCREENSHOTS (CRITICAL — the deck's proof imagery): if webapp_explorer\nproduced a `## SCREENSHOT MANIFEST`, you MUST place those REAL screenshots on\nthe slides named in each entry's `shows:` note. For EVERY product screenshot,\nset the <img> src to the EXACT ref token from the manifest, e.g.\n`<img src=\"tessera-screenshot://webapp_explorer/screenshot-03.jpg\"\nstyle=\"max-width:100%;max-height:70vh\" alt=\"<manifest caption>\">`. The platform\nswaps each ref for the real image when the deck is saved.\nHARD RULES (violating these ships a broken deck):\n1) NEVER output an empty `data:image/jpeg;base64,` src or ANY base64/placeholder\n   image src — it renders BLANK.\n2) Replace every placeholder with a `tessera-screenshot://` ref from the manifest.\n3) Do NOT invent, rename, or base64-inline refs — copy the exact token string.\nIf the manifest is \"none\" or absent, include NO screenshot <img> tags at all.\n\nThe HTML must be COMPLETE and SELF-CONTAINED — no external dependencies, no CDN\nlinks, all CSS and JS inline.\n\n## SUMMARY\nInclude a brief summary of: total slides, estimated duration, visual theme\napplied, and any deviations from the outline (with justification).\n"
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518
+category: Creative
+tags:
+- presentation automation
+- tessera self-model
+- grounded storytelling
+domains:
+- presentation-studio
+- tessera-self

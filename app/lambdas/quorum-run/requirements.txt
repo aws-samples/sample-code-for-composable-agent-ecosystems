@@ -1,0 +1,4 @@
+boto3
+pyyaml
+jmespath
+pillow==12.2.0

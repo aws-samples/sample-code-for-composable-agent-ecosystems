@@ -1,0 +1,357 @@
+ecosystem:
+  name: adviser-copilot
+  description: >-
+    Adviser copilot for wealth advisers. Ingests a client's documents
+    (advice-platform export, portfolio/holdings, bank statements, super & insurance statements,
+    prior SoA/ROA), grounds analysis in the Australian Financial Advice catalog
+    (BID/FASEA obligations, ASIC guidance, strategies, statutory figures), and
+    produces a meeting brief, a next-best-action list, an adviser conversation
+    script, and a downloadable rich-HTML advice pack.
+  version: '2.0'
+strategy: orchestrated
+report: false
+domains:
+- au-financial-advice
+tags:
+- adviser
+- portfolio
+- meeting-prep
+- nba
+- bid-fasea
+- au-financial-advice
+quality:
+  challenger: per_level
+  challenger_gate:
+    block_below: ADEQUATE
+  grounding: true
+  gates:
+    citation: ask
+    format: ask
+    grounding: ask
+    output_kind: ask
+outcome:
+  kind: file_artifact
+  audience: the financial adviser (and, in client-facing form, the retail client)
+  artifacts:
+  - id: advice_pack
+    agent: advice_pack_composer
+    format: html
+    save_as: adviser-meeting-pack.html
+    download_label: Download adviser meeting pack (HTML)
+entry_point: document_intake_parser
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  # Per-run working memory shared across all agents.
+  - name: adviser_copilot_findings
+    write:
+    - all
+    read:
+    - all
+  # ── au-financial-advice catalog (read-only grounding) ────────────────────────
+  # path /catalog/<type>/ ; the runtime resolves the active blue/green version.
+  - name: advice_obligation_catalog
+    path: /catalog/advice-obligation/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: regulatory_guidance_catalog
+    path: /catalog/regulatory-guidance/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: disclosure_document_catalog
+    path: /catalog/disclosure-document/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: advice_strategy_catalog
+    path: /catalog/advice-strategy/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: product_type_catalog
+    path: /catalog/product-type/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: regulatory_figure_catalog
+    path: /catalog/regulatory-figure/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: market_indicator_catalog
+    path: /catalog/market-indicator/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: planning_assumption_catalog
+    path: /catalog/planning-assumption/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: determination_precedent_catalog
+    path: /catalog/determination-precedent/
+    write: []
+    read:
+    - all
+    auto_persist: false
+agents:
+- id: document_intake_parser
+  name: Client Document Intake & Parser
+  registry_id: tessera/document_intake_parser
+  swarm: solo
+  tools:
+  - code_interpreter
+  - memory_write
+  prompt: >-
+    You ingest EVERY document attached to this run — attachments arrive as full
+    extracted text (PDFs are already text-extracted; CSV/XLS arrive as data). Accept
+    and classify ANY relevant client document: adviser CSV or PDF exports,
+    portfolio & holdings statements, bank / transaction statements, superannuation
+    statements, insurance schedules, tax returns / notices of assessment, and any
+    prior Statement of Advice (SoA) or Record of Advice (ROA). Steps: (1) For each
+    attachment, detect its type and format (CSV vs PDF text) and note it. (2) Extract
+    into ONE consolidated client dossier: client profile (name/ref, age or DOB,
+    dependants, employment, stated goals, risk profile, review cadence); account
+    structures; holdings with asset class + market value; cash balances; from bank
+    statements — income/expense cashflow, monthly surplus/deficit, recurring
+    commitments, estimated savings rate; insurances (type, sum insured, ownership,
+    premium); super (balance, contributions YTD, accumulation vs pension phase,
+    preservation status); liabilities/mortgage. (3) Compute totals: total portfolio
+    value, asset-class weights, cash %, single-holding concentration (>10% flags),
+    super vs non-super split, and — if bank data is present — monthly surplus and
+    estimated annual savings capacity. (4) Emit a clean JSON dossier AND a short
+    human-readable summary, and list which documents contributed which facts.
+    Flag anything ambiguous, conflicting across documents, or missing (e.g. no risk
+    profile on file) rather than guessing — accuracy over completeness. This is
+    meeting prep under Australian BID/FASEA. Publish the dossier to shared findings.
+- id: portfolio_analyst
+  name: Portfolio Analyst
+  registry_id: tessera/portfolio_analyst
+  swarm: solo
+  depends_on:
+  - document_intake_parser
+  tools:
+  - memory_read
+  - memory_write
+  prompt: >-
+    Read the parsed dossier from shared findings. Produce a ranked list of portfolio
+    observations for the adviser's meeting. Cover: allocation drift vs stated risk
+    profile, single-holding concentration (>10%), cash drag (>~5% idle in
+    accumulation), Australian super concessional / non-concessional cap headroom for
+    the FY, Division 293 exposure, pension account minimum drawdown compliance,
+    insurance adequacy given dependants/liabilities, and any holdings flagged stale
+    (>12mo no review) or clearly misaligned with stated goals. For each observation:
+    {id, title, severity high|med|low, evidence (numbers from dossier), why_it_matters,
+    catalog_refs}. DO NOT propose actions yet — that's the NBA agent. Publish the
+    observations list to shared findings.
+
+
+    GROUNDING & EVIDENCE DISCIPLINE: read the domain catalog for authoritative, dated
+    inputs — /catalog/regulatory-figure/ for the super concessional & non-concessional
+    caps, Division 293 threshold, Total Super Balance cap, preservation age, and
+    pension minimum drawdown rates for the relevant FY; /catalog/market-indicator/ for
+    the latest CPI and RBA cash rate; /catalog/planning-assumption/ for standard
+    planning assumptions. When you state ANY statutory figure, threshold, rate or age
+    you MUST take it from /catalog/regulatory-figure/ (or /market-indicator/) and cite
+    the record's figure_key + effective_date/fy in catalog_refs — NEVER state a cap,
+    threshold, rate or age from memory. If the figure is not in the catalog, do NOT
+    guess it: record it as an information_gap ("figure not in catalog — adviser to
+    verify against ATO/Services Australia") and reason qualitatively instead.
+- id: life_events_scanner
+  name: Life-Events & Agenda Scanner
+  registry_id: tessera/life_events_scanner
+  swarm: solo
+  depends_on:
+  - document_intake_parser
+  tools:
+  - memory_read
+  - memory_write
+  prompt: >-
+    Read the parsed dossier. Identify life-stage and relationship signals for the
+    meeting agenda: age bands (approaching preservation age, Age Pension eligibility,
+    transition-to-retirement windows), stated goals with timeline slipping,
+    beneficiary nominations missing or stale, insurance review overdue, last review
+    >12mo, major changes in dependants/employment if flagged. Emit talking_points:
+    [{topic, prompt_for_adviser, priority, catalog_refs}]. Keep it human — these are
+    conversation starters, not compliance items. Publish to shared findings.
+
+
+    GROUNDING & EVIDENCE DISCIPLINE: read /catalog/regulatory-figure/ for the exact
+    preservation age and the Age Pension eligibility age / thresholds, and cite the
+    figure_key. Never assert a statutory age or threshold from memory — if it is not
+    in the catalog, flag it as an information gap for the adviser to verify rather
+    than stating a number.
+- id: compliance_guardrail
+  name: BID/FASEA Compliance Guardrail
+  registry_id: tessera/compliance_guardrail
+  swarm: solo
+  depends_on:
+  - document_intake_parser
+  tools:
+  - memory_read
+  - memory_write
+  prompt: >-
+    Read the client dossier. Emit a compliance framing for the meeting brief:
+    (1) The Best Interests Duty safe-harbour steps (s961B) each proposed action must
+    be traceable to. (2) The FASEA / Financial Planners & Advisers Code of Ethics
+    standards especially relevant here (integrity, best interests, client
+    understanding & consent, long-term interests). (3) Language rules: NBAs must be
+    framed as "points for adviser consideration", not personal advice to the client;
+    must note information gaps that would need to be filled before advice is given;
+    and must include a standing disclaimer that the brief is an internal adviser aid,
+    not a Statement of Advice. Publish framing + disclaimer text to shared findings.
+
+
+    GROUNDING & EVIDENCE DISCIPLINE: read the authoritative obligations from the
+    catalog rather than paraphrasing from memory — /catalog/advice-obligation/ (BID
+    s961B, the Code of Ethics standards, PDS/FSG obligations), /catalog/regulatory-guidance/
+    (relevant ASIC Regulatory Guides), and /catalog/disclosure-document/ (PDS/FSG/SoA
+    requirements). Cite each obligation by its catalog key (obligation_id / rg_id /
+    doc_type_id) and quote its governing_provision from the record. Where the catalog
+    lacks a needed obligation, flag it explicitly as a gap ("obligation not yet in
+    catalog — verify against ASIC") instead of asserting it from memory.
+- id: nba_recommender
+  name: Next-Best-Action Recommender
+  registry_id: tessera/nba_recommender
+  swarm: solo
+  depends_on:
+  - portfolio_analyst
+  - life_events_scanner
+  - compliance_guardrail
+  tools:
+  - memory_read
+  - memory_write
+  prompt: >-
+    Read portfolio observations, life-events talking points, and the compliance
+    framing from shared findings. Produce 3–7 ranked NBA candidates. Each NBA:
+    {title, rationale (linked to specific observation/talking-point IDs),
+    client_benefit, catalog_refs, BID_safe_harbour_step it maps to,
+    FASEA_standards_engaged, information_gaps_to_close_before_advising,
+    suggested_conversation_opener, priority high|med|low}. Rank by client benefit ×
+    urgency, not product angle. Recommend actions/discussions, NOT specific products
+    (e.g. "discuss rebalancing to target growth allocation", "review TPD sum-insured
+    against mortgage", "confirm binding beneficiary nomination is current"). Exclude
+    anything that would require info the dossier doesn't contain, and list that as a
+    gap instead. Publish ranked NBAs to shared findings.
+
+
+    GROUNDING & EVIDENCE DISCIPLINE: consult /catalog/advice-strategy/ for recognised
+    Australian strategies (use their when_appropriate / key_considerations / risks),
+    /catalog/product-type/ for product CATEGORIES only (never a named product),
+    /catalog/advice-obligation/ to map each NBA to its BID safe-harbour step + Code
+    standards by catalog key, and /catalog/regulatory-figure/ for any headroom /
+    threshold maths. Put the strategy_id / obligation_id / figure_key behind each NBA
+    in catalog_refs. Any statutory figure not in the catalog → an information gap,
+    never a guessed number.
+- id: advice_script_writer
+  name: Adviser Conversation Script Writer
+  registry_id: tessera/advice_script_writer
+  swarm: solo
+  depends_on:
+  - nba_recommender
+  tools:
+  - memory_read
+  - memory_write
+  prompt: >-
+    Read the ranked NBAs, portfolio observations, life-events talking points and
+    compliance framing from shared findings, and read /catalog/advice-strategy/ and
+    /catalog/advice-obligation/ for compliant framing. Write a MEETING CONVERSATION
+    SCRIPT that guides the adviser through the client meeting end-to-end — a talk
+    track for the ADVISER, not advice to the client. Produce, in order:
+    (1) Opening — a warm, compliant opener that sets the meeting purpose and
+    reconfirms scope (note this is a general/strategic discussion and that any
+    personal recommendations will follow in a compliant Statement of Advice).
+    (2) Agenda walk-through — for each life-event talking point and each high/med NBA:
+    a suggested_opening_line the adviser can paraphrase, the discovery_questions to
+    ask (especially to close the information_gaps flagged upstream), likely_client_questions
+    with suggested compliant responses, and the BID/FASEA framing to keep in mind.
+    (3) Objection / hesitation handling — 2–4 common client hesitations with adviser
+    responses. (4) Information-gap closing — the exact questions needed before any
+    advice can be given. (5) Close & next steps — summarise agreed discussion points,
+    set the expectation that formal recommendations come in an SoA/ROA, and confirm
+    follow-up. EVERY scripted line must stay "points for discussion", never a personal
+    recommendation, and must be traceable to an NBA/observation ID or a catalog
+    obligation (cite the key). Publish the script to shared findings.
+- id: advice_pack_composer
+  name: Adviser Meeting Pack Composer
+  registry_id: tessera/advice_pack_composer
+  swarm: solo
+  depends_on:
+  - advice_script_writer
+  output_kind: drafter
+  tools:
+  - code_interpreter
+  - memory_read
+  output_format:
+    type: html
+    file_extension: .html
+    save_as: adviser-meeting-pack.html
+    validate: true
+  prompt: >-
+    You are the DRAFTER for the adviser meeting pack. Read EVERYTHING in shared findings
+    — the client dossier, portfolio observations, life-event talking points, compliance
+    framing + disclaimer, ranked NBAs, and the meeting conversation script — and build a
+    polished, self-contained HTML adviser meeting pack in the file
+    'adviser-meeting-pack.html'.
+
+
+    HOW TO WRITE THE FILE (critical — this pack is LARGE, so build it INCREMENTALLY across
+    several code_interpreter calls; a single giant write is truncated by the output-token
+    limit and the file is lost, which is the #1 failure here): (1) first
+    open('adviser-meeting-pack.html','w') and write the <!DOCTYPE>, <head> with ALL inline
+    CSS, and the opening <body>; (2) then make ONE open('adviser-meeting-pack.html','a')
+    append call PER section below — never batch several sections into one call; (3) then a
+    final append that writes the closing </body></html>; (4) then read the file back and
+    confirm it ends with </html> before you finish. Do NOT assemble the whole document as
+    one big string in a single call. After the file is complete, emit a short "## SUMMARY"
+    (3-5 lines: sections included, top NBAs, number of open information gaps).
+
+
+    Document sections IN ORDER (one append call each):
+    (1) Header — client name/ref, "Adviser Meeting Pack", generated date, and a prominent
+    notice that this is an INTERNAL ADVISER AID, not a Statement of Advice or personal
+    advice to the client. (2) Client Snapshot — profile, dependants, stated goals,
+    portfolio total, asset-class mix (as an inline horizontal bar), cash %, super/non-super
+    split, last review date. (3) Portfolio Health — top observations as cards with a
+    colour-coded severity badge (red/amber/green), the numbers, and why each matters.
+    (4) Suggested Agenda — life-event talking points in conversation order. (5) Next Best
+    Actions — ranked cards; each shows rationale, the catalog obligation/strategy it cites,
+    the BID safe-harbour step, FASEA standards engaged, information gaps to close, and a
+    priority badge. (6) Meeting Conversation Script — the full talk track, formatted as an
+    easy-to-follow guide (opener; per-topic questions & suggested lines; objection handling;
+    gap-closing questions; close). (7) Information Gaps & Data Quality — everything flagged
+    missing/ambiguous, plus any statutory figures the catalog did not supply (marked "verify
+    against source"). (8) Citations — the catalog record keys referenced (obligation_id /
+    rg_id / strategy_id / figure_key). (9) Standing Disclaimer.
+
+
+    Style: professional advisory aesthetic, clear typographic hierarchy, a summary header
+    band, cards, colour-coded badges, print-friendly (A4). Tone: crisp, adviser-to-adviser,
+    no marketing language.
+swarms:
+  solo:
+    agents:
+    - document_intake_parser
+    - portfolio_analyst
+    - life_events_scanner
+    - compliance_guardrail
+    - nba_recommender
+    - advice_script_writer
+    - advice_pack_composer
+    strategy: graph
+parallel_swarms:
+- solo
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518

@@ -1,0 +1,40 @@
+domain: personal-finance
+name: Personal Finance (user-private)
+description: "A single user's durable financial picture — accounts, transactions, loans, holdings. PRIVACY: every catalog here is USER-SCOPED (prefixed per user); these dossiers are NEVER shared across users or promoted to an org/shared domain."
+version: 1
+owner: ''
+owner_email: ''
+status: active
+privacy: user-scoped
+taxonomy:
+- type: financial-account
+  key: '{user}-{account_id}'
+  description: A user's account — type, institution, durable attributes.
+  status: active
+- type: transaction
+  key: '{user}-{account}-{txn_id}'
+  description: A user's transaction record (user-scoped).
+  status: active
+- type: loan
+  key: '{user}-{loan_id}'
+  description: A user's loan — terms, balance, durable attributes.
+  status: active
+- type: investment-holding
+  key: '{user}-{symbol}'
+  description: A user's holding — instrument, quantity basis (private).
+  status: active
+- type: person-financial-profile
+  key: '{user}'
+  description: A user's durable financial profile — goals, constraints, risk tolerance.
+  status: active
+conclusions_never_cataloged:
+- buy/sell/savings recommendation for a run
+- portfolio verdict / advice
+seeded_from: &id001
+- personal-finance-advisor
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: bottom-up validated across belonging ecosystems (2026-06-30)

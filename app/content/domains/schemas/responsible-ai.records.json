@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tessera.dev/schemas/responsible-ai.records.json",
+  "title": "responsible-ai domain — catalog record contract",
+  "description": "Cross-cutting Responsible-AI principle catalog with a CROSSWALK: each principle maps to the enterprise non-financial-risk (NFR) domains and the assessing lenses that evidence it. Anchored on Australia's AI Ethics Principles and aligned to NIST AI RMF and the AWS Responsible-AI dimensions. A specific system's per-principle pass/fail for a run is a CONCLUSION — NEVER cataloged (it is a run output).",
+  "x-tessera-domain": "responsible-ai",
+  "x-tessera-keys": {
+    "rai-principle": "{principle_id}"
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "ingested_by": { "type": "string" },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "refresh_date": { "type": "string", "format": "date" },
+        "supersedes": { "type": "string" }
+      },
+      "required": ["ingested_by", "refresh_date"]
+    },
+    "rai-principle": {
+      "type": "object",
+      "description": "A Responsible-AI principle + its crosswalk to the NFR domains and assessing lenses that evidence it. The crosswalk is what lets the eco roll existing lens findings up into a principle-level coverage view without re-assessing.",
+      "properties": {
+        "principle_id": { "type": "string", "examples": ["fairness", "privacy-protection-security", "reliability-safety", "transparency-explainability", "contestability", "accountability", "human-centred-values", "human-societal-wellbeing"] },
+        "name": { "type": "string" },
+        "description": { "type": "string", "description": "what the principle requires" },
+        "frameworks": { "type": "array", "items": { "type": "string" }, "description": "frameworks that carry this principle", "examples": [["au-ai-ethics", "nist-ai-rmf", "aws-rai"]] },
+        "nfr_domains": { "type": "array", "items": { "type": "string" }, "description": "the enterprise NFR domains whose findings evidence this principle" },
+        "evidencing_lenses": { "type": "array", "items": { "type": "string" }, "description": "the eco lens/agent ids whose findings evidence this principle" },
+        "what_good_looks_like": { "type": "string", "description": "the control/evidence that would satisfy this principle" },
+        "source": { "type": "string" },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["principle_id", "name", "description", "provenance"]
+    }
+  }
+}

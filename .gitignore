@@ -1,0 +1,70 @@
+# ASH (Automated Security Helper) — the entire .ash/ directory (config + scan
+# output/artifacts) is local-only and intentionally NOT tracked, so nothing ASH
+# lands on main. The inline #checkov:skip suppressions live in the .tf files;
+# detect-secrets suppressions are re-created locally in .ash/.ash.yaml as needed.
+.ash/
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+# Keep the dependency lock file committed (recommended); ignore only local overrides.
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform variable files that may hold secrets (the committed environments/*.tfvars
+# hold no secrets; ignore any local *.auto.tfvars or secret var files).
+*.auto.tfvars
+secrets.tfvars
+
+# Lambda build artifacts (produced by scripts/package-lambdas.sh)
+app/lambdas/**/.build/
+app/lambdas/**/*.zip
+build/
+dist/
+*.zip
+# Terraform archive_file staging dirs (produced during plan/apply, hold only zips)
+infra/modules/**/.src-archives/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.test-venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / frontend
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+.env.local
+
+# AgentCore CLI local state
+app/agent/.venv/
+app/agent/.bedrock_agentcore/
+app/agent/.bedrock_agentcore.yaml
+app/agent/uv.lock
+
+# Secrets / env
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Deploy logs
+.deploy-logs/

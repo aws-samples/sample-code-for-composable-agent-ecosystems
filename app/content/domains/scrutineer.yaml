@@ -1,0 +1,37 @@
+domain: scrutineer
+name: Scrutineer Personas
+description: >
+  The governed pool of scrutineer archetypes a Quorum ecosystem convenes from
+  (docs/spec-quorum-archetype.md). Each persona is a reusable reviewer stance — a
+  regulator's-eye examiner, a plaintiff's counsel, a privacy commissioner, a customer
+  advocate, a security adversary, an ethicist — bound to the obligations/frameworks it
+  wields and the precedents it reasons from, so a convened panel is grounded, not cosplay.
+  A specific run's verdict / composition is a CONCLUSION — NEVER cataloged.
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+  - type: scrutineer
+    key: '{persona_id}'
+    description: A reusable reviewer persona — stance, the dimensions it covers, the obligations/frameworks it invokes, precedents it cites, and the questions it always asks.
+    status: active
+conclusions_never_cataloged:
+  - a specific quorum's composition for a run
+  - a deliberation transcript
+  - a defensibility verdict
+seeded_from: []
+ecosystems: []
+catalog:
+  view:
+    default:
+      title: [name]
+      subtitle: [stance]
+      summary: [description]
+  ingestion:
+    sources:
+      - id: scrutineer-seed
+        mode: map
+        produces: [scrutineer]
+        authoritative_url: ''
+        status: active

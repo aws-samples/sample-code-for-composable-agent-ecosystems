@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tessera Help — Quality Gates</title>
+<meta name="description" content="Understand Tessera quality gates: output validation, citation requirements, internal and external grounding, and challenger review." />
+<link rel="stylesheet" href="help.css" />
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Quality Gates</h1>
+  <p class="subtitle">How Tessera is designed to enforce output quality — hard failures, not silent fallbacks.</p>
+</header>
+
+<nav class="nav-bar">
+  <a href="index.html">Overview</a>
+  <a href="ecosystems.html">Ecosystems</a>
+  <a href="running.html">Running</a>
+  <a href="builder.html">Builder</a>
+  <a href="tools.html">Tool Catalog</a>
+  <a href="quality.html">Quality</a>
+  <a href="agent-types.html">Agent Types</a>
+  <a href="quality-gates.html" class="active">Quality Gates</a>
+  <a href="files.html">Files</a>
+  <a href="faq.html">FAQ</a>
+</nav>
+
+<section>
+  <h2>Philosophy: No Silent Fallbacks</h2>
+  <p>Tessera's quality system is designed around one principle: <strong>fail loudly</strong>. When an agent produces invalid output, the run is designed to fail with a clear error message rather than silently continuing with bad data. This helps you know when something went wrong.</p>
+  <div class="warn">Quality gates are enforced strictly: if a gate is violated, the agent output is rejected and the run reports an error rather than continuing with unverified data.</div>
+</section>
+
+<section>
+  <h2>Gate 1: Output Kind Validation</h2>
+  <p>Every agent's output is validated against its <code>output_kind</code> contract immediately after execution. This is the first gate — if it fails, nothing downstream runs.</p>
+
+  <table>
+    <thead><tr><th>Kind</th><th>Gate Condition (fails if violated)</th></tr></thead>
+    <tbody>
+      <tr><td><strong>analyst / synthesizer</strong></td><td>Must contain <code>## STRUCTURED FINDINGS</code> section. Empty findings rejected.</td></tr>
+      <tr><td><strong>challenger</strong></td><td>Must contain <code>## VERDICT</code> (STRONG/ADEQUATE/WEAK) + <code>## WEAKNESSES</code>. Verdict-consistency: any BLOCKER weakness → verdict must be WEAK.</td></tr>
+      <tr><td><strong>reporter</strong></td><td>Prose ≥200 characters. Must NOT contain STRUCTURED FINDINGS section.</td></tr>
+      <tr><td><strong>drafter</strong></td><td>Must contain <code>## SUMMARY</code> header. Total output ≥100 characters.</td></tr>
+      <tr><td><strong>creative</strong></td><td>Output ≥50 characters.</td></tr>
+      <tr><td><strong>operator</strong></td><td>Must contain <code>## RESULT</code> with status: SUCCESS / FAILURE / DRY_RUN / AWAITING_APPROVAL.</td></tr>
+      <tr><td><strong>chat</strong></td><td>Any non-empty response.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">If your agent keeps failing kind validation, check its system prompt. The prompt must instruct the agent to produce the required sections for its kind.</div>
+</section>
+
+<section>
+  <h2>Gate 2: Output Format Validation</h2>
+  <p>After kind validation passes, agents with a declared <code>output_format</code> (json, yaml, html, csv) go through format validation:</p>
+
+  <table>
+    <thead><tr><th>Format</th><th>Gate Condition</th></tr></thead>
+    <tbody>
+      <tr><td><strong>json</strong></td><td>Must contain a fenced <code>```json ... ```</code> block that parses as valid JSON</td></tr>
+      <tr><td><strong>yaml</strong></td><td>Must contain a fenced <code>```yaml ... ```</code> block that parses as valid YAML</td></tr>
+      <tr><td><strong>html</strong></td><td>Must contain a fenced <code>```html ... ```</code> block (or inline <code>&lt;html&gt;...&lt;/html&gt;</code>) with proper open/close tags</td></tr>
+      <tr><td><strong>csv</strong></td><td>Must contain a fenced <code>```csv ... ```</code> block with ≥1 header row + ≥1 data row</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Exception:</strong> If the agent has <code>code_interpreter</code> in its tools and <code>save_as</code> is declared, format validation is skipped — the artifact is expected to be produced programmatically via code.</p>
+</section>
+
+<section>
+  <h2>Gate 3: Citation Validation</h2>
+  <p>Synthesizer agents (those with <code>depends_on</code>) must cite their upstream agents. This prevents synthesizers from ignoring upstream work and generating standalone claims.</p>
+
+  <h3>Rules</h3>
+  <ul class="feature-list">
+    <li>Each upstream agent in <code>depends_on</code> must be cited at least once using <code>[per agent_id: ...]</code> markers</li>
+    <li>The threshold is configurable per ecosystem (default: 1 citation per upstream)</li>
+    <li><strong>Escape hatch:</strong> claims tagged <code>[novel — reason]</code> are exempt (for genuinely new insights not derived from upstream)</li>
+  </ul>
+
+  <h3>What triggers failure</h3>
+  <p>A synthesizer that produces findings without citing required upstream agents fails with:</p>
+  <pre><code>Citation validation failed: synthesizer did not cite required upstream agent(s):
+  quant_analyst (found 0, need 1), macro_analyst (found 0, need 1).
+  Each upstream must appear as `[per &lt;agent_id&gt;: &lt;finding&gt;]` at least 1 time(s).</code></pre>
+
+  <div class="tip">This gate verifies that synthesizers build on upstream work rather than hallucinating standalone analysis. If a synthesizer has a genuinely novel insight, it should tag it <code>[novel — derived from cross-referencing X and Y]</code>.</div>
+</section>
+
+<section>
+  <h2>Gate 4: Internal Grounding (guardrails for Amazon Bedrock)</h2>
+  <p>After an agent completes, its STRUCTURED FINDINGS are checked against available evidence using Amazon Bedrock Guardrails contextual-grounding:</p>
+
+  <h3>Grounding Source (what claims are checked against)</h3>
+  <ul class="feature-list">
+    <li><strong>Upstream agent outputs</strong> — all agents that ran before this one</li>
+    <li><strong>This agent's own tool-call results</strong> — the actual data returned by web_search, http_request, etc.</li>
+  </ul>
+
+  <h3>How it works</h3>
+  <ol class="steps">
+    <li>STRUCTURED FINDINGS are extracted (claim-dense text)</li>
+    <li>If output exceeds 4,500 chars, it's chunked at paragraph boundaries</li>
+    <li>Each chunk is sent to Amazon Bedrock guardrails with the grounding source</li>
+    <li>Amazon Bedrock returns a grounding score and relevance score</li>
+    <li>Any non-NONE action (BLOCKED, GUARDRAIL_INTERVENED) means grounding failed</li>
+  </ol>
+
+  <h3>What it catches</h3>
+  <ul class="feature-list">
+    <li>Claims that don't appear in any evidence (hallucinated facts)</li>
+    <li>Numbers that don't match tool results (e.g., "$158B revenue" when the tool returned "$142B")</li>
+    <li>Fabricated source references</li>
+  </ul>
+
+  <h3>What it doesn't catch</h3>
+  <ul class="feature-list">
+    <li>Claims about the real world that no tool was called to verify (that's what external grounding handles)</li>
+    <li>Logical errors in reasoning (that's what the challenger handles)</li>
+  </ul>
+
+  <div class="warn">If TESSERA_GUARDRAIL_ID is not configured, the grounding check reports a configuration error rather than skipping verification.</div>
+</section>
+
+<section>
+  <h2>Gate 5: External Grounding (Web Verification)</h2>
+  <p>Time-sensitive claims (prices, dates, "recent" events, "current" statistics) are verified against fresh web sources:</p>
+
+  <h3>Process</h3>
+  <ol class="steps">
+    <li>Time-sensitive claims are extracted from agent output (regex + LLM extraction)</li>
+    <li>Each claim is searched via web search</li>
+    <li>Sonnet 4 evaluator compares the claim against search results</li>
+    <li>Each claim receives a verdict: <strong>verified</strong>, <strong>unverified</strong>, or <strong>contradicted</strong></li>
+    <li>Results are pushed to the UI as per-claim badges</li>
+  </ol>
+
+  <h3>Verdicts</h3>
+  <table>
+    <thead><tr><th>Verdict</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><strong>verified</strong></td><td>Web search results corroborate the claim. Source URL provided.</td></tr>
+      <tr><td><strong>unverified</strong></td><td>No evidence found to confirm or deny. The claim may be correct but couldn't be verified.</td></tr>
+      <tr><td><strong>contradicted</strong></td><td>Web search results actively contradict the claim. Source URL provided.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">If the web search API key is missing or Amazon Bedrock is unavailable during evaluation, the Lambda reports an error so you know verification could not complete.</div>
+</section>
+
+<section>
+  <h2>Gate 6: Challenger Verdict Consistency</h2>
+  <p>The challenger agent has its own internal consistency gate:</p>
+  <ul class="feature-list">
+    <li>If any weakness is tagged as <strong>BLOCKER</strong> severity, the verdict MUST be <strong>WEAK</strong></li>
+    <li>A challenger that finds blockers but still says "STRONG" or "ADEQUATE" fails validation</li>
+    <li>This prevents the challenger from being a rubber stamp</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Gate Execution Order</h2>
+  <p>Gates run in sequence. If any gate fails, subsequent gates do not run:</p>
+  <ol class="steps">
+    <li><strong>Kind validation</strong> — immediately after agent execution</li>
+    <li><strong>Format validation</strong> — if output_format is declared</li>
+    <li><strong>Citation validation</strong> — if agent is a synthesizer</li>
+    <li><strong>Internal grounding</strong> — Step Functions task after the agent</li>
+    <li><strong>External grounding</strong> — Step Functions task after internal grounding</li>
+    <li><strong>Challenger review</strong> — runs after all agents in the ecosystem complete</li>
+  </ol>
+</section>
+
+<section>
+  <h2>What Happens When a Gate Fails</h2>
+  <ul class="feature-list">
+    <li>The agent's status changes to <strong>error</strong> (red pulsing dot in the UI)</li>
+    <li>A <code>STATE_DELTA</code> event is broadcast with the error message</li>
+    <li>The Step Functions execution may fail (depending on ecosystem error handling)</li>
+    <li>The error message is specific: it tells you which gate failed, what was expected, and what was actually produced</li>
+  </ul>
+  <div class="tip">Quality gate errors always include the last 300 characters of the agent's output in the error message, so you can see what went wrong without digging into logs.</div>
+</section>
+
+<section>
+  <h2>Gate Modes &amp; Operator Decisions</h2>
+  <p>Each gate runs in one of three modes (set per gate in the ecosystem YAML, e.g. <code>quality.gates.output_kind</code>):</p>
+  <table>
+    <thead><tr><th>Mode</th><th>Behaviour when the gate trips</th></tr></thead>
+    <tbody>
+      <tr><td><strong>ask</strong> (default)</td><td>Pauses and asks <em>you</em> to decide — a gate dialogue opens and an item is posted to the <a href="running.html">Attention inbox</a>.</td></tr>
+      <tr><td><strong>warn</strong></td><td>Logs a warning and continues the run.</td></tr>
+      <tr><td><strong>halt</strong></td><td>Fails the run immediately.</td></tr>
+    </tbody>
+  </table>
+  <p>In <strong>ask</strong> mode the dialogue leads with the reviewer's <em>actual verdict and the specific concern</em> — e.g. "rated ADEQUATE overall but flagged a BLOCKER about X" — instead of a raw rule-violation string. You then choose:</p>
+  <ul class="feature-list">
+    <li><strong>✓ Accept</strong> — proceed as-is. Records that the concern is accepted, so later checkpoints don't re-raise the same issue.</li>
+    <li><strong>↻ Loop with guidance</strong> — re-run with corrective guidance you type. Your guidance is injected into the re-run agents as authoritative operator direction. (Loop requires guidance — re-running with none just repeats the same result.)</li>
+    <li><strong>✕ Abort</strong> — stop the run.</li>
+  </ul>
+  <p>You can discuss the verdict in the dialogue before deciding. If you're away, resolve it later from the Attention inbox — but each gate has a pause deadline, after which the run ends cleanly (<code>GateExpired</code>).</p>
+  <div class="tip"><strong>Verdict-consistency (challenger):</strong> a checkpoint reviewer logs its weaknesses first and <em>derives</em> the verdict last — any open <strong>BLOCKER</strong> forces <strong>WEAK</strong>. So "ADEQUATE with an open blocker" can't occur; if a blocker is real the verdict is WEAK, and you decide whether to Loop (fix it) or Accept.</div>
+</section>
+
+<section>
+  <h2>Configuring Quality Gates</h2>
+  <p>In your ecosystem YAML:</p>
+  <pre><code>quality:
+  challenger: true          # inject challenger agent
+  grounding: true           # enable internal + external grounding
+
+agents:
+  - id: my_synthesizer
+    depends_on: [analyst_a, analyst_b]
+    output_kind: synthesizer
+    role_contract:
+      must_cite_upstream: [analyst_a, analyst_b]
+      cite_threshold: 1     # minimum citations per upstream
+    output_format:
+      type: json
+      validate: true
+      save_as: analysis.json</code></pre>
+
+  <p>The Builder UI exposes the top-level quality toggles (challenger, grounding). For fine-grained control over citation thresholds and output formats, edit the YAML directly.</p>
+</section>
+
+<section>
+  <h2>Disabling Gates (Not Recommended)</h2>
+  <table>
+    <thead><tr><th>To disable</th><th>How</th><th>Risk</th></tr></thead>
+    <tbody>
+      <tr><td>Challenger</td><td>Builder: uncheck "Challenger agent" / YAML: <code>quality.challenger: false</code></td><td>No adversarial review of findings</td></tr>
+      <tr><td>Grounding</td><td>Builder: uncheck "Grounding checks" / YAML: <code>quality.grounding: false</code></td><td>Hallucinated claims pass unchecked</td></tr>
+      <tr><td>Citation enforcement</td><td>Remove <code>role_contract.must_cite_upstream</code> from agent config</td><td>Synthesizers may ignore upstream work</td></tr>
+      <tr><td>Format validation</td><td>Set <code>output_format.validate: false</code></td><td>Malformed artifacts may be saved</td></tr>
+    </tbody>
+  </table>
+  <div class="warn">Kind validation (Gate 1) cannot be disabled. Every agent must meet its output_kind contract. This is the minimum bar for a functioning ecosystem.</div>
+</section>
+
+<div class="footer">
+  <a href="index.html">← Back to Help Overview</a>
+</div>
+
+</div>
+</body>
+</html>

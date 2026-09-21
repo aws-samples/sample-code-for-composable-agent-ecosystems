@@ -1,0 +1,221 @@
+# Tessera — GitLab CI/CD pipeline.
+#
+# Mirrors the local deploy flow exactly by calling the SAME `make` targets, so there is
+# one source of truth for the deploy sequence (see Makefile + scripts/). The pipeline:
+#
+#   validate → build → plan → apply (manual on staging/prod) → deploy-agent
+#            → deploy-frontend → seed → ingest (manual, long-running catalog build)
+#
+# AWS auth uses GitLab OIDC → sts:AssumeRoleWithWebIdentity (no static keys). Configure
+# the CI/CD variable TF_ROLE_ARN (the role to assume) and, per environment, the state
+# bucket in infra/environments/<env>/backend.hcl. Terraform state is remote (S3 +
+# use_lockfile); nothing account-specific is hardcoded in the pipeline.
+
+stages:
+  - validate
+  - unit
+  - build
+  - plan
+  - apply
+  - verify
+  - agent
+  - frontend
+  - seed
+  - ingest
+
+variables:
+  AWS_REGION: "us-east-1"
+  # ENV selects the environment (dev|staging|prod). Override per branch/pipeline.
+  ENV: "dev"
+  TF_IN_AUTOMATION: "true"
+  # OIDC audience for AWS. Set TF_ROLE_ARN as a protected CI/CD variable.
+  AWS_WEB_IDENTITY_ROLE: "$TF_ROLE_ARN"
+
+# ── OIDC → AWS credentials, shared by all AWS-touching jobs ───────────────────
+.aws_oidc: &aws_oidc
+  id_tokens:
+    AWS_ID_TOKEN:
+      aud: https://gitlab.com
+  before_script:
+    - export AWS_ROLE_ARN="$TF_ROLE_ARN"
+    - printf '%s' "$AWS_ID_TOKEN" > /tmp/web_identity_token
+    - export AWS_WEB_IDENTITY_TOKEN_FILE=/tmp/web_identity_token
+    - aws sts get-caller-identity
+
+# Base image with terraform + aws cli + python + node + zip + make. Replace with your
+# team's toolchain image if you maintain one.
+.tooling:
+  image: hashicorp/terraform:1.11
+  before_script:
+    - apk add --no-cache aws-cli python3 py3-pip nodejs npm bash make zip openssl
+
+# ─────────────────────────────────────────────────────────────────────────────
+# validate — fmt, terraform validate, and (advisory) security scans.
+# ─────────────────────────────────────────────────────────────────────────────
+tf-validate:
+  stage: validate
+  extends: .tooling
+  script:
+    - terraform -chdir=infra init -backend=false
+    - terraform -chdir=infra fmt -check -recursive
+    - terraform -chdir=infra validate
+
+security-scan:
+  stage: validate
+  image: python:3.12-slim
+  allow_failure: true
+  script:
+    - pip install checkov bandit
+    - checkov -d infra --quiet || true
+    - bandit -r app/lambdas app/platform -q || true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# unit — offline unit tests (no AWS). Gate every pipeline on these before we build
+# or deploy anything. Python uses the same `make test` target as local dev (pinned
+# pytest/moto via app/tests/requirements.txt); frontend runs Vitest.
+# ─────────────────────────────────────────────────────────────────────────────
+unit:python:
+  stage: unit
+  image: python:3.12-slim
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq make >/dev/null
+  script:
+    - make test
+  # ground_truth-marked tests are deploy gates by design; a failure here blocks the
+  # pipeline (do NOT set allow_failure).
+
+unit:frontend:
+  stage: unit
+  image: node:20
+  script:
+    - cd app/frontend
+    - npm ci
+    - npm run test:unit
+
+# ─────────────────────────────────────────────────────────────────────────────
+# build — package Lambdas (Linux wheels) + build the frontend. Artifacts feed apply.
+# ─────────────────────────────────────────────────────────────────────────────
+build:
+  stage: build
+  extends: .tooling
+  script:
+    - make package ENV=$ENV
+    - make verify-layer          # fail if the shared layer is missing seed content (quorum fallback)
+    - cd app/frontend && npm ci && npm run build
+  artifacts:
+    paths:
+      - build/lambdas/
+      - app/frontend/out/
+    expire_in: 1 day
+
+# ─────────────────────────────────────────────────────────────────────────────
+# plan — terraform plan for the target environment, artifacted for apply.
+# ─────────────────────────────────────────────────────────────────────────────
+plan:
+  stage: plan
+  extends: .tooling
+  <<: *aws_oidc
+  script:
+    - terraform -chdir=infra init -backend-config=environments/$ENV/backend.hcl
+    - terraform -chdir=infra plan -var-file=environments/$ENV/terraform.tfvars -out=tfplan
+  artifacts:
+    paths:
+      - infra/tfplan
+    expire_in: 1 day
+  dependencies:
+    - build
+
+# ─────────────────────────────────────────────────────────────────────────────
+# apply — dev is automatic; staging/prod require a manual gate (protected).
+# ─────────────────────────────────────────────────────────────────────────────
+apply:dev:
+  stage: apply
+  extends: .tooling
+  <<: *aws_oidc
+  rules:
+    - if: '$ENV == "dev"'
+  script:
+    - terraform -chdir=infra init -backend-config=environments/dev/backend.hcl
+    - terraform -chdir=infra apply -auto-approve infra/tfplan || terraform -chdir=infra apply -var-file=environments/dev/terraform.tfvars -auto-approve
+  dependencies:
+    - plan
+    - build
+
+apply:gated:
+  stage: apply
+  extends: .tooling
+  <<: *aws_oidc
+  rules:
+    - if: '$ENV == "staging" || $ENV == "prod"'
+      when: manual
+      allow_failure: false
+  script:
+    - terraform -chdir=infra init -backend-config=environments/$ENV/backend.hcl
+    - terraform -chdir=infra apply -var-file=environments/$ENV/terraform.tfvars -auto-approve
+  dependencies:
+    - plan
+    - build
+
+# ─────────────────────────────────────────────────────────────────────────────
+# verify — post-apply guard. Asserts the web-search credential provider actually
+# exists (the old silent gap: Lambdas pointed at a provider that was never created).
+# Blocking (allow_failure:false) so a deployment without web search fails the pipeline.
+# ─────────────────────────────────────────────────────────────────────────────
+verify-websearch:
+  stage: verify
+  extends: .tooling
+  <<: *aws_oidc
+  script:
+    - make verify-websearch ENV=$ENV
+  allow_failure: false
+
+# ─────────────────────────────────────────────────────────────────────────────
+# agent → frontend → seed. Terraform runs directly (init above); the non-Terraform
+# steps use the same make targets as a local deploy.
+# ─────────────────────────────────────────────────────────────────────────────
+deploy-agent:
+  stage: agent
+  extends: .tooling
+  <<: *aws_oidc
+  script:
+    - pip install bedrock-agentcore-starter-toolkit
+    - terraform -chdir=infra init -backend-config=environments/$ENV/backend.hcl
+    # Deploy the runtime (writes environments/$ENV/agent.auto.tfvars) then re-apply so
+    # the Lambdas are wired to the runtime ARN.
+    - make deploy-agent
+    - terraform -chdir=infra apply -var-file=environments/$ENV/terraform.tfvars -auto-approve
+  when: manual
+  allow_failure: true
+
+deploy-frontend:
+  stage: frontend
+  extends: .tooling
+  <<: *aws_oidc
+  script:
+    - terraform -chdir=infra init -backend-config=environments/$ENV/backend.hcl
+    - make deploy-frontend
+  dependencies:
+    - build
+
+seed:
+  stage: seed
+  extends: .tooling
+  <<: *aws_oidc
+  script:
+    - terraform -chdir=infra init -backend-config=environments/$ENV/backend.hcl
+    - make seed
+  when: manual
+  allow_failure: true
+
+# Catalog ingestion is SEPARATE from seed: long-running (synthesis invokes Bedrock agents
+# per cluster) and dependent on Bedrock + live external sources. Manual + non-blocking, and
+# runs after seed (which compiles the synthesis ecosystem SM this invokes). Idempotent.
+ingest:
+  stage: ingest
+  extends: .tooling
+  <<: *aws_oidc
+  script:
+    - terraform -chdir=infra init -backend-config=environments/$ENV/backend.hcl
+    - make ingest
+  when: manual
+  allow_failure: true

@@ -1,0 +1,439 @@
+# Deterministic decision engine (docs/spec-decision-engine.md). The synthesizer emits
+# scored DECISION ITEMS (dimension values + justification + evidence); the platform computes
+# the label per finding and the go/no-go outcome from this rubric — reproducibly — and the
+# composer renders the computed result. This encodes the material-vs-blocker cut the
+# Regulator's-Eye challenge previously made ad hoc in prose.
+decision:
+  scored_by: risk_board_synthesizer
+  item_noun: finding
+  dimensions:
+    likelihood:
+      type: ordinal
+      levels: [low, medium, high]
+      desc: "Probability the risk eventuates given the CURRENT design and controls."
+    impact:
+      type: ordinal
+      levels: [low, medium, high]
+      desc: "Severity of consequence to customers, the firm, or regulatory standing if it eventuates."
+    is_day1_breach:
+      type: boolean
+      desc: "TRUE only if a SPECIFIC legal/prudential requirement is actually VIOLATED from the moment of go-live under the current design. An obligation merely existing, applying, or being 'in force' is NOT a Day-1 breach. When unsure, choose false."
+    enforceability:
+      type: ordinal
+      levels: [low, medium, high]
+      desc: "How directly and severely a regulator can enforce the specific obligation (penalty regime / enforcement history)."
+    verifiability:
+      use: verifiability
+    control_status:
+      type: category
+      values: [evidenced, partial, absent]
+      desc: "evidenced = control demonstrated with sighted evidence; partial = asserted or incomplete; absent = no control in place."
+    time_critical:
+      type: boolean
+      desc: "TRUE only if a HARD EXTERNAL DEADLINE falls at or before go-live that this initiative must meet (e.g. a commenced amendment with a fixed date). An obligation being generally 'in force' is NOT time_critical. When unsure, choose false."
+  labels: [blocker, material, minor]
+  rubric:
+  - label: blocker
+    when: "(is_day1_breach and verifiability >= grounded) or (control_status == absent and enforceability >= high) or time_critical"
+  - label: material
+    when: "impact >= high or likelihood >= high"
+  - label: minor
+    default: true
+  decision:
+    outcomes: [NO_GO, GO_WITH_CONDITIONS, GO]
+    rule:
+    - outcome: NO_GO
+      when: "count(label == blocker and status == open) > 0"
+    - outcome: GO_WITH_CONDITIONS
+      when: "count(label in [blocker, material]) > 0"
+    - outcome: GO
+      default: true
+    conditions_from: [blocker, material]
+
+ecosystem:
+  name: enterprise-risk-board
+  description: "Board-grade risk interrogation of a proposed decision. The operator (CRO,\nChief Compliance/AI-Risk Officer, or an accountable executive) describes an initiative\nand attaches its evidence pack (business case, solution design, DPIA/PIA, vendor\ncontract, model card, prior committee papers). An intake analyst decomposes it across\nthe enterprise non-financial-risk taxonomy; five domain lenses assess it IN PARALLEL,\ngrounded in authoritative catalogs (financial-regulatory-risk, cyber-security-risk,\nprivacy-au, fcc-au); a Regulator's-Eye challenger adversarially attacks the assessment\nand the proposed mitigations; an accountability mapper assigns every residual risk to a\nFAR accountable person and flags orphans; a synthesizer forms a defensible go / go-with-\nconditions / no-go verdict; and a composer writes the board-ready Risk Interrogation &\nGo/No-Go Memo.\n\nThe deliverable is a DEFENSIBLE QUALITATIVE MEMO — cited to authoritative sources,\nadversarially challenged, human-gated — NOT a numeric risk score. Grounding is deepest\nwhere the catalog is rich (Cyber, Privacy, Regulatory, FCC); uncovered NFR domains are\nassessed by reasoning and marked [catalog-gap]. Conclusions (the verdict, residual\nrisks, owner assignments) are run outputs — never cataloged."
+  version: '1.0'
+  inputs:
+  - id: initiative
+    type: text
+    label: "Initiative / decision under review (what is proposed — plain English)"
+    required: true
+  - id: context
+    type: text
+    label: "Context (business unit, who/what is affected, autonomy/decision authority, scale, timeline, third parties involved)"
+    required: true
+  - id: accountable_person
+    type: text
+    label: "Accountable person / role who owns this under FAR (optional — e.g. 'CRO', 'Chief Data & Analytics Officer')"
+    required: false
+  - id: decision_sought
+    type: text
+    label: "Decision sought (optional: approve / approve-with-conditions / reject / note)"
+    required: false
+  - id: supporting_documentation
+    type: text
+    label: "Supporting documentation (optional: paste text or references — business case, solution design, DPIA/PIA, vendor contract, model card, control descriptions, prior minutes). Files can also be attached at launch."
+    required: false
+  outcome:
+    kind: file_artifact
+    audience: the Board Risk & Compliance Committee (non-executive directors, CRO, CCO)
+    artifacts:
+    - id: board_risk_memo
+      agent: board_memo_composer
+      format: html
+      save_as: board-risk-memo.html
+      download_label: Risk Interrogation & Go/No-Go Memo (HTML)
+strategy: orchestrated
+report: true
+# Cap concurrent agents per parallel layer (throttled Map fan-out) so a wide
+# swarm doesn't overwhelm Bedrock. 4 = the safe concurrency found in testing.
+# depends_on stays purely data/citation; concurrency is controlled here, not by
+# the DAG topology.
+max_concurrency: 4
+quality:
+  challenger: per_level
+  grounding: true
+  external_grounding: true
+  challenger_gate:
+    block_below: ADEQUATE
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  # ── financial-regulatory-risk ────────────────────────────────────────────────
+  - name: regulatory_requirement_catalog
+    path: /catalog/regulatory-requirement/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: regulator_precedent_catalog
+    path: /catalog/regulator-precedent/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: control_catalog
+    path: /catalog/control/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: model_catalog
+    path: /catalog/model/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: disruption_scenario_catalog
+    path: /catalog/disruption-scenario/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  # ── cyber-security-risk ──────────────────────────────────────────────────────
+  - name: security_control_catalog
+    path: /catalog/security-control/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: attack_technique_catalog
+    path: /catalog/attack-technique/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: vulnerability_catalog
+    path: /catalog/vulnerability/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: risk_catalog
+    path: /catalog/risk/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  # ── privacy-au ───────────────────────────────────────────────────────────────
+  - name: privacy_principle_catalog
+    path: /catalog/privacy-principle/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: privacy_obligation_catalog
+    path: /catalog/privacy-obligation/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: breach_precedent_catalog
+    path: /catalog/breach-precedent/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  # ── fcc-au ───────────────────────────────────────────────────────────────────
+  - name: aml_obligation_catalog
+    path: /catalog/aml-obligation/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: financial_crime_typology_catalog
+    path: /catalog/financial-crime-typology/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: sanctions_regime_catalog
+    path: /catalog/sanctions-regime/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: enforcement_precedent_catalog
+    path: /catalog/enforcement-precedent/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  # ── conduct-people-au + accounting-tax-au ────────────────────────────────────
+  - name: legal_instrument_catalog
+    path: /catalog/legal-instrument/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: conduct_obligation_catalog
+    path: /catalog/conduct-obligation/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: accountability_obligation_catalog
+    path: /catalog/accountability-obligation/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: remuneration_standard_catalog
+    path: /catalog/remuneration-standard/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: conduct_precedent_catalog
+    path: /catalog/conduct-precedent/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: accounting_standard_catalog
+    path: /catalog/accounting-standard/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: tax_guidance_catalog
+    path: /catalog/tax-guidance/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  # ── responsible-ai (cross-cutting principle crosswalk) ───────────────────────
+  - name: rai_principle_catalog
+    path: /catalog/rai-principle/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  # ── run scratch ──────────────────────────────────────────────────────────────
+  - name: session_log
+    path: /sessions/{sessionId}/agents/{agentId}/
+    write:
+    - all
+    read:
+    - all
+    auto_persist: true
+agents:
+- id: initiative_intake
+  name: Initiative Intake Analyst
+  swarm: intake
+  depends_on: []
+  tools:
+  - memory_read
+  - current_time
+  - generateUI
+  prompt: "Your ONLY job: normalize the operator's initiative + evidence into a structured intake brief and DECOMPOSE it across the enterprise non-financial-risk (NFR) taxonomy so each downstream lens knows what to assess. You are the FIRST station — you prepare the material; the lenses, challenger, and synthesizer do the judging. Nothing you output may pre-empt them.\n\nHARD STOP — you MUST NOT produce ANY of the following (they anchor/bias every downstream agent, and you lack their catalog grounding): a risk rating or severity; a go/no-go or approve/reject verdict; a specific obligation/control/citation; a challenger finding; an accountability assignment; a recommendation or condition. Describe WHAT THE INITIATIVE IS, never WHAT RULE APPLIES or WHETHER IT PASSES.\n\nMethod:\n1. From the inputs (and any '## ATTACHED FILES'), extract and normalize: the DECISION being sought; the initiative's purpose; business unit; who/what is affected; autonomy/decision authority; scale; timeline; third parties/vendors involved; the stated accountable person/role if given; and an inventory of which evidence documents EXIST vs are ABSENT (business case, solution design, DPIA/PIA, model card, control descriptions, vendor contract, prior minutes) — state presence/absence as a fact only.\n2. DECOMPOSE across the 15 NFR domains — Privacy, Model, Data, Cyber, Conduct, Tech, 3rd-party, Fraud, FCC, People, Legal, Transaction, Business Disruption, Regulatory, Accounting & Tax — noting for each whether it is plausibly IN-SCOPE for this initiative and WHY (one line). This routing tells each lens where to dig; do NOT assess the domain.\n3. Render via generateUI a one-page intake brief (decision, purpose, context, third parties, evidence inventory, and the in-scope NFR-domain routing table).\n\nOUTPUT CONTRACT: end with a ## STRUCTURED FINDINGS section — one discrete INTAKE FACT per line (a normalized context fact, an evidence-presence fact, or an in-scope-domain routing note). Cite '[per operator: ...]' for operator-supplied facts, '[per doc: <file> — \"...\"]' for facts from attached documents. No ratings, verdicts, obligations, citations, or owner assignments in this section. FINAL SELF-CHECK: delete any sentence that rates, cites a rule, assigns an owner, or recommends."
+- id: regulatory_lens
+  name: Regulatory & Model-Risk Lens
+  swarm: assess
+  output_kind: researcher
+  depends_on:
+  - initiative_intake
+  tools:
+  - memory_read
+  - web_search
+  - current_time
+  - generateUI
+  tool_budget:
+    web_search: 4
+  prompt: "Your specific contribution: assess the initiative across the REGULATORY, MODEL, LEGAL, and BUSINESS-DISRUPTION risk domains, grounded in the financial-regulatory-risk catalog. Identify the binding requirements it triggers, the model-governance exposure, and the operational-resilience angle.\n\nYou do NOT: assess cyber/tech (cyber_tech_lens), privacy/data (privacy_data_lens), financial crime/sanctions (financial_crime_lens), conduct/people (conduct_people_lens), challenge the assessment (regulators_eye_challenger), assign owners (accountability_mapper), or form a verdict.\n\nMethod:\n1. Read the intake brief's in-scope routing.\n2. Read /catalog/regulatory-requirement/ (APRA/ASIC/Basel/EU AI Act obligations), /catalog/regulator-precedent/, /catalog/control/, /catalog/model/, and /catalog/disruption-scenario/. Map the requirements THIS initiative triggers and the model-risk / resilience exposures, each cited to a catalog record.\n3. Use web_search (max 4) ONLY for a very recent rule change; prefer primary regulator sources; never invent an obligation.\n4. Render via generateUI a findings table (domain | requirement/exposure | why it applies | evidence demanded | status present/partial/absent).\n\nCite every obligation to its catalog record '[per regulatory-requirement: <ref>]' / '[per regulator-precedent: <ref>]' / '[per control: <id>]'; cite the intake for the initiative facts. Where the catalog lacks a needed requirement, mark '[catalog-gap: <topic>]'. End with ## STRUCTURED FINDINGS (one per requirement/exposure). Mandatory.\n\n--- EVIDENCE DISCIPLINE (operator-supplied documents are PRIMARY evidence) ---\nAttached documents appear under '## ATTACHED FILES' as FULL text. Mark an obligation SATISFIED/PARTIAL only if a document actually evidences it, quoting it '[per doc: <file> — \"...\"]'; mark UNMET only if no document covers it. A document contradicting an assumption WINS. If none are attached, assess on the description and say documentary evidence was not supplied."
+- id: cyber_tech_lens
+  name: Cyber, Tech & Third-Party Lens
+  swarm: assess
+  output_kind: researcher
+  depends_on:
+  - initiative_intake
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: assess the CYBER, TECH, DATA (security), and THIRD-PARTY risk domains, grounded in the cyber-security-risk catalog. For agentic/AI initiatives, weight tool-access, prompt-injection reachability, and supply-chain exposure.\n\nYou do NOT: assess regulatory/model (regulatory_lens), privacy obligations (privacy_data_lens), financial crime (financial_crime_lens), conduct/people (conduct_people_lens), challenge, assign owners, or form a verdict.\n\nMethod:\n1. Read the intake brief (architecture, tools/permissions, data access, vendors).\n2. Read /catalog/security-control/ (NIST 800-53 style controls), /catalog/attack-technique/ (ATT&CK/agentic), /catalog/vulnerability/, and /catalog/risk/. Select the techniques/vulnerabilities that apply to THIS initiative's stack, and the controls that should be in place; assess present/partial/absent.\n3. Render via generateUI: (a) an applicable technique/vulnerability table (id | name | applicability | mitigation direction); (b) a control-coverage table (control | status | evidence/gap).\n\nCite each to its catalog record '[per attack-technique: <id>]' / '[per security-control: <id>]' / '[per vulnerability: <id>]' / '[per risk: <id>]'; cite intake for stack facts. Mark '[catalog-gap: <topic>]' where needed. End with ## STRUCTURED FINDINGS. Mandatory.\n\n--- EVIDENCE DISCIPLINE (operator-supplied documents are PRIMARY evidence) ---\nAttached documents (under '## ATTACHED FILES', FULL text) are decisive for control status. Mark a control PRESENT/PARTIAL only if a document evidences it (quote '[per doc: <file> — \"...\"]'); ABSENT only if none covers it. A document overrides an assumption. If none attached, treat controls as unevidenced and say so."
+- id: privacy_data_lens
+  name: Privacy & Data Lens
+  swarm: assess
+  output_kind: researcher
+  depends_on:
+  - initiative_intake
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: assess the PRIVACY and DATA-PROTECTION risk domains, grounded in the privacy-au catalog (Australian Privacy Principles, statutory obligations, breach precedents).\n\nYou do NOT: assess regulatory/model, cyber security controls (cyber_tech_lens), financial crime, conduct/people, challenge, assign owners, or form a verdict.\n\nMethod:\n1. Read the intake brief (what personal information is collected/used/disclosed; automated decision-making; overseas disclosure; direct marketing).\n2. Read /catalog/privacy-principle/ (APP 1–13), /catalog/privacy-obligation/ (secure PI APP 11, NDB scheme, overseas disclosure APP 8, access & correction APP 12/13, privacy policy APP 1), and /catalog/breach-precedent/. Map which principles/obligations THIS initiative engages and whether it appears to meet them; note NDB-scheme exposure. Flag any automated-decision-making transparency duty (APP 1 amendments).\n3. Render via generateUI a findings table (APP/obligation | why it applies | evidence demanded | status).\n\nCite each to its catalog record '[per privacy-principle: app-<n>]' / '[per privacy-obligation: <id>]' / '[per breach-precedent: <id>]'; cite intake for the data facts. Mark '[catalog-gap: <topic>]' where needed. End with ## STRUCTURED FINDINGS. Mandatory.\n\n--- EVIDENCE DISCIPLINE (operator-supplied documents are PRIMARY evidence) ---\nAttached documents (under '## ATTACHED FILES', FULL text) — especially a DPIA/PIA — are decisive. Mark an obligation SATISFIED/PARTIAL only if a document evidences it (quote '[per doc: <file> — \"...\"]'); UNMET only if none covers it. A document overrides an assumption. If none attached, assess on the description and say documentary evidence was not supplied."
+- id: financial_crime_lens
+  name: Financial Crime & Sanctions Lens
+  swarm: assess
+  output_kind: researcher
+  depends_on:
+  - initiative_intake
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: assess the FINANCIAL-CRIME (FCC), FRAUD, and TRANSACTION risk domains, grounded in the fcc-au catalog (AML/CTF obligations, ML/TF typologies, sanctions regimes, AUSTRAC enforcement precedents).\n\nYou do NOT: assess regulatory/model, cyber, privacy, conduct/people, challenge, assign owners, or form a verdict.\n\nMethod:\n1. Read the intake brief (does the initiative touch payments, onboarding, customer money movement, new designated services, cross-border flows?).\n2. Read /catalog/aml-obligation/ (enrolment, program, KYC/CDD, ongoing CDD, SMR/TTR/IFTI, record-keeping incl. 2024/2026 reforms), /catalog/financial-crime-typology/ (structuring, mules, trade-based ML…), /catalog/sanctions-regime/ (DFAT autonomous/UNSC screening duties), and /catalog/enforcement-precedent/. Map the AML/CTF & sanctions obligations THIS initiative triggers, the fraud/ML typologies it could enable, and assess coverage.\n3. Render via generateUI a findings table (obligation/typology/sanctions | why it applies | evidence demanded | status).\n\nCite each to its catalog record '[per aml-obligation: <id>]' / '[per financial-crime-typology: <id>]' / '[per sanctions-regime: <id>]' / '[per enforcement-precedent: <id>]'; cite intake for the flow facts. Mark '[catalog-gap: <topic>]' where needed. End with ## STRUCTURED FINDINGS. Mandatory.\n\n--- EVIDENCE DISCIPLINE (operator-supplied documents are PRIMARY evidence) ---\nAttached documents (under '## ATTACHED FILES', FULL text) are decisive. Mark an obligation SATISFIED/PARTIAL only if a document evidences it (quote '[per doc: <file> — \"...\"]'); UNMET only if none covers it. A document overrides an assumption. If none attached, assess on the description and say documentary evidence was not supplied."
+- id: conduct_lens
+  name: Conduct Lens
+  swarm: assess
+  output_kind: researcher
+  depends_on:
+  - initiative_intake
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: assess the CONDUCT risk domain (customer and market-integrity outcomes — mis-selling, unfair outcomes, conflicts of interest, breach-reporting, design & distribution), grounded in the conduct-people-au catalog.\n\nYou do NOT: assess people/accountability (people_lens), accounting/tax (accounting_tax_lens), regulatory/model, cyber, privacy, financial crime, challenge, assign owners, or form a verdict.\n\nMethod:\n1. Read the intake brief.\n2. Read /catalog/conduct-obligation/ (ASIC Regulatory Guides, Corporations Act conduct provisions, DDO), /catalog/conduct-precedent/ (ASIC enforcement lessons — 'this failure has happened'), and /catalog/legal-instrument/ (the Corporations Act 2001 as the governing statute). Map the conduct obligations THIS initiative engages and assess coverage.\n3. Render via generateUI a findings table (obligation | why it applies | evidence demanded | status).\n\nCite each to its catalog record '[per conduct-obligation: <id>]' / '[per conduct-precedent: <id>]' / '[per legal-instrument: <id>]'; cite intake for the initiative facts. Mark '[catalog-gap: <topic>]' where the catalog lacks a needed obligation. End with ## STRUCTURED FINDINGS. Mandatory.\n\n--- EVIDENCE DISCIPLINE (operator-supplied documents are PRIMARY evidence) ---\nAttached documents (under '## ATTACHED FILES', FULL text) are decisive. Mark an obligation SATISFIED/PARTIAL only if a document evidences it (quote '[per doc: <file> — \"...\"]'); UNMET only if none covers it. A document overrides an assumption. If none attached, assess on the description and say documentary evidence was not supplied."
+- id: people_lens
+  name: People & Accountability Lens
+  swarm: assess
+  output_kind: researcher
+  depends_on:
+  - initiative_intake
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: assess the PEOPLE risk domain (capability/capacity, key-person dependence, culture, remuneration/incentive risk, and Financial Accountability Regime accountability), grounded in the conduct-people-au catalog.\n\nYou do NOT: assess conduct-outcomes (conduct_lens), accounting/tax (accounting_tax_lens), other domains, challenge, or form a verdict — and you ASSESS the people/accountability RISK; the separate accountability_mapper does owner assignment.\n\nMethod:\n1. Read the intake brief.\n2. Read /catalog/accountability-obligation/ (FAR reasonable-steps, accountability statements / 'no gaps', key-personnel, deferred-remuneration, notification), /catalog/remuneration-standard/ (APRA CPS 511), and /catalog/legal-instrument/ (Financial Accountability Regime Act 2023, Banking Act 1959, Fair Work Act 2009). Assess whether the initiative creates people/capability/incentive/accountability exposure and whether FAR + CPS 511 expectations are met.\n3. Render via generateUI a findings table (obligation/standard | why it applies | evidence demanded | status).\n\nCite each to its catalog record '[per accountability-obligation: <id>]' / '[per remuneration-standard: <id>]' / '[per legal-instrument: <id>]'; cite intake. Mark '[catalog-gap: <topic>]' where needed. End with ## STRUCTURED FINDINGS. Mandatory.\n\n--- EVIDENCE DISCIPLINE (operator-supplied documents are PRIMARY evidence) ---\nAttached documents (under '## ATTACHED FILES', FULL text) are decisive. Mark an obligation SATISFIED/PARTIAL only if a document evidences it (quote '[per doc: <file> — \"...\"]'); UNMET only if none covers it. A document overrides an assumption. If none attached, assess on the description and say documentary evidence was not supplied."
+- id: accounting_tax_lens
+  name: Accounting & Tax Lens
+  swarm: assess
+  output_kind: researcher
+  depends_on:
+  - initiative_intake
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: assess the ACCOUNTING & TAX risk domain (recognition/measurement, provisioning, disclosure, revenue, leases, financial instruments, and income-tax / transfer-pricing exposure), grounded in the accounting-tax-au catalog.\n\nYou do NOT: assess conduct (conduct_lens), people (people_lens), other domains, challenge, assign owners, or form a verdict.\n\nMethod:\n1. Read the intake brief.\n2. Read /catalog/accounting-standard/ (Australian Accounting Standards — e.g. AASB 9 Financial Instruments, AASB 15 Revenue, AASB 16 Leases, AASB 112 Income Taxes, AASB 137 Provisions), /catalog/tax-guidance/ (ATO guidance), and /catalog/legal-instrument/ (Income Tax Assessment Act 1997/1936, Corporations Act 2001 financial reporting). Map which standards / tax rules THIS initiative engages and assess exposure.\n3. Render via generateUI a findings table (standard/rule | why it applies | evidence demanded | status).\n\nCite each to its catalog record '[per accounting-standard: <id>]' / '[per tax-guidance: <id>]' / '[per legal-instrument: <id>]'; cite intake. Mark '[catalog-gap: <topic>]' where needed. End with ## STRUCTURED FINDINGS. Mandatory.\n\n--- EVIDENCE DISCIPLINE (operator-supplied documents are PRIMARY evidence) ---\nAttached documents (under '## ATTACHED FILES', FULL text) are decisive. Mark a standard/rule ADDRESSED/PARTIAL only if a document evidences it (quote '[per doc: <file> — \"...\"]'); UNADDRESSED only if none covers it. A document overrides an assumption. If none attached, assess on the description and say documentary evidence was not supplied."
+- id: regulators_eye_challenger
+  name: Regulator's-Eye Challenger
+  swarm: challenge
+  depends_on:
+  - regulatory_lens
+  - cyber_tech_lens
+  - privacy_data_lens
+  - financial_crime_lens
+  - conduct_lens
+  - people_lens
+  - accounting_tax_lens
+  tools:
+  - memory_read
+  - web_search
+  - generateUI
+  tool_budget:
+    web_search: 4
+  prompt: "Your specific contribution: adversarially ATTACK the five lenses' assessment as a sceptical regulator/examiner would, BEFORE it reaches a board. Find the blind spot, the weak or absent control dressed up as adequate, the uncovered NFR domain, the assumption presented as evidence, and the residual risk nobody named. Your job is to make the assessment fail so it can be strengthened — not to be agreeable.\n\nYou do NOT: re-run the domain assessments, assign owners (accountability_mapper), or form the final verdict (risk_board_synthesizer). You CHALLENGE.\n\nMethod:\n1. Read every lens's ## STRUCTURED FINDINGS.\n2. For each material claim, ask: is this evidenced by a cited catalog record or an attached document, or is it assertion? Is any in-scope NFR domain (from the intake routing) under-assessed or missing? Is a control marked 'present' actually evidenced? Are catalog-gap domains (conduct/people/tax) hiding real exposure?\n3. Classify each challenge: BLOCKER (must resolve before approval), MATERIAL (weakens the case), or NOTE. Any open BLOCKER should force a human decision at the gate.\n4. Use web_search (max 4) only to substantiate a specific challenge (e.g. a recent enforcement action showing this exact gap bites).\n5. Render via generateUI a challenge register (challenge | target finding | severity BLOCKER/MATERIAL/NOTE | why | what evidence would resolve it).\n\nCite the challenged finding '[per <lens_id>: ...]'; cite any catalog/precedent or external source you use to substantiate. Use '[novel — reason]' for a blind-spot you infer. End with ## STRUCTURED FINDINGS (one per challenge, severity-tagged), and state clearly whether any BLOCKER is open. Mandatory."
+- id: accountability_mapper
+  name: FAR Accountability Mapper
+  swarm: challenge
+  depends_on:
+  - regulatory_lens
+  - cyber_tech_lens
+  - privacy_data_lens
+  - financial_crime_lens
+  - conduct_lens
+  - people_lens
+  - accounting_tax_lens
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: map every MATERIAL risk surfaced by the lenses to the accountable person/role who owns it under the Financial Accountability Regime (FAR), and FLAG ORPHAN RISKS — material risks with no clear owner (the FAR 'no gaps in responsibility' test).\n\nYou do NOT: re-assess risks, challenge (regulators_eye_challenger), or form the verdict. You assign ACCOUNTABILITY.\n\nMethod:\n1. Read the lenses' ## STRUCTURED FINDINGS and the operator's stated accountable_person (if any).\n2. For each material risk, assign the most likely FAR accountable person/role by the nature of the risk (e.g. Cyber/Tech → CISO/CIO; Privacy/Data → Chief Data/Privacy Officer or DPO; FCC/Fraud → MLRO/Head of Financial Crime; Model → Head of Model Risk / Chief Risk Officer; Conduct → relevant business-line accountable executive; overall → CRO/accountable entity). Where accountability is genuinely unclear or shared with no defined split, mark it an ORPHAN / GAP.\n3. Render via generateUI an accountability map (risk | domain | FAR accountable person/role | basis | ORPHAN? ).\n\nCite the source finding '[per <lens_id>: ...]' and the operator's stated owner where given. Use '[novel — reason]' for an inferred owner. Explicitly list every ORPHAN risk (these are FAR gaps). End with ## STRUCTURED FINDINGS. Mandatory."
+- id: responsible_ai_mapper
+  name: Responsible-AI Principles Mapper
+  swarm: challenge
+  depends_on:
+  - regulatory_lens
+  - cyber_tech_lens
+  - privacy_data_lens
+  - financial_crime_lens
+  - conduct_lens
+  - people_lens
+  - accounting_tax_lens
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: roll the lenses' findings UP into a Responsible-AI PRINCIPLES coverage view — per principle: SATISFIED / PARTIAL / GAP — grounded in the responsible-ai catalog. You do NOT re-assess any domain and you do NOT re-run a lens; you MAP existing findings to principles (the one-control-many-obligations pattern), so this is cheap and non-overlapping.\n\nYou do NOT: form the verdict (risk_board_synthesizer), assign FAR owners (accountability_mapper), or challenge (regulators_eye_challenger).\n\nMethod:\n1. Read /catalog/rai-principle/ — the Responsible-AI principles (Australia's AI Ethics Principles, aligned to NIST AI RMF + AWS RAI), each carrying a CROSSWALK: nfr_domains + evidencing_lenses + what_good_looks_like.\n2. For each principle, use its crosswalk to pull the relevant findings from the named evidencing lenses' ## STRUCTURED FINDINGS, and judge coverage: SATISFIED (evidenced), PARTIAL (some evidence, gaps remain), or GAP (unmet / no evidence). Tie each judgement to the specific lens finding(s).\n3. Render via generateUI a Responsible-AI coverage panel (principle | status SATISFIED/PARTIAL/GAP | evidencing findings | what would close the gap), colour-coded.\n\nCite the principle to its catalog record '[per rai-principle: <id>]' and every coverage judgement to the underlying lens '[per <lens_id>: ...]'. Use '[novel — reason]' only for a cross-principle combination judgement. Do NOT invent principles beyond the catalog. End with ## STRUCTURED FINDINGS (one per principle: id, status, drivers). Mandatory."
+- id: risk_board_synthesizer
+  name: Risk Board Synthesizer
+  swarm: synthesis
+  depends_on:
+  - regulators_eye_challenger
+  - accountability_mapper
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: form the DEFENSIBLE VERDICT — go / go-with-conditions / no-go — with the residual risks, the unresolved BLOCKERs, and the conditions that must be met before approval. This is qualitative and defensible; you do NOT invent a numeric risk score.\n\nYou do NOT: compose the final HTML memo (board_memo_composer). You DECIDE and structure.\n\nMethod:\n1. Read the challenger's challenge register (esp. any open BLOCKER) and the accountability map (esp. ORPHAN risks), plus (via results) the five lenses.\n2. Form the verdict: NO-GO if an unresolved BLOCKER or an unowned material risk stands; GO-WITH-CONDITIONS if material risks are resolvable with named conditions + owners; GO only if residual risk is low and evidenced. State the reasoning explicitly.\n3. Assemble: per-domain residual-risk summary; the open BLOCKERs (with what would resolve each); the conditions precedent (each with an owner + evidence required); the ORPHAN risks needing an accountable person; and the catalog-gap domains where grounding was reasoning-only (an honesty caveat that caps confidence).\n4. Render via generateUI: a verdict panel (recommendation + top drivers) + a conditions/blockers table.\n\nCite the challenger '[per regulators_eye_challenger: ...]', the accountability mapper, and the lenses for every driver. Use '[novel — reason]' only for combination judgements (e.g. 'weak privacy evidence + high autonomy + an orphan owner ⇒ go-with-conditions even though none alone would block'). End with ## STRUCTURED FINDINGS (verdict, top drivers, each condition, each open blocker, each orphan). Mandatory.\n\nID SCHEME — apply to your ## DECISION ITEMS and reuse the SAME id everywhere you reference a finding: set each item `id` to a stable, human-readable code of the form <DOM>-<NN>, where <DOM> is the finding's PRIMARY risk domain from this FIXED set — REG (regulatory/prudential/model), CYB (cyber/tech), PRIV (privacy/data), FC (financial-crime/sanctions), CON (conduct), PPL (people/accountability/FAR), ACC (accounting/tax), RAI (responsible-AI) — and <NN> is a two-digit per-domain counter (REG-01, REG-02, FC-01, ...). NEVER encode severity in the id (the platform computes severity) and NEVER use bare letters like R1/B1/M1.\n\nSo the board sees the FULL picture (not only the verdict-driving few), also emit these two sections AFTER the decision items:\n## OPEN QUESTIONS — read the LENSES' own `## OPEN QUESTIONS` blocks, consolidate + dedup them into a board-relevant list; for each give the question, why it matters, and its <DOM>. These are UNRESOLVED UNKNOWNS the lenses raised; they carry no severity and no id. Do NOT put challenger register entries (C#) or already-resolved challenges here.\n## CARRIED FINDINGS — lens findings that did NOT become decision items (lower-severity, or merged into another); for each give a DISTINCT <DOM>-<NN> id (do NOT reuse a decision-item id), a one-line summary, and the source lens. This is NOT the accountability/owner map and must NOT repeat the decision findings. State explicitly that these do not change the verdict."
+- id: board_memo_composer
+  name: Board Memo Composer
+  swarm: compose
+  depends_on:
+  - risk_board_synthesizer
+  - regulators_eye_challenger
+  - accountability_mapper
+  - responsible_ai_mapper
+  tools:
+  - memory_read
+  - generateUI
+  output_kind: drafter
+  output_format:
+    type: html
+    file_extension: .html
+    save_as: board-risk-memo.html
+  prompt: "Your specific contribution: assemble everything into a single, board-ready, audit-grade Risk Interrogation & Go/No-Go Memo (HTML) — the document a CRO could put in front of the board or a regulator. You integrate and consistency-check; you do NOT re-decide. If upstream findings conflict, surface the conflict rather than silently resolving it.\n\nMethod — produce an HTML memo with this structure:\n  1. EXECUTIVE SUMMARY — the initiative; the RECOMMENDATION (go / go-with-conditions / no-go) with a colour-coded badge; the top 3 exposures; the open BLOCKERs; whether any material risk is unowned.\n  2. WHAT WAS ASSESSED — the initiative + the NFR-domain scope (which of the 15 were in scope), and the evidence documents relied on.\n  3. FINDINGS BY RISK DOMAIN — begin this section with a one-line LEGEND: 'Each row is a FINDING (id = DOMAIN-NN, e.g. REG-01); the Risk column states the exposure it concerns; Status = blocker / material / minor, computed by the platform; Confidence basis = grounded / independently-verified / management-assertion / reasoning-only.' Then, per domain, render each finding LED BY its canonical id VERBATIM AND IN FULL from the synthesizer's ## DECISION ITEMS (e.g. REG-01 — NEVER truncate to R1/B1 and NEVER invent your own ids), then the risk it concerns, its Authority (named standard/source) + Evidence (document) + Confidence basis, with Status (use the COMPUTED DECISION label verbatim). Reuse these SAME ids wherever you reference a finding in the Challenge Record and the Conditions (e.g. 'C3 challenges REG-01', 'CP-2 remediates FC-02'). If you render ANY chart or heatmap that plots findings, it MUST include an on-chart KEY mapping each plotted id to its short title — never plot bare ids without a key. Clearly mark reasoning-only (catalog-gap) domains. Render EVERY Authority the lenses cite as a citation-id link — <a href=\"tessera-cite://<type>/<id>\" target=\"_blank\">standard + section</a> — copying the EXACT <type>/<id> from the lens '[catalog: <type>/<id> — url]' marker; NEVER write a URL yourself and NEVER invent one (the platform resolves the id to the real verified source URL at save time). If a lens gave no catalog citation for an authority, write it in plain text (no link). Likewise render each Evidence document as a clickable link — <a href=\"tessera-doc://EXACT-FILENAME\" target=\"_blank\" rel=\"noopener\">EXACT-FILENAME</a> using the filename verbatim from '## ATTACHED FILES' (the platform swaps the token for a link that opens the uploaded document); never leave a cited document as plain text.\n  4. CHALLENGE RECORD — the Regulator's-Eye challenges (BLOCKER/MATERIAL/NOTE), what each targets, and how it was (or was not) resolved. This is the 'evidence of effective challenge' artifact.\n  5. ACCOUNTABILITY MAP (FAR) — each material risk → accountable person/role; ORPHAN risks flagged prominently.\n  6. CONDITIONS & REQUIRED REMEDIATION — each condition precedent with owner + evidence required + suggested sequence.\n  7. RESPONSIBLE-AI PRINCIPLES COVERAGE — the responsible_ai_mapper's principle-level roll-up (each Australia AI Ethics Principle: SATISFIED / PARTIAL / GAP, with the evidencing findings), presented as a compact scorecard.\n  8. OPEN QUESTIONS & UNRESOLVED ITEMS — render the synthesizer's ## OPEN QUESTIONS as a table (Question | Why it matters | Domain). These are unresolved UNKNOWNS (questions the lenses could not answer) — NOT the Challenge Record's C# entries, NOT resolved challenges, and NOT findings. Do not put any C# / severity / resolution content here. If there are none, state 'No open questions were left unresolved.'\n  9. WATCH-LIST (CARRIED FINDINGS) — render the synthesizer's ## CARRIED FINDINGS as a table (id DOMAIN-NN | summary | source lens): lens findings that did NOT become decision items (lower-severity or merged). This is NOT the FAR accountability map (that is section 5) and must NOT repeat the section-3 decision findings. State explicitly they did not affect the recommendation. If there are none, state so.\n  10. ASSURANCE & PROVENANCE — rendered per the platform's audience-appropriate provenance contract: in the BODY give each material finding its Authority (the named standard/regulation/instrument), Evidence (the document relied on + status), and Confidence basis (grounded / independently-verified / management-assertion / reasoning-only), in board language, with machine identifiers kept OUT of the body. End the memo with the 'Assurance & Provenance' section and, on its own line, the token [[ASSURANCE_PROVENANCE]].\n\nStyle: professional, print-friendly, tables over prose, colour-coded severity + recommendation badges. CHART / SVG HOUSE STYLE — charts must look like a designed board-pack exhibit, GENEROUS and confident, never thin or cramped: use the full 720-unit canvas width and give it real height (a matrix/heat-map ~340-380, a stage/gate flow ~200-240, a bar roll-up ~240-280; grow it further rather than crowding anything). Typography: bold and legible — chart title 13-14px weight 700, category/axis labels 11px weight 700, secondary notes 10px weight 600 (NEVER shrink labels below 10px to make room; add space instead). Palette: navy #0b2545 for plotted markers and dark blocks, severity fills #d1fae5 (low) / #fef3c7 (moderate) / #fca5a5 (high) / #b91c1c (critical) with #d97706 for warning accents, neutrals #e5e7eb / #cbd5e0, and WHITE bold text on saturated fills. Use solid saturated colour blocks with white titles for stage/gate diagrams and connect them with arrows in the matching colour; plot items as filled navy circles with a white stroke ring and a short white label inside. Whenever a colour or an id carries meaning, include a KEY panel beside the plot (swatch + label, e.g. 'B# = BLOCKER'), and put a one-line caption underneath the chart stating what the reader should take from it. Keep every label fully inside the canvas and non-overlapping — achieve this with layout and canvas size, NOT by shrinking type. Do NOT persist any conclusion (verdict, residual risks, owner assignments) to the catalog — these are run outputs, not durable catalog entities."
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518
+category: Risk & Compliance
+tags:
+- enterprise-risk
+- governance
+- non-financial-risk
+- far-accountability
+- adversarial-challenge
+- board-defensibility
+domains:
+- financial-regulatory-risk
+- cyber-security-risk
+- privacy-au
+- fcc-au
+- conduct-people-au
+- accounting-tax-au
+- responsible-ai

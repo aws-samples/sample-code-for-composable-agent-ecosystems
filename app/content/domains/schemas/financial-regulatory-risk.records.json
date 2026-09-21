@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tessera.dev/schemas/financial-regulatory-risk.records.json",
+  "title": "financial-regulatory-risk domain — catalog record contract",
+  "description": "Risk & resilience reference records for regulated financial institutions. regulatory-requirement is populated TOP-DOWN from authoritative prudential standards (APRA CPS via a pre-parsed structured S3 file); the remaining types (model, control, disruption-scenario, regulator-precedent, post-mortem, finding-pattern, grading-rubric, recovery-procedure, communications-playbook) are BOTTOM-UP, written back from ecosystem runs. A model-approval / risk-tier / resilience pass-fail / severity ranking / board memo for a specific run is a CONCLUSION — NEVER cataloged.",
+  "x-tessera-domain": "financial-regulatory-risk",
+  "x-tessera-keys": {
+    "model": "{model_id}",
+    "regulatory-requirement": "{requirement_id}",
+    "regulator-precedent": "{ref}",
+    "control": "{control_id}",
+    "disruption-scenario": "{scenario_id}",
+    "post-mortem": "{incident}-{date}",
+    "finding-pattern": "{pattern_id}",
+    "grading-rubric": "{rubric_id}",
+    "recovery-procedure": "{procedure_id}",
+    "communications-playbook": "{playbook_id}"
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "ingested_by": { "type": "string" },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "refresh_date": { "type": "string", "format": "date" },
+        "supersedes": { "type": "string" }
+      },
+      "required": ["ingested_by", "refresh_date"]
+    },
+    "regulatory-requirement": {
+      "type": "object",
+      "description": "A binding prudential/regulatory requirement — e.g. an APRA cross-industry prudential standard obligation (CPS 220/230/234), articulated at obligation granularity. Authoritative, top-down.",
+      "properties": {
+        "requirement_id": { "type": "string", "examples": ["cps-230-critical-operations", "cps-234-incident-notification"] },
+        "regulation": { "type": "string", "examples": ["CPS 230", "CPS 234", "CPS 220"] },
+        "clause": { "type": "string", "examples": ["critical-operations", "incident-notification"] },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "framework": { "type": "string", "examples": ["apra-prudential-standard"] },
+        "administered_by": { "type": "string", "examples": ["APRA"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["requirement_id", "name", "provenance"]
+    },
+    "model": {
+      "type": "object",
+      "description": "An AI/ML model under governance — purpose, owner, deployment, lineage. Bottom-up.",
+      "properties": {
+        "model_id": { "type": "string" },
+        "name": { "type": "string" },
+        "purpose": { "type": "string" },
+        "owner": { "type": "string" },
+        "description": { "type": "string" },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["model_id", "provenance"]
+    },
+    "regulator-precedent": {
+      "type": "object",
+      "description": "A regulator action/guidance/precedent reusable across reviews. Bottom-up.",
+      "properties": {
+        "ref": { "type": "string" },
+        "regulator": { "type": "string" },
+        "issue": { "type": "string" },
+        "outcome": { "type": "string" },
+        "lesson": { "type": "string" },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["ref", "provenance"]
+    },
+    "control": {
+      "type": "object",
+      "description": "A risk control — what it mitigates, evidence, framework mapping. Bottom-up.",
+      "properties": {
+        "control_id": { "type": "string" },
+        "name": { "type": "string" },
+        "mitigates": { "type": "string" },
+        "description": { "type": "string" },
+        "framework": { "type": "string" },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["control_id", "provenance"]
+    },
+    "disruption-scenario": {
+      "type": "object",
+      "description": "An operational-resilience scenario — critical operation, severe-but-plausible stress. Bottom-up.",
+      "properties": {
+        "scenario_id": { "type": "string" },
+        "name": { "type": "string" },
+        "critical_operation": { "type": "string" },
+        "description": { "type": "string" },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["scenario_id", "provenance"]
+    },
+    "post-mortem": {
+      "type": "object",
+      "description": "A post-incident review — timeline, root cause, recovery, lessons. Bottom-up.",
+      "properties": {
+        "incident": { "type": "string" },
+        "date": { "type": "string" },
+        "root_cause": { "type": "string" },
+        "lessons": { "type": "string" },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["incident", "date", "provenance"]
+    },
+    "finding-pattern": {
+      "type": "object",
+      "description": "A recurring finding type reusable across reviews. Bottom-up.",
+      "properties": {
+        "pattern_id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["pattern_id", "provenance"]
+    },
+    "grading-rubric": {
+      "type": "object",
+      "description": "A reusable grading/scoring rubric for model-risk tiers. Bottom-up.",
+      "properties": {
+        "rubric_id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["rubric_id", "provenance"]
+    },
+    "recovery-procedure": {
+      "type": "object",
+      "description": "A reusable recovery/continuity procedure for a critical operation. Bottom-up.",
+      "properties": {
+        "procedure_id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["procedure_id", "provenance"]
+    },
+    "communications-playbook": {
+      "type": "object",
+      "description": "A reusable stakeholder/regulator communications playbook. Bottom-up.",
+      "properties": {
+        "playbook_id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["playbook_id", "provenance"]
+    }
+  }
+}

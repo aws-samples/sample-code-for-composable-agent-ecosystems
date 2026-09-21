@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tessera Help — Files</title>
+<meta name="description" content="Upload and manage documents for Tessera ecosystems. Files persist across runs and are available to all agents." />
+<link rel="stylesheet" href="help.css" />
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Files</h1>
+  <p class="subtitle">Upload and manage documents that agents access during runs.</p>
+</header>
+
+<nav class="nav-bar">
+  <a href="index.html">Overview</a>
+  <a href="ecosystems.html">Ecosystems</a>
+  <a href="running.html">Running</a>
+  <a href="builder.html">Builder</a>
+  <a href="tools.html">Tool Catalog</a>
+  <a href="quality.html">Quality</a>
+  <a href="files.html" class="active">Files</a>
+  <a href="faq.html">FAQ</a>
+</nav>
+
+<section>
+  <h2>Ecosystem Files</h2>
+  <p>Each ecosystem can have documents attached that agents access on every run. These are persistent — upload once, available for all future runs of that ecosystem.</p>
+  <p>Access via: select an ecosystem → choose <strong>📁 Files</strong> in the action bar.</p>
+</section>
+
+<section>
+  <h2>Uploading Files</h2>
+  <p class="tip">Uploaded files are stored in Amazon S3 and may incur storage charges. Remove files you no longer need.</p>
+  <ol class="steps">
+    <li>Open the Files modal for your ecosystem</li>
+    <li>Choose <strong>+ Upload</strong></li>
+    <li>Select a file from your computer</li>
+    <li>Tessera uploads the file to Amazon S3 via presigned URL</li>
+    <li>Tessera automatically classifies the file (assigns a tag and generates a summary)</li>
+    <li>Wait for the file to appear in the table once processing completes</li>
+    <li>Verify the upload succeeded by confirming the file shows a classification tag and summary</li>
+  </ol>
+  <div class="tip">Upload reference documents, policies, architecture diagrams, financial reports — anything agents should have access to as context.</div>
+</section>
+
+<section>
+  <h2>File Properties</h2>
+  <table>
+    <thead><tr><th>Column</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><strong>File</strong></td><td>Original filename</td></tr>
+      <tr><td><strong>Tag</strong></td><td>Auto-assigned category (e.g., "policy", "architecture", "financial")</td></tr>
+      <tr><td><strong>Summary</strong></td><td>AI-generated one-line summary of the file's contents</td></tr>
+      <tr><td><strong>Status</strong></td><td>✓ ready (processed) or ⏳ processing</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>How Agents Use Files</h2>
+  <p>When an ecosystem runs, attached files are made available to agents as context. Agents can reference file contents in their analysis and cite them in findings.</p>
+  <div class="warn">Large files may increase agent processing time. Keep uploads focused and relevant to the ecosystem's purpose.</div>
+</section>
+
+<section>
+  <h2>Run-Time File Inputs</h2>
+  <p>Separate from persistent ecosystem files, you can attach files to a single run in two ways — both one-time (not persisted to the ecosystem):</p>
+  <ul class="feature-list">
+    <li><strong>Attach files (any ecosystem)</strong> — every run dialog has an optional "Attach files" area. Add any file to <em>any</em> run; it's classified and <strong>considered in the mission chat</strong> (the planner acknowledges and factors it in), then passed to the agents. Never required.</li>
+    <li><strong>Declared file inputs</strong> — some ecosystems define typed file-input fields in their configuration (e.g. "upload the 10-K to analyze"). These appear as labelled fields and may be required.</li>
+  </ul>
+  <div class="tip">Run-time attachments are classified just like ecosystem files (tag + summary), so the mission planner can reason about them when shaping the run.</div>
+</section>
+
+<section>
+  <h2>Deleting Files</h2>
+  <p>Choose <strong>Delete</strong> next to any file in the table. A confirmation dialog appears. This action is irreversible — deleted files are permanently removed from S3 and will no longer be available to future runs.</p>
+</section>
+
+<div class="footer">
+  <a href="index.html">← Back to Help Overview</a>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,30 @@
+domain: customer-service
+name: Customer Service (Telco)
+description: 'Durable service-desk reference for routing and answering telco customer queries: products/plans, department capabilities, and recurring issue-resolution patterns. (Seeded thin — mostly run-specific routing today; taxonomy authored as the reuse target.)'
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: telco-product
+  key: '{product}'
+  description: A telco product/plan — durable features, pricing structure, eligibility.
+  status: active
+- type: department-capability
+  key: '{department}'
+  description: A department's scope/capability — what it can resolve, escalation paths.
+  status: active
+- type: resolution-pattern
+  key: '{issue_type}'
+  description: A recurring issue + proven resolution pattern.
+  status: active
+conclusions_never_cataloged:
+- the answer/resolution for a specific customer query
+seeded_from: &id001
+- telco-customer-service
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: bottom-up validated across belonging ecosystems (2026-06-30)

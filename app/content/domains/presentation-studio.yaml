@@ -1,0 +1,36 @@
+domain: presentation-studio
+name: Presentation & Audience Studio
+description: 'Durable craft knowledge for presentations/pitches: the audiences they target, subjects they cover, and style/brand guides they follow — recurring across pitches (the cleanest cross-run compounding case in the platform).'
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: audience
+  key: '{org_or_segment}'
+  description: Audience profile — who they are, what they care about, objections, decision drivers.
+  status: active
+- type: subject
+  key: '{topic}'
+  description: Subject dossier — durable facts, framing, evidence base reusable across decks.
+  status: active
+- type: style-guide
+  key: '{brand_or_style}'
+  description: Style/brand guide — visual language, tone, conventions.
+  status: active
+- type: presentation
+  key: '{title}'
+  description: Presentation dossier — structure, narrative spine, reusable assets for a recurring talk.
+  status: active
+conclusions_never_cataloged:
+- the slide outline / deck for a run (run artifact)
+- the speaker talk-track
+- Q&A rehearsal answers
+seeded_from: &id001
+- stage
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: bottom-up validated across belonging ecosystems (2026-06-30)

@@ -1,0 +1,548 @@
+[
+  {
+    "classification": "serve",
+    "rationale": "This ecosystem operates in the strategic advice vertical, delivering grounded conversation guides for high-stakes advisor-client interactions with built-in quality mechanisms (challenger, grounding).",
+    "evidence": "Generate a live, in-meeting conversation guide... to support meaningful advisor\u2013client discussions + quality: challenger: per_level, grounding: true",
+    "confidence": "high",
+    "eco_id": "advisor-client-conversation",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:advisor-client-conversation",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product in a regulated/high-stakes governance and risk vertical (cybersecurity incident response) that delivers the core value: grounded in real incidents, adversarially challenged per level, and produces work customers can put their name on.",
+    "evidence": "domains: ['cyber-security-risk'], quality: {'challenger': 'per_level', 'grounding': true}, 'grounded in real incidents', 'Each scenario maps to a specific OWASP Agentic risk'",
+    "confidence": "high",
+    "eco_id": "agentic-ai-sirs",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:agentic-ai-sirs",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product in regulated/high-stakes governance and risk that delivers the core value: grounded, cited, adversarially challenged, board-grade output for consequential M&A decisions.",
+    "evidence": "board-grade memo with risk-adjusted purchase price impact... Every claim is traceable to a specific tool result... challenger: true, grounding: true",
+    "confidence": "high",
+    "eco_id": "ai-acquisition-war-room",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:ai-acquisition-war-room",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product in a regulated governance/risk/compliance vertical that delivers the core value proposition: grounded, cited, adversarially challenged, human-gated work for high-stakes decisions.",
+    "evidence": "AI Governance Conformity Desk \u2014 a jurisdiction-aware conformity assessment... Every framework citation resolves to a catalog record... an adversarial challenger red-teams the classification... so the assessment does not hallucinate law, controls, or citations",
+    "confidence": "high",
+    "eco_id": "ai-governance-conformity",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:ai-governance-conformity",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "supported",
+    "rationale": "This is a legitimate recreational application that the platform's grounding/citation/challenger capabilities support, but it is not in a strategic governance/risk/compliance/advice vertical.",
+    "evidence": "domains: ['au-recreational-fishing'] \u2014 a recreational use case, not regulated/high-stakes governance",
+    "confidence": "high",
+    "eco_id": "au-fishing-spot-finder",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:au-fishing-spot-finder",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product in regulated property advice delivering grounded, cited, adversarially-challenged, human-gated due diligence reports \u2014 core Tessera value in a high-stakes governance/risk/compliance vertical.",
+    "evidence": "Premium property due diligence... all generated from live data... quality: challenger per_level, grounding true \u2014 agents include contract_reviewer, risk_synthesizer, valuation_synthesizer, auction_strategy_advisor",
+    "confidence": "high",
+    "eco_id": "buyerside-premium",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:buyerside-premium",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product in a high-stakes governance/risk/advice vertical (residential property purchase) that delivers the core value: grounded, cited, adversarially challenged, human-gated advice that buyers can put their name on.",
+    "evidence": "Every claim about a property cites its source \u2014 making the brief defensible if challenged at auction or pre-settlement. Replaces ~A$10K of buyer's-agent + scattered consultations + DIY anxiety with ~A$200 of compute and 20 minutes.",
+    "confidence": "high",
+    "eco_id": "buyerside",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:buyerside",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "supported",
+    "rationale": "This is a legitimate user-built ecosystem for optimizing car sales ads\u2014useful to its user but not in a strategic governance/risk/compliance/advice vertical.",
+    "evidence": "description: 'research comparable historical and current ads, analyze copy and photos, and produce a polished HTML report with an optimized ad'\u2014this is marketing optimization, not regulated/high-stakes governance",
+    "confidence": "high",
+    "eco_id": "car-ad-optimizer",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:car-ad-optimizer",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product in regulated insurance delivering grounded, cited comparison advice with human-gated decisions\u2014core Tessera value in a focus vertical.",
+    "evidence": "domains: ['au-insurance'], quality: {challenger: 'per_level', grounding: true}, description: 'Compare car insurance options across coverage quality and cost, personalized to the user's vehicle and driver profile'",
+    "confidence": "high",
+    "eco_id": "car-insurance-compare-au",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:car-insurance-compare-au",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "infra",
+    "rationale": "This is a catalog-builder that ingests authoritative taxonomies into durable reference records, not a user-facing product or strategic vertical deliverable.",
+    "evidence": "Agentic ingestion of authoritative security taxonomies... emits durable catalog records... Durable reference entities \u2014 NOT per-org assessments.",
+    "confidence": "high",
+    "eco_id": "catalog-agent-ingest",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:catalog-agent-ingest",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "supported",
+    "rationale": "A legitimate user-built ecosystem for commodity trading that the platform's capabilities support, but not in a strategic governance/risk/compliance/advice vertical.",
+    "evidence": "domains: ['markets-and-investing'] with agents for trading analysis and strategy synthesis",
+    "confidence": "high",
+    "eco_id": "commodity-trading-ecosystem",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:commodity-trading-ecosystem",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "supported",
+    "rationale": "This is a legitimate user-built ecosystem the platform's capabilities support (grounding, citation, challenger, composition), but it optimizes conference acceptance probability rather than delivering governance/risk/compliance/advice in regulated or high-stakes domains.",
+    "evidence": "Maximizes acceptance probability for conference session proposals... optimized submission field content calibrated to maximize selection odds",
+    "confidence": "high",
+    "eco_id": "conference-submission-optimizer",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:conference-submission-optimizer",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "supported",
+    "rationale": "This ecosystem helps users research conferences and generate tailored submissions\u2014a legitimate productivity use case the platform's grounding/citation/challenger capabilities support, but not in a strategic governance/risk/compliance/advice vertical.",
+    "evidence": "domains: ['tech-conferences-cfp'] and description mentions 'research a conference...find highest-odds opportunities...generate tailored submission ideas'\u2014a user productivity tool, not regulated/high-stakes governance",
+    "confidence": "high",
+    "eco_id": "conference-submission-scout",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:conference-submission-scout",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "supported",
+    "rationale": "This is a legitimate business-intelligence and meeting-prep use case that the platform's grounding/research/synthesis capabilities support, but it is not in a strategic governance/risk/compliance/advice vertical where decisions carry regulatory or high-stakes consequences.",
+    "evidence": "research the customer org, its senior stakeholders, past/current projects, and competitors \u2014 then produce a tailored meeting plan",
+    "confidence": "high",
+    "eco_id": "consultant-client-meeting-prep",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:consultant-client-meeting-prep",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product in a regulated, high-stakes governance/compliance vertical (NSW development applications) that delivers the core Tessera value: grounded, cited, council-specific guidance replacing professional feasibility analysis.",
+    "evidence": "produces a full DA submission strategy with DCP compliance map... citation-traced, council-specific guidance. Replaces $5-15K of town planner feasibility analysis",
+    "confidence": "high",
+    "eco_id": "da-navigator",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:da-navigator",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product in financial services (a regulated, high-stakes governance/risk/compliance vertical) that delivers core Tessera value: grounded persona/pain-point intelligence with challenger review, directly supporting advisory and compliance use cases.",
+    "evidence": "AU/NZ Financial Services persona intelligence... Maps FSI-specific roles... to their top pain points and Tessera solution opportunities... quality: challenger per_level, grounding true",
+    "confidence": "high",
+    "eco_id": "fsi-anz-personas-painpoints-tessera",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:fsi-anz-personas-painpoints-tessera",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "proof",
+    "rationale": "This is explicitly a simulation/demo that proves the platform's multi-agent deliberation and challenge mechanisms, not a sellable product in a strategic governance/risk/compliance/advice vertical.",
+    "evidence": "Hedge fund trading desk simulation \u2014 agents analyze a stock event and make a collective investment decision",
+    "confidence": "high",
+    "eco_id": "hedge-fund-trading-desk",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:hedge-fund-trading-desk",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "proof",
+    "rationale": "A simulation/training environment that demonstrates platform capabilities (multi-agent coordination, adversarial review, human-gating under pressure) in a security context, but not a sellable governance/risk/compliance product.",
+    "evidence": "Live security incident response simulation \u2014 agents coordinate breach containment, forensics, and recovery",
+    "confidence": "high",
+    "eco_id": "incident-war-room",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:incident-war-room",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product in a regulated, high-stakes advice vertical (Australian insurance) that delivers the core Tessera value: grounded-and-cited PDS analysis, adversarially challenged, with explicit human-gate disclaimers and no confident bluffing about what it can't do (premium quotes).",
+    "evidence": "Every nuance claim is grounded to a real PDS clause (the grounding gate rejects any exclusion an agent cannot cite), and an adversarial challenger hunts for buried sub-limits and audits for bias before the verdict. LIMITATION (stated up front): binding premium quotes usually require completing an insurer's own quote form, which cannot be reliably automated. This is GENERAL information only, not personal financial/insurance advice under the Australian regime \u2014 the final report carries that disclaimer explicitly.",
+    "confidence": "high",
+    "eco_id": "insurance-pds-navigator",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:insurance-pds-navigator",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product in regulated financial advice (a stated owner focus vertical) that delivers the core value: grounded in authoritative catalog, cited, compliance-checked, and human-gated advice output advisers can put their name on.",
+    "evidence": "grounds analysis in the Australian Financial Advice catalog (BID/FASEA obligations, ASIC guidance) ... produces ... advice pack; quality: challenger per_level, grounding true; domains: au-financial-advice",
+    "confidence": "high",
+    "eco_id": "iress-adviser-copilot",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:iress-adviser-copilot",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This ecosystem generates compliance specifications (AWS Kiro) with rules mapped to controls and validated conformance \u2014 a strategic product in the regulated/compliance governance vertical that delivers grounded, cited, and validated output.",
+    "evidence": "domains: ['compliance-specification'], description: 'Generate AWS Kiro spec files...with rules mapped to controls, and validate via generated CloudFormation that conforms', quality: challenger per_level + grounding true",
+    "confidence": "high",
+    "eco_id": "kiro-spec-forge",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:kiro-spec-forge",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product in regulated financial governance/risk that delivers the core value: grounded (catalog-versioned models), cited (to six regulatory regimes), adversarially challenged, human-gated (operator provides context), and produces work stakeholders can put their name on (audit-grade MRM dossier).",
+    "evidence": "Replaces a 4-12 week MRM review cycle with a ~30-minute reproducible run that produces an audit-grade dossier with citation-traceable findings. Aligned to OCC + Fed joint April 2026 model-risk guidance, NYDFS AI guidance, CRI FS-AI RMF v1.0, NIST AI RMF Core, APRA draft AI prudential standard, EU AI Act.",
+    "confidence": "high",
+    "eco_id": "model-risk-continuous-review",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:model-risk-continuous-review",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product in a regulated governance/risk/compliance vertical that delivers the core value proposition: grounded, cited, adversarially challenged, human-gated work for high-stakes decisions.",
+    "evidence": "Tuned for APRA-regulated entities under CPS 230 + CPS 234 + CPS 232, SOCI critical-infrastructure obligations, and the Privacy Act NDB scheme... regulatory-report drafter produces a CPS 234 / SOCI / NDB-grade incident notification with full citation index. A challenger red-teams the response",
+    "confidence": "high",
+    "eco_id": "operational-resilience-war-room",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:operational-resilience-war-room",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "supported",
+    "rationale": "Personal finance advice is a legitimate user-built ecosystem the platform supports (grounding + challenger + multi-agent composition), but it is not in the owner's strategic verticals (regulated/high-stakes governance, risk, compliance, or advice in institutional/organizational contexts).",
+    "evidence": "domains: ['personal-finance'] \u2014 individual financial advice, not organizational governance/risk/compliance",
+    "confidence": "high",
+    "eco_id": "personal-finance-advisor",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:personal-finance-advisor",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "infra",
+    "rationale": "This is a test harness that validates platform capabilities, not a product or strategic vertical.",
+    "evidence": "Minimal regression-test ecosystem exercising every Phase 1-4.5 feature in under 3 minutes",
+    "confidence": "high",
+    "eco_id": "phase-test",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:phase-test",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "supported",
+    "rationale": "This is a legitimate user-built ecosystem that the platform's grounding/citation/synthesis capabilities support, but it is not in a strategic governance/risk/compliance/advice vertical.",
+    "evidence": "domains: ['music-performance'] \u2014 a music performance tool, not regulated/high-stakes governance",
+    "confidence": "high",
+    "eco_id": "piano-band-songbook-builder",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:piano-band-songbook-builder",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "infra",
+    "rationale": "This is a system-managed internal optimizer that improves the platform itself, not a user-facing product or strategic vertical deliverable.",
+    "evidence": "Tessera optimising Tessera. Profiles a target ecosystem's last N runs... then produces a patch proposal",
+    "confidence": "high",
+    "eco_id": "platform-optimizer",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:platform-optimizer",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "supported",
+    "rationale": "A legitimate user-built ecosystem the platform's multi-agent capabilities support (debate moderation, fact-checking, consensus building), but not in a strategic governance/risk/compliance/advice vertical for regulated/high-stakes professional contexts.",
+    "evidence": "domains: ['political-discourse'], agents include debate_moderator, fact_checker, consensus_builder, policy_drafter with challenger: per_level",
+    "confidence": "high",
+    "eco_id": "political-debate-consensus",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:political-debate-consensus",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "proof",
+    "rationale": "An adversarial AI exercise that demonstrates the platform's challenger and multi-agent mechanisms but is not a sellable governance/risk/compliance product.",
+    "evidence": "Autonomous Red Team vs Blue Team \u2014 adversarial AI exercise",
+    "confidence": "high",
+    "eco_id": "red-vs-blue",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:red-vs-blue",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "proof",
+    "rationale": "This is a validation/test ecosystem that proves the platform's researcher agent mechanism works end-to-end, not a product delivering strategic value.",
+    "evidence": "Validate the first-class researcher agent type end-to-end.",
+    "confidence": "high",
+    "eco_id": "researcher-smoketest",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:researcher-smoketest",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product in a regulated/high-stakes governance vertical (cyber-security risk assessment) that delivers the core value proposition: grounded (authoritative risk catalog), cited (control mapping to frameworks), adversarially challenged (per_level challenger), and produces work users can put their name on.",
+    "evidence": "domains: ['cyber-security-risk'], quality: {'challenger': 'per_level', 'grounding': true}, description mentions 'authoritative risk catalog' and 'control mapping to frameworks (NIST CSF, ISO 27001, CPS 234)'",
+    "confidence": "high",
+    "eco_id": "risk-assessment",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:risk-assessment",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product in the cyber-security risk vertical delivering grounded, cited, authoritative risk catalogs \u2014 core governance/risk value proposition.",
+    "evidence": "Builds authoritative risk catalog from ATT&CK + OWASP Agentic sources; domains: cyber-security-risk; quality: challenger per_level",
+    "confidence": "high",
+    "eco_id": "risk-reasoning",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:risk-reasoning",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "infra",
+    "rationale": "This ecosystem builds the authoritative catalog itself (risk records with cross-links, severity, FAIR defaults) that other ecosystems ground against \u2014 it is a catalog-builder, not a product.",
+    "evidence": "Synthesises authoritative risk catalog entries... Reads the raw entities the ingestion pipeline populates... reasons them into durable `risk` records... Durable reference entities \u2014 NOT per-org assessments",
+    "confidence": "high",
+    "eco_id": "risk-synthesis",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:risk-synthesis",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product in regulated property advice (vendor strategy, pricing, disclosure) that delivers grounded, cited, challenged, human-gated intelligence for high-stakes decisions \u2014 core Tessera value in a focus vertical.",
+    "evidence": "Pre-sale strategy intelligence for property vendors... pricing strategy... disclosure requirements... challenger: per_level, grounding: true",
+    "confidence": "high",
+    "eco_id": "sale-ready",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:sale-ready",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product delivering core grounded+cited+challenged+human-gated value in a high-stakes governance/risk/compliance vertical (investment due diligence).",
+    "evidence": "Produce an alpha-oriented due-diligence bundle... identifying mispricing, catalysts, and asymmetric risk/reward \u2014 with quality: challenger per_level, grounding true",
+    "confidence": "high",
+    "eco_id": "saturn-metals-dd-bundle",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:saturn-metals-dd-bundle",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "A strategic product in a high-stakes governance vertical (presentations to live audiences) that delivers grounded + cited + adversarially challenged output before human delivery.",
+    "evidence": "every claim is citation-traced via Tessera's role contract; the challenger is adversarial, not affirming; the auto-injected challenger red-teams the resulting deck \u2014 surfaces weak claims, narrative contradictions, slides whose data contradicts the accompanying message \u2014 before the live audience can.",
+    "confidence": "high",
+    "eco_id": "stage",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:stage",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "supported",
+    "rationale": "A legitimate customer-service routing system that the platform's multi-agent + grounding capabilities support, but not in a strategic governance/risk/compliance/advice vertical.",
+    "evidence": "domains: ['customer-service'], description: 'Answer a customer query by routing to the single best telco department specialist'",
+    "confidence": "high",
+    "eco_id": "telco-customer-service",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:telco-customer-service",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "serve",
+    "rationale": "This is a strategic product delivering core Tessera value (grounded + cited + honest gaps + human-gated) in a governance/advice vertical \u2014 helping users understand what the platform can actually do for their problem.",
+    "evidence": "answers 'here is what Tessera can actually do about it' \u2014 grounded in Tessera's own self-model... honest gaps... and a refusal when the ask is an explicit non-goal. Kills the 'so what'.",
+    "confidence": "high",
+    "eco_id": "tessera-concierge",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:tessera-concierge",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  },
+  {
+    "classification": "supported",
+    "rationale": "This is a legitimate user-built travel planning ecosystem that the platform's grounding/citation/challenger capabilities support, but it is not in a strategic governance/risk/compliance/advice vertical.",
+    "evidence": "domains: ['travel-planning'] \u2014 not a regulated/high-stakes governance domain; has grounding:true and challenger:per_level showing platform capability support",
+    "confidence": "high",
+    "eco_id": "trip-planner",
+    "provenance": {
+      "layer": "runtime-observed",
+      "source_ref": "eco:trip-planner",
+      "confidence": "high",
+      "captured_at": "2026-07-13T23:34:52.846593+00:00",
+      "classified_against": "docs/tessera-intent.draft.md (DRAFT)"
+    }
+  }
+]

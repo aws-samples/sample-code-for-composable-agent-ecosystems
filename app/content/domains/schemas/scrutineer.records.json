@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tessera.dev/schemas/scrutineer.records.json",
+  "title": "scrutineer domain — catalog record contract",
+  "description": "Reusable reviewer personas a Quorum ecosystem convenes from. One $def; keyed by persona_id at /tessera/catalog/<version>/scrutineer/<persona_id>. Grounded on the platform's obligation/precedent catalogs (invokes[]/cites[]).",
+  "x-tessera-domain": "scrutineer",
+  "x-tessera-keys": { "scrutineer": "{persona_id}" },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "ingested_by": { "type": "string" },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "refresh_date": { "type": "string", "format": "date" },
+        "supersedes": { "type": "string" }
+      },
+      "required": ["ingested_by", "refresh_date"]
+    },
+    "scrutineer": {
+      "type": "object",
+      "description": "A reviewer persona: the stance it argues from, the risk/scrutiny dimensions it covers, the obligations/frameworks it wields, the precedents it reasons from, the questions it always asks, and its argumentative voice.",
+      "properties": {
+        "persona_id": { "type": "string", "examples": ["regulators_eye", "asic_conduct", "oaic_privacy", "plaintiff_counsel", "customer_advocate", "security_adversary", "ethicist", "far_accountability"] },
+        "name": { "type": "string" },
+        "stance": { "type": "string", "description": "the role/lens it argues from" },
+        "description": { "type": "string" },
+        "dimensions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "scrutiny dimensions this persona covers",
+          "examples": [["regulatory", "conduct", "customer", "security", "privacy", "ethics", "accountability", "reputation"]]
+        },
+        "invokes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "obligations/frameworks it wields → graph edges to obligation nodes"
+        },
+        "cites": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "precedent ids it reasons from → graph edges to precedent nodes"
+        },
+        "key_questions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "the questions this scrutineer always asks"
+        },
+        "voice": { "type": "string", "description": "how it argues (tone/register)" },
+        "severity_bias": {
+          "type": "string",
+          "enum": ["harsh", "balanced", "constructive"],
+          "description": "how readily it escalates a concern to a blocker"
+        },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["persona_id", "name", "stance", "dimensions", "provenance"]
+    }
+  }
+}

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tessera Multi-Agent Platform — Help & Documentation</title>
+<meta name="description" content="Get started with Tessera: navigate ecosystems, run multi-agent workflows, and review quality-assured outputs." />
+<link rel="stylesheet" href="help.css" />
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="tessera-icon">
+    <svg width="80" height="80" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tessera logo">
+      <defs>
+        <linearGradient id="hg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6c8cff" stop-opacity="0.9"/><stop offset="100%" stop-color="#4f6fdf" stop-opacity="0.7"/></linearGradient>
+        <linearGradient id="hg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fb923c" stop-opacity="0.9"/><stop offset="100%" stop-color="#ea580c" stop-opacity="0.7"/></linearGradient>
+        <linearGradient id="hg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ef4444" stop-opacity="0.9"/><stop offset="100%" stop-color="#dc2626" stop-opacity="0.7"/></linearGradient>
+        <linearGradient id="hg4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fbbf24" stop-opacity="0.9"/><stop offset="100%" stop-color="#d97706" stop-opacity="0.7"/></linearGradient>
+        <linearGradient id="hg5" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#22d3ee" stop-opacity="0.9"/><stop offset="100%" stop-color="#0891b2" stop-opacity="0.7"/></linearGradient>
+      </defs>
+      <g class="ts-star"><polygon fill="url(#hg5)" stroke="#22d3ee" stroke-width="2" points="250,180 261.5,222.3 299.5,200.5 277.7,238.5 320,250 277.7,261.5 299.5,299.5 261.5,277.7 250,320 238.5,277.7 200.5,299.5 222.3,261.5 180,250 222.3,238.5 200.5,200.5 238.5,222.3"/></g>
+      <polygon class="ts-tile ts-t1" fill="url(#hg1)" stroke="#6c8cff" stroke-width="1" points="250,185 227.7,162.8 250,110 272.3,162.8"/>
+      <polygon class="ts-tile ts-t2" fill="url(#hg4)" stroke="#fbbf24" stroke-width="1" points="296,204 295.9,172.6 349,151 327.4,204.1"/>
+      <polygon class="ts-tile ts-t3" fill="url(#hg1)" stroke="#6c8cff" stroke-width="1" points="315,250 337.2,227.7 390,250 337.2,272.3"/>
+      <polygon class="ts-tile ts-t4" fill="url(#hg2)" stroke="#fb923c" stroke-width="1" points="296,296 327.4,295.9 349,349 295.9,327.4"/>
+      <polygon class="ts-tile ts-t5" fill="url(#hg2)" stroke="#fb923c" stroke-width="1" points="250,315 272.3,337.2 250,390 227.7,337.2"/>
+      <polygon class="ts-tile ts-t6" fill="url(#hg4)" stroke="#fbbf24" stroke-width="1" points="204,296 204.1,327.4 151,349 172.6,295.9"/>
+      <polygon class="ts-tile ts-t7" fill="url(#hg3)" stroke="#ef4444" stroke-width="1" points="185,250 162.8,272.3 110,250 162.8,227.7"/>
+      <polygon class="ts-tile ts-t8" fill="url(#hg3)" stroke="#ef4444" stroke-width="1" points="204,204 172.6,204.1 151,151 204.1,172.6"/>
+      <circle class="ts-jewel" cx="250" cy="250" r="8" fill="#22d3ee" opacity="0.8"/>
+      <circle cx="250" cy="250" r="3.5" fill="#fff" opacity="0.95"/>
+    </svg>
+  </div>
+  <h1>Tessera Help</h1>
+  <p class="subtitle">Everything you need to know about using the platform.</p>
+</header>
+
+<nav class="nav-bar">
+  <a href="index.html" class="active">Overview</a>
+  <a href="ecosystems.html">Ecosystems</a>
+  <a href="running.html">Running</a>
+  <a href="builder.html">Builder</a>
+  <a href="tools.html">Tool Catalog</a>
+  <a href="quality.html">Quality</a>
+  <a href="agent-types.html">Agent Types</a>
+  <a href="quality-gates.html">Quality Gates</a>
+  <a href="files.html">Files</a>
+  <a href="faq.html">FAQ</a>
+</nav>
+
+<section>
+  <h2>What is Tessera?</h2>
+  <p>Tessera is a composable agentic security platform. You define <strong>ecosystems</strong> — multi-agent workflows described in YAML — and Tessera orchestrates them: running agents in parallel or sequence, verifying their outputs for accuracy, and presenting results in real time.</p>
+  <p>No code required. Configuration over code.</p>
+</section>
+
+<section>
+  <h2>Key Concepts</h2>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">⬡ Ecosystem</div>
+      <div class="card-desc">A multi-agent workflow. Contains agents, their dependencies, tools, memory configuration, and quality settings. Defined in YAML, compiled to Step Functions.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🤖 Agent</div>
+      <div class="card-desc">An AI agent with a system prompt, tools, and dependencies. Agents run on Amazon Bedrock via AgentCore Runtime and produce structured findings.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔧 Tool</div>
+      <div class="card-desc">A capability an agent can use: web search, code interpreter, memory, HTTP requests, or custom tools you register (Lambda, OpenAPI, MCP).</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🛡️ Quality Layer</div>
+      <div class="card-desc">Automatic verification: challenger agents stress-test findings, internal grounding checks claims against evidence, external grounding verifies via web search.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Run</div>
+      <div class="card-desc">A single execution of an ecosystem. You provide a mission and inputs, then watch agents work in real time. Results are persisted for review.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🧠 Memory</div>
+      <div class="card-desc">Shared namespaces that agents read from and write to. Supports semantic, episodic, and summarization strategies.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Navigation</h2>
+  <p>The sidebar provides access to all areas of the platform:</p>
+  <table>
+    <thead><tr><th>Item</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><strong>⬡ Ecosystems</strong></td><td>Browse, run, manage files, view history, and optimize ecosystems</td></tr>
+      <tr><td><strong>◈ Agent Registry</strong></td><td>View all registered agents and tools across ecosystems</td></tr>
+      <tr><td><strong>⚙ Builder</strong></td><td>Create and edit ecosystems with AI assistance or manually</td></tr>
+      <tr><td><strong>🔧 Tool Catalog</strong></td><td>Register, test, and manage custom tools</td></tr>
+      <tr><td><strong>⚡ Live Run</strong></td><td>Appears when a run is in progress — choose to return to the live view</td></tr>
+      <tr><td><strong>? Help</strong></td><td>This documentation</td></tr>
+    </tbody>
+  </table>
+  <p>The sidebar can be collapsed by choosing the Tessera logo. Status indicators at the bottom show run state and backend connectivity.</p>
+</section>
+
+<section>
+  <h2>Quick Start</h2>
+  <ol class="steps">
+    <li><strong>Select an ecosystem</strong> from the Ecosystems view</li>
+    <li>Choose <strong>▶ Run</strong> in the action bar</li>
+    <li>Enter a <strong>mission</strong> describing what you want the agents to accomplish</li>
+    <li>Fill in any required text input fields</li>
+    <li>Upload any required files</li>
+    <li>Choose <strong>▶ Launch</strong></li>
+    <li>Watch agents run in real time</li>
+    <li>To focus on a specific agent's output, choose the agent in the DAG or card strip</li>
+    <li>When complete, review the final report</li>
+    <li>Review the outcome panel</li>
+  </ol>
+</section>
+
+<div class="footer">
+  Tessera Platform — Help Documentation
+</div>
+
+</div>
+</body>
+</html>

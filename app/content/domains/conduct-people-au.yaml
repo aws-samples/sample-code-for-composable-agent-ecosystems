@@ -1,0 +1,101 @@
+domain: conduct-people-au
+name: Australian Conduct & People Risk
+description: "Durable, cited AU conduct- and people-risk reference knowledge for regulated financial firms — the governing statutes (Corporations Act 2001, Financial Accountability Regime Act 2023, Banking Act 1959, Fair Work Act 2009), ASIC conduct/consumer-outcome obligations, FAR accountability obligations, APRA CPS 511 remuneration standards, and ASIC conduct-enforcement precedents. Covers the Conduct and People slices of enterprise NFR; composes with financial-regulatory-risk. A person's conduct assessment, a remuneration decision, or an accountability-failure finding for a run are CONCLUSIONS — never cataloged. Legal instruments come from the Federal Register of Legislation OData API; APRA's large HTML pages are avoided in favour of that structured source, with remuneration-standard populated bottom-up. Ingest is declarative + blue/green-versioned (domains/conduct-people-au/catalog.yaml)."
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: legal-instrument
+  key: '{instrument_id}'
+  description: "An authoritative governing Act (Corporations Act 2001, FAR Act 2023, Banking Act 1959, Fair Work Act 2009) from the Federal Register of Legislation — register id + in-force status."
+  status: active
+- type: conduct-obligation
+  key: '{obligation_id}'
+  description: "A conduct/consumer-outcome obligation — ASIC Regulatory Guides, Corporations Act conduct provisions, DDO, ABA Banking Code standards."
+  status: active
+- type: accountability-obligation
+  key: '{obligation_id}'
+  description: "A Financial Accountability Regime (FAR) obligation — reasonable-steps, accountability statements/maps (no gaps), key-personnel, deferred-remuneration, notification."
+  status: active
+- type: remuneration-standard
+  key: '{standard_id}'
+  description: "An APRA CPS 511 remuneration/incentive-governance requirement (deferral, malus/clawback, non-financial measures). Populated bottom-up (APRA source too large to scrape)."
+  status: active
+- type: conduct-precedent
+  key: '{precedent_id}'
+  description: "A published ASIC conduct-enforcement outcome — a durable 'what a conduct failure costs' lesson."
+  status: active
+conclusions_never_cataloged:
+- a specific person's or firm's conduct assessment for a run
+- a remuneration / variable-pay decision for an individual
+- an accountability-failure ('did not take reasonable steps') finding for a specific matter
+- a fit-and-proper or capability assessment for a named person
+- board memo / recommendation for a specific matter
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: "declarative ingest domain — 5 types (legal-instrument, conduct-obligation, accountability-obligation, remuneration-standard, conduct-precedent). legal-instrument via the Federal Register of Legislation OData API (reliable); ASIC pages best-effort; remuneration-standard bottom-up. Same blue/green engine as the other domains. synthesis: none."
+catalog:
+  view:
+    default:
+      title:
+      - title
+      - entity
+      subtitle:
+      - instrument_id
+      - obligation_id
+      - standard_id
+      - precedent_id
+      summary:
+      - description
+      - status
+      - issue
+    legal-instrument:
+      title: title
+      subtitle: instrument_id
+      summary: status
+    conduct-obligation:
+      title: title
+      subtitle: obligation_id
+      summary: description
+    accountability-obligation:
+      title: title
+      subtitle: obligation_id
+      summary: description
+    remuneration-standard:
+      title: title
+      subtitle: standard_id
+      summary: description
+    conduct-precedent:
+      title: entity
+      subtitle: precedent_id
+      summary: issue
+  ingestion:
+    schedule: rate(30 days)
+    sources:
+    - id: legislation-conduct-people-acts
+      mode: agent
+      produces:
+      - legal-instrument
+      authoritative_url: https://api.prod.legislation.gov.au/v1/titles?$filter=id eq 'C2004A00818' or id eq 'C2023A00067' or id eq 'C1959A00006' or id eq 'C2009A00028'
+      status: active
+    - id: asic-conduct-guides
+      mode: agent
+      produces:
+      - conduct-obligation
+      authoritative_url: https://asic.gov.au/regulatory-resources/find-a-document/regulatory-guides/
+      status: active
+    - id: asic-far
+      mode: agent
+      produces:
+      - accountability-obligation
+      authoritative_url: https://www.asic.gov.au/regulatory-resources/financial-services/financial-accountability-regime/
+      status: active
+    - id: asic-conduct-enforcement
+      mode: agent
+      produces:
+      - conduct-precedent
+      authoritative_url: https://asic.gov.au/about-asic/news-centre/find-a-media-release/
+      status: active

@@ -1,0 +1,32 @@
+# Declarative ingest for the scrutineer persona pool (docs/spec-quorum-archetype.md §7).
+# Deterministic: the seed pool is parsed once into catalog-content/scrutineers.json and
+# ingested via transport:s3 + mode:map (the apra-cps.json / nist-ai-rmf pattern). No live
+# fetch, no LLM extraction. Edit the file + re-ingest to refresh or extend the pool.
+ingest:
+  sources:
+    - name: scrutineer-seed
+      produces: [scrutineer]
+      fetch:
+        transport: s3
+        key: catalog-content/scrutineers.json
+      normalize:
+        mode: map
+        entity_type: scrutineer
+        key_field: persona_id
+        select: "scrutineers"
+        fields:
+          persona_id: "persona_id"
+          name: "name"
+          stance: "stance"
+          description: "description"
+          dimensions: "dimensions"
+          invokes: "invokes"
+          cites: "cites"
+          key_questions: "key_questions"
+          voice: "voice"
+          severity_bias: "severity_bias"
+        provenance: {ingested_by: catalog-ingest, sources: [scrutineer-seed]}
+  refresh:
+    schedule: "rate(90 days)"
+    sanity_drop: 0.5
+  synthesis: none

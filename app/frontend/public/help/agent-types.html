@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tessera Help — Agent Types & Output Formats</title>
+<meta name="description" content="Tessera agent types: leaf analysts, synthesizers, challengers, and report composers with structured output formats." />
+<link rel="stylesheet" href="help.css" />
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Agent Types & Output Formats</h1>
+  <p class="subtitle">Understanding output_kind, output_format, and how they shape agent behavior.</p>
+</header>
+
+<nav class="nav-bar">
+  <a href="index.html">Overview</a>
+  <a href="ecosystems.html">Ecosystems</a>
+  <a href="running.html">Running</a>
+  <a href="builder.html">Builder</a>
+  <a href="tools.html">Tool Catalog</a>
+  <a href="quality.html">Quality</a>
+  <a href="agent-types.html" class="active">Agent Types</a>
+  <a href="quality-gates.html">Quality Gates</a>
+  <a href="files.html">Files</a>
+  <a href="faq.html">FAQ</a>
+</nav>
+
+<section>
+  <h2>Agent Types (output_kind)</h2>
+  <p>Every agent has an <code>output_kind</code> that determines its output contract — what it must produce and how it's validated. Set it explicitly in the YAML or let the platform infer it.</p>
+
+  <table>
+    <thead><tr><th>Kind</th><th>Purpose</th><th>Required Output</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>analyst</strong></td>
+        <td>Research and analysis agents (default for all agents)</td>
+        <td><code>## STRUCTURED FINDINGS</code> section with numbered findings + confidence levels, and <code>## OPEN QUESTIONS</code> section</td>
+      </tr>
+      <tr>
+        <td><strong>synthesizer</strong></td>
+        <td>Agents that combine multiple upstream outputs into a unified view</td>
+        <td>Same as analyst, plus must cite each upstream agent using <code>[per agent_id: ...]</code> markers</td>
+      </tr>
+      <tr>
+        <td><strong>challenger</strong></td>
+        <td>Stress-tests upstream findings for gaps and contradictions</td>
+        <td><code>## VERDICT</code> (STRONG / ADEQUATE / WEAK) + <code>## WEAKNESSES</code> section. If any weakness is BLOCKER severity, verdict must be WEAK.</td>
+      </tr>
+      <tr>
+        <td><strong>reporter</strong></td>
+        <td>Final synthesis into a coherent prose narrative</td>
+        <td>Prose narrative ≥200 characters. Must NOT contain STRUCTURED FINDINGS (reporters write prose, not bullet lists).</td>
+      </tr>
+      <tr>
+        <td><strong>drafter</strong></td>
+        <td>Produces a document (report, memo, policy, etc.)</td>
+        <td><code>## SUMMARY</code> header + substantive body (≥100 chars). The actual document format is controlled by <code>output_format</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>creative</strong></td>
+        <td>Generates artifacts (code, designs, content) with minimal structural constraints</td>
+        <td>Any non-empty output ≥50 characters. Format validation comes from <code>output_format</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>operator</strong></td>
+        <td>Performs actions and reports results (remediation, deployment, configuration)</td>
+        <td><code>## RESULT</code> section with status: SUCCESS / FAILURE / DRY_RUN / AWAITING_APPROVAL</td>
+      </tr>
+      <tr>
+        <td><strong>chat</strong></td>
+        <td>Conversational agent (used by the Run Chat feature)</td>
+        <td>Any non-empty response</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>How output_kind Is Resolved</h2>
+  <p>Resolution order (first match wins):</p>
+  <ol class="steps">
+    <li><strong>Explicit <code>output_kind</code> field</strong> in the agent's YAML config — authoritative</li>
+    <li><strong>Legacy <code>chat_mode: true</code></strong> — deprecated alias for "chat"</li>
+    <li><strong>Agent ID heuristics</strong> — <code>challenger_agent</code> → challenger, <code>report_agent</code> → reporter</li>
+    <li><strong>Default: "analyst"</strong> — if nothing else matches</li>
+  </ol>
+  <div class="tip">Most user-created agents don't need to set output_kind explicitly. The default "analyst" works for research/analysis agents. Set it when you need a different contract (drafter for document generation, operator for actions).</div>
+</section>
+
+<section>
+  <h2>Agent Roles (DAG-derived)</h2>
+  <p>Separate from output_kind, each agent gets a <strong>role</strong> based on its position in the DAG:</p>
+  <table>
+    <thead><tr><th>Role</th><th>Condition</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td><strong>leaf</strong></td><td>No <code>depends_on</code></td><td>Uses leaf model (Sonnet 4). Does primary research via tools.</td></tr>
+      <tr><td><strong>synthesizer</strong></td><td>Has <code>depends_on</code></td><td>Uses synthesizer model (Opus 4). Must cite upstream agents. Gets stronger model for complex reasoning.</td></tr>
+      <tr><td><strong>challenger</strong></td><td>ID is <code>challenger_agent</code></td><td>Platform-injected. Adversarial review of all upstream.</td></tr>
+      <tr><td><strong>reporter</strong></td><td>ID is <code>report_agent</code></td><td>Platform-injected. Final prose synthesis.</td></tr>
+    </tbody>
+  </table>
+  <div class="tip">Synthesizer agents automatically get a more powerful model (Opus 4) because they need to reason over many upstream inputs. Leaf agents use Sonnet 4 since they're primarily tool-driven.</div>
+</section>
+
+<section>
+  <h2>Output Formats</h2>
+  <p>Independent of output_kind, agents can declare an <code>output_format</code> that specifies the file type of their output artifact:</p>
+
+  <table>
+    <thead><tr><th>Format</th><th>Validation</th><th>File Extension</th></tr></thead>
+    <tbody>
+      <tr><td><strong>markdown</strong> (default)</td><td>None (free-form)</td><td>.txt</td></tr>
+      <tr><td><strong>json</strong></td><td>Must contain a valid fenced <code>```json</code> block that parses successfully</td><td>.json</td></tr>
+      <tr><td><strong>yaml</strong></td><td>Must contain a valid fenced <code>```yaml</code> block that parses successfully</td><td>.yaml</td></tr>
+      <tr><td><strong>html</strong></td><td>Must contain a fenced <code>```html</code> block (or inline <code>&lt;html&gt;...&lt;/html&gt;</code>) with proper open/close tags</td><td>.html</td></tr>
+      <tr><td><strong>csv</strong></td><td>Must contain a fenced <code>```csv</code> block with ≥1 header row + ≥1 data row</td><td>.csv</td></tr>
+      <tr><td><strong>pdf</strong></td><td>Future phase</td><td>.pdf</td></tr>
+      <tr><td><strong>docx</strong></td><td>Future phase</td><td>.docx</td></tr>
+      <tr><td><strong>png</strong></td><td>Future phase</td><td>.png</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Configuring output_format in YAML</h2>
+  <p>Add to any agent in your ecosystem YAML:</p>
+  <pre><code>agents:
+  - id: report_writer
+    output_kind: drafter
+    output_format:
+      type: html
+      save_as: report.html
+      validate: true
+    tools: [code_interpreter, web_search]
+    prompt: "Generate a comprehensive HTML report..."</code></pre>
+
+  <table>
+    <thead><tr><th>Field</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>type</code></td><td>Output format: markdown, json, yaml, html, csv</td></tr>
+      <tr><td><code>save_as</code></td><td>Filename for the artifact in S3 (e.g., <code>report.html</code>)</td></tr>
+      <tr><td><code>validate</code></td><td>Whether to run format validation (default: true for json/yaml/html/csv)</td></tr>
+      <tr><td><code>schema_id</code></td><td>Future: reference to a JSON Schema for deeper validation</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Artifact Production</h2>
+  <p>Agents can produce artifacts (files) in two ways:</p>
+  <ul class="feature-list">
+    <li><strong>Fenced code block</strong> — agent writes the artifact inline in its output within a fenced block. The platform extracts and saves it.</li>
+    <li><strong>code_interpreter tool</strong> — agent uses code_interpreter to generate the file programmatically. Saved directly to S3 without needing a fenced block.</li>
+  </ul>
+  <div class="tip">When <code>save_as</code> is declared and the agent has <code>code_interpreter</code> in its tools, the platform skips fenced-block validation — it expects the artifact to be produced via code.</div>
+</section>
+
+<section>
+  <h2>Combining Kind + Format</h2>
+  <p>output_kind and output_format are orthogonal:</p>
+  <ul class="feature-list">
+    <li><strong>analyst + json</strong> — produces STRUCTURED FINDINGS in prose, plus a JSON artifact (e.g., structured data export)</li>
+    <li><strong>drafter + html</strong> — produces a SUMMARY section plus an HTML document</li>
+    <li><strong>operator + yaml</strong> — produces a RESULT status plus a YAML config artifact</li>
+    <li><strong>creative + csv</strong> — produces any substantive output plus a CSV data file</li>
+  </ul>
+</section>
+
+<div class="footer">
+  <a href="index.html">← Back to Help Overview</a>
+</div>
+
+</div>
+</body>
+</html>

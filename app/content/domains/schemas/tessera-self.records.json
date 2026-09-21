@@ -1,0 +1,272 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Tessera Self-Model Records",
+  "description": "Record schemas for the tessera-self domain. See docs/spec-self-awareness.md §3.",
+  "x-tessera-keys": {
+    "goal": "goal_id", "principle": "principle_id", "non-goal": "non_goal_id",
+    "value-prop": "vp_id", "roadmap-item": "item_id", "design-decision": "decision_id",
+    "feature-spec": "spec_id", "invariant": "invariant_id", "component": "component_id",
+    "data-flow": "flow_id", "platform-tool": "tool_id", "integration": "integration_id",
+    "evolution-event": "event_id", "ecosystem": "eco_id", "capability": "capability_id",
+    "domain-catalog": "domain_id", "run-evidence": "eco_id", "gap": "gap_id",
+    "exemplar-output": "output_id"
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "required": ["layer", "source_ref"],
+      "properties": {
+        "layer": {"enum": ["intent-declared", "design-asserted", "code-grounded", "runtime-observed", "history-observed"]},
+        "source_ref": {"type": "string", "description": "file#symbol | git:sha | eco:id | run:id | ratified-by:user@date"},
+        "confidence": {"enum": ["high", "medium", "low"]},
+        "captured_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "goal": {
+      "type": "object",
+      "required": ["goal_id", "statement", "status", "provenance"],
+      "properties": {
+        "goal_id": {"type": "string"},
+        "statement": {"type": "string"},
+        "horizon": {"type": "string"},
+        "rationale": {"type": "string"},
+        "status": {"enum": ["proposed", "ratified", "active", "achieved", "abandoned"]},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "principle": {
+      "type": "object",
+      "required": ["principle_id", "statement", "provenance"],
+      "properties": {
+        "principle_id": {"type": "string"},
+        "statement": {"type": "string"},
+        "rationale": {"type": "string"},
+        "status": {"enum": ["proposed", "ratified", "revised", "rejected"]},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "non-goal": {
+      "type": "object",
+      "required": ["non_goal_id", "statement", "provenance"],
+      "properties": {
+        "non_goal_id": {"type": "string"},
+        "statement": {"type": "string"},
+        "rationale": {"type": "string"},
+        "status": {"enum": ["proposed", "ratified", "revised", "rejected"]},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "value-prop": {
+      "type": "object",
+      "required": ["vp_id", "audience", "promise", "provenance"],
+      "properties": {
+        "vp_id": {"type": "string"},
+        "audience": {"type": "string"},
+        "promise": {"type": "string"},
+        "evidence_refs": {"type": "array", "items": {"type": "string"}},
+        "status": {"enum": ["proposed", "ratified", "revised", "rejected"]},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "roadmap-item": {
+      "type": "object",
+      "required": ["item_id", "statement", "provenance"],
+      "properties": {
+        "item_id": {"type": "string"},
+        "statement": {"type": "string"},
+        "target": {"type": "string"},
+        "depends_on": {"type": "array", "items": {"type": "string"}},
+        "status": {"enum": ["proposed", "ratified", "in_progress", "done"]},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "design-decision": {
+      "type": "object",
+      "required": ["decision_id", "title", "decision", "provenance"],
+      "properties": {
+        "decision_id": {"type": "string"},
+        "title": {"type": "string"},
+        "decision": {"type": "string"},
+        "rationale": {"type": "string"},
+        "alternatives": {"type": "array", "items": {"type": "string"}},
+        "status": {"enum": ["active", "superseded", "proposed"]},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "feature-spec": {
+      "type": "object",
+      "required": ["spec_id", "name", "provenance"],
+      "properties": {
+        "spec_id": {"type": "string"},
+        "name": {"type": "string"},
+        "summary": {"type": "string"},
+        "spec_doc_ref": {"type": "string"},
+        "status": {"enum": ["planned", "partial", "shipped"]},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "invariant": {
+      "type": "object",
+      "required": ["invariant_id", "statement", "provenance"],
+      "properties": {
+        "invariant_id": {"type": "string"},
+        "statement": {"type": "string"},
+        "enforced_by": {"type": "string", "description": "code_ref | manual"},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "component": {
+      "type": "object",
+      "required": ["component_id", "name", "path", "responsibility", "provenance"],
+      "properties": {
+        "component_id": {"type": "string"},
+        "name": {"type": "string"},
+        "path": {"type": "string"},
+        "responsibility": {"type": "string"},
+        "key_symbols": {"type": "array", "items": {"type": "string"}},
+        "depends_on": {"type": "array", "items": {"type": "string"}},
+        "produces": {"type": "array", "items": {"type": "string"}},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "data-flow": {
+      "type": "object",
+      "required": ["flow_id", "from_component", "to_component", "provenance"],
+      "properties": {
+        "flow_id": {"type": "string"},
+        "from_component": {"type": "string"},
+        "to_component": {"type": "string"},
+        "payload": {"type": "string"},
+        "mechanism": {"type": "string"},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "platform-tool": {
+      "type": "object",
+      "required": ["tool_id", "name", "purpose", "provenance"],
+      "properties": {
+        "tool_id": {"type": "string"},
+        "name": {"type": "string"},
+        "purpose": {"type": "string"},
+        "invoked_by": {"type": "array", "items": {"type": "string"}},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "integration": {
+      "type": "object",
+      "required": ["integration_id", "service", "purpose", "provenance"],
+      "properties": {
+        "integration_id": {"type": "string"},
+        "service": {"type": "string"},
+        "purpose": {"type": "string"},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "evolution-event": {
+      "type": "object",
+      "required": ["event_id", "change", "provenance"],
+      "properties": {
+        "event_id": {"type": "string"},
+        "date": {"type": "string"},
+        "phase": {"type": "string"},
+        "change": {"type": "string"},
+        "rationale": {"type": "string"},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "ecosystem": {
+      "type": "object",
+      "required": ["eco_id", "name", "purpose", "provenance"],
+      "properties": {
+        "eco_id": {"type": "string"},
+        "name": {"type": "string"},
+        "purpose": {"type": "string"},
+        "problem_solved": {"type": "string"},
+        "inputs_accepted": {"type": "array", "items": {"type": "string"}},
+        "deliverable": {"type": "string"},
+        "domains_mounted": {"type": "array", "items": {"type": "string"}},
+        "agents": {"type": "array", "items": {"type": "string"}},
+        "quality_posture": {"type": "string"},
+        "capabilities_used": {"type": "array", "items": {"type": "string"}},
+        "maturity": {"enum": ["experimental", "demo", "product", "proof-only", "cut"]},
+        "deploy_status": {"type": "string"},
+        "sm_arn": {"type": "string"},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "capability": {
+      "type": "object",
+      "required": ["capability_id", "name", "description", "provenance"],
+      "properties": {
+        "capability_id": {"type": "string"},
+        "name": {"type": "string"},
+        "description": {"type": "string"},
+        "primitive": {"enum": ["challenger", "grounding", "external_grounding", "hitl_gate", "re_grounding", "versioned_catalog", "provenance", "generative_ui", "mcp", "other"]},
+        "ecos_using": {"type": "array", "items": {"type": "string"}},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "domain-catalog": {
+      "type": "object",
+      "required": ["domain_id", "name", "provenance"],
+      "properties": {
+        "domain_id": {"type": "string"},
+        "name": {"type": "string"},
+        "entity_types": {"type": "array", "items": {"type": "string"}},
+        "record_counts": {"type": "object"},
+        "active_version": {"type": "string"},
+        "freshness": {"type": "string"},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "run-evidence": {
+      "type": "object",
+      "required": ["eco_id", "provenance"],
+      "properties": {
+        "eco_id": {"type": "string"},
+        "runs": {"type": "integer"},
+        "success_rate": {"type": "number"},
+        "avg_cost_usd": {"type": "number"},
+        "avg_duration_s": {"type": "number"},
+        "human_rating": {"type": "number"},
+        "notable_failures": {"type": "array", "items": {"type": "string"}},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "gap": {
+      "type": "object",
+      "required": ["gap_id", "kind", "summary", "provenance"],
+      "properties": {
+        "gap_id": {"type": "string"},
+        "kind": {"enum": ["unrealized-intent", "drift-sprawl", "design-drift", "capability-untruth", "coverage-gap"]},
+        "layers": {"type": "array", "items": {"type": "string"}},
+        "summary": {"type": "string"},
+        "evidence_refs": {"type": "array", "items": {"type": "string"}},
+        "severity": {"enum": ["low", "medium", "high"]},
+        "recommended_action": {"type": "string"},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "exemplar-output": {
+      "type": "object",
+      "description": "A REAL deliverable produced by an actual eco run. The excerpt is copied verbatim from the run artifact in the runs bucket — never synthesized. Lets the concierge/deck show genuine example outputs, cited to the run.",
+      "required": ["output_id", "eco_id", "run_id", "excerpt", "provenance"],
+      "properties": {
+        "output_id": {"type": "string"},
+        "eco_id": {"type": "string"},
+        "eco_name": {"type": "string"},
+        "run_id": {"type": "string", "description": "the run/session id (runs/<run_id>/...)"},
+        "title": {"type": "string"},
+        "deliverable_format": {"type": "string", "description": "html|md|pdf|txt|docx|zip"},
+        "save_as": {"type": "string"},
+        "producer_agent": {"type": "string"},
+        "excerpt": {"type": "string", "description": "VERBATIM text copied from the real artifact (HTML de-tagged to readable text). Never fabricated."},
+        "excerpt_chars": {"type": "integer"},
+        "size_bytes": {"type": "integer"},
+        "s3_ref": {"type": "string", "description": "s3://<runs-bucket>/runs/<run_id>/<producer>/<save_as>"},
+        "artifact_api_path": {"type": "string", "description": "GET /api/runs/<run_id>/artifacts/<producer>/<save_as>"},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    }
+  }
+}

@@ -1,0 +1,130 @@
+# Declarative, versioned ingest for the privacy-au domain.
+# Same shape + blue/green versioning as domains/au-financial-advice/catalog.yaml and
+# domains/cyber-security-risk/catalog.yaml: the generic ingest engine builds a fresh
+# GREEN version into /tessera/catalog/<version>/<type>/<key>, validates, then atomically
+# promotes (VER#/ACTIVE pointer). Reads resolve the active version. No per-domain code.
+#
+# ALL sources are LIVE authoritative OAIC / Federal Register pages. They are prose, so
+# every source uses the grounded agentic normalizer (mode: agent) — schema-driven +
+# cited. A specific entity's privacy-impact-assessment result, a breach assessment for
+# an incident, or a system's compliance score are CONCLUSIONS — never ingested here
+# (see domains/privacy-au.yaml `conclusions_never_cataloged`).
+#
+# NOTE ON SOURCES: OAIC publishes the APPs and APP guideline chapters at stable URLs
+# (verified). The Notifiable Data Breaches and privacy-determinations pages occasionally
+# move; if a fetch 404s, update the URL (mirrors how au-financial-advice notes AFCA's
+# WAF-block). Nothing here is invented — each URL is an OAIC/legislation.gov.au page.
+ingest:
+  sources:
+    # ── legal-instrument (authoritative governing Act + currency, via the Federal
+    #    Register of Legislation OData API — structured, not scraped) ─────────────
+    - name: legislation-privacy-act
+      produces: [legal-instrument]
+      fetch: {transport: http_json, url: "https://api.prod.legislation.gov.au/v1/titles?$filter=name%20eq%20'Privacy%20Act%201988'&$top=3", timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: legal-instrument
+        key: "{instrument_id}"
+        key_field: instrument_id
+        guidance: >-
+          The response is OData JSON with a `value` array. Emit one legal-instrument record per
+          Act in `value`: instrument_id = the `id` (e.g. C2004A03712), title = `name`,
+          collection = `collection`, in_force = `isInForce`, status = `status`, making_date =
+          `makingDate`, register_url = "https://www.legislation.gov.au/" + id + "/latest/text",
+          administered_by = OAIC.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [federal-register-of-legislation]}
+
+    # ── privacy-principle (the 13 Australian Privacy Principles) ────────────────
+    - name: oaic-app-principles
+      produces: [privacy-principle]
+      fetch: {transport: http_html, url: https://www.oaic.gov.au/privacy/australian-privacy-principles/read-the-australian-privacy-principles, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: privacy-principle
+        key: "app-{number}"
+        key_field: principle_key
+        guidance: >-
+          Emit exactly one record per Australian Privacy Principle (APP 1 through APP 13):
+          number (1-13), title (e.g. "Open and transparent management of personal information"),
+          summary (what the principle requires, verbatim-faithful), theme (kebab-case, e.g.
+          transparency, collection, use-and-disclosure, data-quality, security, access-and-correction),
+          applies_to (APP entities). Do NOT merge principles.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [oaic]}
+
+    # ── privacy-guidance (OAIC APP guideline chapters) ──────────────────────────
+    - name: oaic-app-guidelines
+      produces: [privacy-guidance]
+      fetch: {transport: http_html, url: https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines, timeout: 90}
+      normalize:
+        mode: agent
+        entity_type: privacy-guidance
+        key: "{guidance_id}"
+        key_field: guidance_id
+        guidance: >-
+          Emit one record per APP guideline chapter (e.g. chapter-a-introductory, chapter-1-app-1,
+          chapter-11-app-11-security): guidance_id (kebab-case), title, summary (key expectations
+          the chapter sets), related_principle (app-{n}), status (current unless the page says
+          updated/withdrawn). Note the Oct-2025 APP 1 amendments on automated decision-making where present.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [oaic]}
+
+    # ── privacy-obligation (statutory duties for APP entities) ──────────────────
+    - name: oaic-org-obligations
+      produces: [privacy-obligation]
+      fetch: {transport: http_html, url: https://www.oaic.gov.au/privacy/privacy-guidance-for-organisations-and-government-agencies, timeout: 90}
+      normalize:
+        mode: agent
+        entity_type: privacy-obligation
+        key: "{obligation_id}"
+        key_field: obligation_id
+        guidance: >-
+          Emit one record per concrete statutory obligation an APP entity must meet: obligation_id
+          (kebab-case, e.g. reasonable-steps-to-secure-pi, notify-eligible-data-breach,
+          overseas-disclosure-app8, direct-marketing-app7, access-and-correction-app12-13,
+          privacy-policy-app1, anonymity-and-pseudonymity-app2). title, description, governing_provision
+          (Privacy Act 1988 section / APP number), administered_by (OAIC), status.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [oaic, privacy-act]}
+
+    # ── privacy-obligation (Notifiable Data Breaches scheme) ────────────────────
+    # If this URL 404s, replace with the current OAIC NDB scheme landing page.
+    - name: oaic-ndb-scheme
+      produces: [privacy-obligation]
+      fetch: {transport: http_html, url: https://www.oaic.gov.au/privacy/notifiable-data-breaches, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: privacy-obligation
+        key: "{obligation_id}"
+        key_field: obligation_id
+        guidance: >-
+          Emit one record per NDB-scheme obligation: obligation_id (e.g. ndb-assess-suspected-breach,
+          ndb-notify-oaic, ndb-notify-affected-individuals, ndb-30-day-assessment). title, description
+          (the eligible-data-breach test + timeframe), governing_provision (Privacy Act Part IIIC),
+          administered_by (OAIC), status.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [oaic, privacy-act]}
+
+    # ── privacy-figure (thresholds, timeframes, penalties) ──────────────────────
+    - name: oaic-privacy-figures
+      produces: [privacy-figure]
+      fetch: {transport: http_html, url: https://www.oaic.gov.au/privacy/privacy-guidance-for-organisations-and-government-agencies, timeout: 60}
+      normalize:
+        mode: agent
+        entity_type: privacy-figure
+        key: "{measure}-{as_at}"
+        key_field: figure_key
+        guidance: >-
+          Emit one record per stated numeric threshold/timeframe/penalty: measure (kebab-case, e.g.
+          small-business-turnover-threshold, ndb-assessment-days, serious-interference-max-penalty),
+          as_at (ISO date of the page/version), value (verbatim incl. $/days/units), unit, source_release.
+          Only figures the page actually states.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [oaic, privacy-act]}
+
+  refresh:
+    schedule: "rate(30 days)"
+    sanity_drop: 0.5
+  # No synthesized types — the AU privacy catalog holds only ingested reference entities.
+  synthesis: none

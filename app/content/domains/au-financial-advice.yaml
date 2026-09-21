@@ -1,0 +1,245 @@
+domain: au-financial-advice
+name: Australian Financial Advice
+description: "Durable, cited AU wealth-advice reference knowledge reused across every adviser interaction\
+  \ \u2014 statutory figures (super caps, tax brackets, Age-Pension tests), advice-law obligations + ASIC\
+  \ guidance, reusable strategy patterns, product-category characteristics, advice-document rules, complaint/enforcement\
+  \ precedents, and market indicators. Client fact-finds and portfolios are RUN INPUTS; a client's Statement\
+  \ of Advice / new advice record and any client assessment are CONCLUSIONS \u2014 never cataloged. Ingest\
+  \ is declarative + blue/green-versioned (domains/au-financial-advice/catalog.yaml)."
+version: 2
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: regulatory-figure
+  key: '{measure}-{fy}'
+  description: "A dated statutory figure \u2014 super cap/threshold, SG rate, TBC, preservation age, income-tax\
+    \ bracket, Div 293 threshold, Age-Pension test threshold/taper \u2014 by financial year."
+  status: active
+- type: advice-obligation
+  key: '{obligation_id}'
+  description: "A statutory or Code obligation \u2014 Best Interests Duty (s961B), appropriate advice\
+    \ (s961G), priority of client's interest (s961J), Code of Ethics standard, conflicted-remuneration\
+    \ ban, ongoing-fee consent, DDO \u2014 with DBFO reform status."
+  status: active
+- type: regulatory-guidance
+  key: '{rg_id}'
+  description: "An ASIC Regulatory Guide relevant to advice (RG 175/90/244/246/274\u2026) with current/updated/withdrawn\
+    \ status."
+  status: active
+- type: advice-strategy
+  key: '{strategy_id}'
+  description: "A reusable advice strategy pattern (salary sacrifice, TTR, downsizer, contribution splitting,\
+    \ debt recycling\u2026) \u2014 how it works + when appropriate; NOT a client recommendation."
+  status: active
+- type: product-type
+  key: '{product_type_id}'
+  description: "A financial product category and its characteristics/typical use (super, managed fund,\
+    \ ETF, annuity, insurance types, SMSF, investment bond\u2026) \u2014 not a specific product."
+  status: active
+- type: disclosure-document
+  key: '{doc_type_id}'
+  description: "An advice document type + mandatory content + governing provision + DBFO status (FSG,\
+    \ SoA \u2192 new client advice record, RoA, PDS, TMD, fee consent, opt-in)."
+  status: active
+- type: determination-precedent
+  key: '{determination_id}'
+  description: "A published AFCA determination or ASIC/FSCP enforcement outcome \u2014 durable 'what non-compliant\
+    \ advice looks like' lesson."
+  status: active
+- type: market-indicator
+  key: '{indicator}-{as_at}'
+  description: A dated market/economic indicator used in advice context (RBA cash rate, ABS CPI).
+  status: active
+- type: planning-assumption
+  key: '{assumption}-{as_at}'
+  description: A dated projection assumption (long-term return, inflation, wage growth, fees) used for
+    retirement/investment projections.
+  status: active
+conclusions_never_cataloged:
+- a client's Statement of Advice / new client advice record / Record of Advice
+- a client portfolio assessment or valuation
+- a next-best-action list for a specific client
+- a client's chosen strategy or product recommendation
+- a client fee quote or risk-profile score
+- meeting-brief content for a specific client
+seeded_from: &id001
+- enhanced-iress-adviser
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: "declarative ingest domain (spec-declarative-ingest.md) \u2014 3 types (regulatory-figure, advice-standard,\
+    \ market-indicator), inline flat ingest"
+- version: 2
+  action: completed
+  detail: 'Completed for the enhanced-IRESS-adviser ecosystem. Taxonomy expanded 3 -> 9 types (added regulatory-guidance,
+    advice-strategy, product-type, disclosure-document, determination-precedent, planning-assumption;
+    renamed advice-standard -> advice-obligation). Ingest moved to a subdir declarative descriptor (domains/au-financial-advice/catalog.yaml)
+    so the domain uses the SAME blue/green versioned engine as cyber-security-risk (build_version -> validate_version
+    -> promote_version; VER#/ACTIVE). All sources LIVE (no static builders): ABS API (sdmx) for CPI, RBA
+    for cash rate, agentic normalizer for ATO/ASIC/MoneySmart/AFCA/legislation. DBFO-aware (obligation/guidance/document
+    status).'
+catalog:
+  view:
+    default:
+      title:
+      - title
+      - name
+      - measure
+      - indicator
+      - assumption
+      - body
+      subtitle:
+      - obligation_id
+      - rg_id
+      - strategy_id
+      - product_type_id
+      - doc_type_id
+      - figure_key
+      - indicator_key
+      - assumption_key
+      - determination_id
+      summary:
+      - description
+      - summary
+      - purpose
+      - issue
+      - when_appropriate
+      - lesson
+    advice-obligation:
+      title: title
+      subtitle: obligation_id
+      summary: description
+      badge:
+        field: status
+        scale:
+          IN_FORCE: green
+          PROPOSED: amber
+          REPEALED: muted
+    regulatory-guidance:
+      title: title
+      subtitle: rg_id
+      summary: summary
+    advice-strategy:
+      title: name
+      subtitle: strategy_id
+      summary: description
+    product-type:
+      title: name
+      subtitle: product_type_id
+      summary: description
+    disclosure-document:
+      title: name
+      subtitle: doc_type_id
+      summary: purpose
+    determination-precedent:
+      title: body
+      subtitle: determination_id
+      summary: issue
+    regulatory-figure:
+      title: measure
+      subtitle: fy
+      summary: value
+    market-indicator:
+      title: indicator
+      subtitle: as_at
+      summary: value
+    planning-assumption:
+      title: assumption
+      subtitle: as_at
+      summary: value
+  ingestion:
+    schedule: rate(30 days)
+    sources:
+    - id: ato-super-rates
+      mode: agent
+      produces:
+      - regulatory-figure
+      authoritative_url: https://www.ato.gov.au/tax-rates-and-codes/key-superannuation-rates-and-thresholds
+      status: active
+    - id: ato-income-tax-rates
+      mode: agent
+      produces:
+      - regulatory-figure
+      authoritative_url: https://www.ato.gov.au/tax-rates-and-codes/tax-rates-australian-residents
+      status: active
+    - id: services-australia-age-pension
+      mode: agent
+      produces:
+      - regulatory-figure
+      authoritative_url: https://www.servicesaustralia.gov.au/how-much-age-pension-you-can-get
+      status: active
+    - id: asic-code-of-ethics
+      mode: agent
+      produces:
+      - advice-obligation
+      authoritative_url: https://asic.gov.au/for-finance-professionals/afs-licensees/professional-standards-for-financial-advisers/code-of-ethics-and-compliance-scheme/
+      status: active
+    - id: asic-advice-obligations
+      mode: agent
+      produces:
+      - advice-obligation
+      authoritative_url: https://www.asic.gov.au/regulatory-resources/financial-services/giving-financial-product-advice/
+      status: active
+    - id: asic-dbfo
+      mode: agent
+      produces:
+      - advice-obligation
+      authoritative_url: https://www.asic.gov.au/regulatory-resources/financial-services/regulatory-reforms/delivering-better-financial-outcomes-dbfo-package/
+      status: active
+    - id: asic-regulatory-guides
+      mode: agent
+      produces:
+      - regulatory-guidance
+      authoritative_url: https://asic.gov.au/regulatory-resources/find-a-document/regulatory-guides/
+      status: active
+    - id: ato-super-strategies
+      mode: agent
+      produces:
+      - advice-strategy
+      authoritative_url: https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/super/growing-and-keeping-track-of-your-super
+      status: active
+    - id: moneysmart-strategies
+      mode: agent
+      produces:
+      - advice-strategy
+      authoritative_url: https://moneysmart.gov.au/grow-your-super
+      status: active
+    - id: moneysmart-products
+      mode: agent
+      produces:
+      - product-type
+      authoritative_url: https://moneysmart.gov.au/how-to-invest
+      status: active
+    - id: asic-disclosure-documents
+      mode: agent
+      produces:
+      - disclosure-document
+      authoritative_url: https://www.asic.gov.au/regulatory-resources/financial-services/giving-financial-product-advice/
+      status: active
+    - id: asic-enforcement
+      mode: agent
+      produces:
+      - determination-precedent
+      authoritative_url: https://asic.gov.au/about-asic/news-centre/find-a-media-release/
+      status: active
+    - id: abs-cpi
+      mode: fetch
+      produces:
+      - market-indicator
+      authoritative_url: https://data.api.abs.gov.au/rest/data/ABS,CPI,2.0.0/all?lastNObservations=1&dimensionAtObservation=AllDimensions
+      status: active
+    - id: rba-cash-rate
+      mode: agent
+      produces:
+      - market-indicator
+      authoritative_url: https://www.rba.gov.au/statistics/cash-rate/
+      status: active
+    - id: moneysmart-assumptions
+      mode: agent
+      produces:
+      - planning-assumption
+      authoritative_url: https://moneysmart.gov.au/retirement-income/retirement-planner
+      status: active

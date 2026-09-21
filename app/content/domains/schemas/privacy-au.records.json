@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tessera.dev/schemas/privacy-au.records.json",
+  "title": "privacy-au domain — catalog record contract",
+  "description": "Entity-keyed reference records the AU privacy catalog holds. Populated by the declarative, blue/green-versioned ingest (domains/privacy-au/catalog.yaml) from authoritative live OAIC / Federal Register sources via the grounded agentic normalizer. A specific entity's privacy-impact-assessment result, a breach assessment for an incident, or a system's privacy-compliance score are CONCLUSIONS — NEVER cataloged.",
+  "x-tessera-domain": "privacy-au",
+  "x-tessera-keys": {
+    "privacy-principle": "app-{number}",
+    "privacy-obligation": "{obligation_id}",
+    "privacy-guidance": "{guidance_id}",
+    "breach-precedent": "{determination_id}",
+    "privacy-figure": "{measure}-{as_at}",
+    "legal-instrument": "{instrument_id}"
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "ingested_by": { "type": "string" },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "refresh_date": { "type": "string", "format": "date" },
+        "supersedes": { "type": "string" }
+      },
+      "required": ["ingested_by", "refresh_date"]
+    },
+    "legal-instrument": {
+      "type": "object",
+      "description": "An authoritative governing legal instrument from the Federal Register of Legislation (legislation.gov.au) — the Act itself, its register id, and its current in-force status. Anchors the catalog's obligations to the source-of-truth law and its currency.",
+      "properties": {
+        "instrument_id": { "type": "string", "description": "Federal Register id", "examples": ["C2004A03712"] },
+        "title": { "type": "string", "examples": ["Privacy Act 1988"] },
+        "collection": { "type": "string", "examples": ["Act"] },
+        "in_force": { "type": "boolean" },
+        "status": { "type": "string", "examples": ["InForce", "Repealed"] },
+        "making_date": { "type": "string" },
+        "register_url": { "type": "string", "format": "uri", "description": "https://www.legislation.gov.au/<id>/latest/text" },
+        "administered_by": { "type": "string", "examples": ["OAIC"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["instrument_id", "title", "provenance"]
+    },
+    "privacy-principle": {
+      "type": "object",
+      "description": "One of the 13 Australian Privacy Principles (APP 1–13) under the Privacy Act 1988.",
+      "properties": {
+        "principle_key": { "type": "string", "description": "app-{number}" },
+        "number": { "type": "integer", "minimum": 1, "maximum": 13 },
+        "title": { "type": "string", "examples": ["Open and transparent management of personal information", "Security of personal information"] },
+        "summary": { "type": "string", "description": "what the principle requires" },
+        "theme": { "type": "string", "examples": ["transparency", "collection", "use-and-disclosure", "data-quality", "security", "access-and-correction"] },
+        "applies_to": { "type": "string", "examples": ["APP entities"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["principle_key", "number", "title", "summary", "provenance"]
+    },
+    "privacy-obligation": {
+      "type": "object",
+      "description": "A concrete statutory duty binding an APP entity — securing personal information (APP 11), notifying an eligible data breach (NDB scheme, Privacy Act Part IIIC), overseas disclosure (APP 8), direct marketing (APP 7), access & correction (APP 12/13), maintaining a privacy policy (APP 1).",
+      "properties": {
+        "obligation_id": { "type": "string", "examples": ["reasonable-steps-to-secure-pi", "notify-eligible-data-breach", "overseas-disclosure-app8", "direct-marketing-app7", "access-and-correction-app12-13", "privacy-policy-app1", "ndb-30-day-assessment"] },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "governing_provision": { "type": "string", "examples": ["Privacy Act 1988 (Cth) APP 11", "Privacy Act 1988 (Cth) Part IIIC"] },
+        "administered_by": { "type": "string", "examples": ["OAIC"] },
+        "status": { "type": "string", "examples": ["current", "amended", "proposed"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["obligation_id", "title", "provenance"]
+    },
+    "privacy-guidance": {
+      "type": "object",
+      "description": "An OAIC APP guideline chapter (or other OAIC guidance) with its key expectations and the principle it elaborates.",
+      "properties": {
+        "guidance_id": { "type": "string", "examples": ["chapter-a-introductory", "chapter-1-app-1", "chapter-11-app-11-security"] },
+        "title": { "type": "string" },
+        "summary": { "type": "string" },
+        "related_principle": { "type": "string", "description": "app-{n}" },
+        "status": { "type": "string", "examples": ["current", "updated", "withdrawn"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["guidance_id", "title", "provenance"]
+    },
+    "breach-precedent": {
+      "type": "object",
+      "description": "A published OAIC privacy determination or Notifiable-Data-Breaches insight — a durable 'what a privacy failure looks like' lesson. No complainant personal details.",
+      "properties": {
+        "determination_id": { "type": "string", "examples": ["oaic-determination-2025-12", "ndb-insight-jul-dec-2025"] },
+        "body": { "type": "string", "enum": ["OAIC"] },
+        "date": { "type": "string" },
+        "issue": { "type": "string", "description": "what went wrong (e.g. failure to take reasonable steps under APP 11)" },
+        "outcome": { "type": "string" },
+        "lesson": { "type": "string" },
+        "related_principle": { "type": "string", "description": "app-{n}" },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["determination_id", "body", "provenance"]
+    },
+    "privacy-figure": {
+      "type": "object",
+      "description": "A dated privacy threshold, timeframe, or penalty (e.g. small-business turnover threshold, NDB assessment window, maximum penalty for serious/repeated interference).",
+      "properties": {
+        "figure_key": { "type": "string", "description": "{measure}-{as_at}" },
+        "measure": { "type": "string", "examples": ["small-business-turnover-threshold", "ndb-assessment-days", "serious-interference-max-penalty"] },
+        "as_at": { "type": "string", "format": "date" },
+        "value": { "type": "string", "description": "verbatim value incl. unit", "examples": ["$3 million", "30 days"] },
+        "unit": { "type": "string", "examples": ["AUD", "days"] },
+        "source_release": { "type": "string" },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["figure_key", "measure", "as_at", "value", "provenance"]
+    }
+  }
+}

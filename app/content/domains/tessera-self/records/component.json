@@ -1,0 +1,4672 @@
+[
+  {
+    "component_id": "cdk-app-py",
+    "name": "cdk/app.py",
+    "path": "cdk/app.py",
+    "responsibility": "Tessera CDK App \u2014 all infrastructure in one place.",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "cdk"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "cdk/app.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "cdk-stacks-init-py",
+    "name": "cdk/stacks/__init__.py",
+    "path": "cdk/stacks/__init__.py",
+    "responsibility": "cdk source file",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "cdk"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "cdk/stacks/__init__.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "cdk-stacks-ingest-construct-py",
+    "name": "cdk/stacks/ingest_construct.py",
+    "path": "cdk/stacks/ingest_construct.py",
+    "responsibility": "Generic, reusable catalog-ingest construct \u2014 one instance per domain. Every domain runs the SAME declarative Lambda (lambdas/catalog-ingest-generic), driven by its descriptor in S3 (TESSERA_DOMAINS_BUCKET). Adding ingestion for a new domain is `DomainIngest(self, \"AdviceIngest\", ",
+    "key_symbols": [
+      "DomainIngest"
+    ],
+    "depends_on": [],
+    "produces": [
+      "cdk"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "cdk/stacks/ingest_construct.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "cdk-stacks-ingest-stack-py",
+    "name": "cdk/stacks/ingest_stack.py",
+    "path": "cdk/stacks/ingest_stack.py",
+    "responsibility": "Tessera ingestion stack \u2014 the catalog-ingest platform Lambda + schedule. Separate from the main platform stack because that stack is at CloudFormation's 500-resource limit, and because ingestion is independent infrastructure (spec docs/spec-risk-reasoning.md \u00a73a). Reads the domai",
+    "key_symbols": [
+      "TesseraIngestStack"
+    ],
+    "depends_on": [],
+    "produces": [
+      "cdk"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "cdk/stacks/ingest_stack.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "cdk-stacks-platform-stack-py",
+    "name": "cdk/stacks/platform_stack.py",
+    "path": "cdk/stacks/platform_stack.py",
+    "responsibility": "Tessera Platform Stack \u2014 all infrastructure. Services used: Amazon S3, AWS Lambda, Amazon DynamoDB, Amazon CloudFront, Amazon Cognito, AWS Step Functions, Amazon API Gateway, Amazon Bedrock, Amazon Bedrock AgentCore, AWS Key Management Service (AWS KMS), Amazon API Gateway execut",
+    "key_symbols": [
+      "TesseraPlatformStack"
+    ],
+    "depends_on": [],
+    "produces": [
+      "cdk"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "cdk/stacks/platform_stack.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-amplify-config-ts",
+    "name": "frontend/src/amplify-config.ts",
+    "path": "frontend/src/amplify-config.ts",
+    "responsibility": "Cognito authentication configuration for Amplify",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/amplify-config.ts",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-app-catalog-page-tsx",
+    "name": "frontend/src/app/catalog/page.tsx",
+    "path": "frontend/src/app/catalog/page.tsx",
+    "responsibility": "Deep-link entry: /catalog.html?domain=<id> renders the catalog browser for that domain.",
+    "key_symbols": [
+      "CatalogPage"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/app/catalog/page.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-app-layout-tsx",
+    "name": "frontend/src/app/layout.tsx",
+    "path": "frontend/src/app/layout.tsx",
+    "responsibility": "export const metadata: Metadata = {",
+    "key_symbols": [
+      "metadata",
+      "RootLayout"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/app/layout.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-app-page-tsx",
+    "name": "frontend/src/app/page.tsx",
+    "path": "frontend/src/app/page.tsx",
+    "responsibility": "Services: Amazon Bedrock, AWS Lambda, Amazon Cognito, Amazon S3, AWS Step Functions, Amazon GuardDuty",
+    "key_symbols": [
+      "SuperApp"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/app/page.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-a2ui-renderer-tsx",
+    "name": "frontend/src/components/a2ui-renderer.tsx",
+    "path": "frontend/src/components/a2ui-renderer.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "A2UIRenderer",
+      "ToolChip"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/a2ui-renderer.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-a2ui-surface-tsx",
+    "name": "frontend/src/components/a2ui-surface.tsx",
+    "path": "frontend/src/components/a2ui-surface.tsx",
+    "responsibility": "frontend source file",
+    "key_symbols": [
+      "A2UISurfaceRenderer"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/a2ui-surface.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-a2ui-card-tsx",
+    "name": "frontend/src/components/a2ui/card.tsx",
+    "path": "frontend/src/components/a2ui/card.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "A2UICard"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/a2ui/card.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-a2ui-chart-tsx",
+    "name": "frontend/src/components/a2ui/chart.tsx",
+    "path": "frontend/src/components/a2ui/chart.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "A2UIChart"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/a2ui/chart.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-a2ui-form-tsx",
+    "name": "frontend/src/components/a2ui/form.tsx",
+    "path": "frontend/src/components/a2ui/form.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "A2UIForm"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/a2ui/form.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-a2ui-progress-tsx",
+    "name": "frontend/src/components/a2ui/progress.tsx",
+    "path": "frontend/src/components/a2ui/progress.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "A2UIProgress"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/a2ui/progress.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-a2ui-table-tsx",
+    "name": "frontend/src/components/a2ui/table.tsx",
+    "path": "frontend/src/components/a2ui/table.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "A2UITable"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/a2ui/table.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-artifact-viewer-tsx",
+    "name": "frontend/src/components/artifact-viewer.tsx",
+    "path": "frontend/src/components/artifact-viewer.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "ArtifactReq",
+      "ArtifactViewer"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/artifact-viewer.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-auth-provider-tsx",
+    "name": "frontend/src/components/auth-provider.tsx",
+    "path": "frontend/src/components/auth-provider.tsx",
+    "responsibility": "Authentication via Cognito user pools",
+    "key_symbols": [
+      "TesseraUser",
+      "useAuth",
+      "AuthProvider"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/auth-provider.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-browser-login-modal-tsx",
+    "name": "frontend/src/components/browser-login-modal.tsx",
+    "path": "frontend/src/components/browser-login-modal.tsx",
+    "responsibility": "Interactive sign-in modal for the authenticated-browser (browser_login) gate.",
+    "key_symbols": [
+      "BrowserLoginModal"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/browser-login-modal.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-builder-graph-tsx",
+    "name": "frontend/src/components/builder-graph.tsx",
+    "path": "frontend/src/components/builder-graph.tsx",
+    "responsibility": "Defensive normalisation: depends_on must be an array. The suggest LLM occasionally",
+    "key_symbols": [
+      "BuilderGraph"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/builder-graph.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-catalog-browser-tsx",
+    "name": "frontend/src/components/catalog-browser.tsx",
+    "path": "frontend/src/components/catalog-browser.tsx",
+    "responsibility": "Generic Catalog Browser component \u2014 renders ONE domain's catalog (domainId prop) from",
+    "key_symbols": [
+      "CatalogBrowser"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/catalog-browser.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-concierge-chat-tsx",
+    "name": "frontend/src/components/concierge-chat.tsx",
+    "path": "frontend/src/components/concierge-chat.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "ConciergeAction",
+      "ConciergeChat"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/concierge-chat.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-dag-map-tsx",
+    "name": "frontend/src/components/dag-map.tsx",
+    "path": "frontend/src/components/dag-map.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "DagMap"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/dag-map.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-decision-modal-tsx",
+    "name": "frontend/src/components/decision-modal.tsx",
+    "path": "frontend/src/components/decision-modal.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "DecisionModal"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/decision-modal.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-decision-surface-tsx",
+    "name": "frontend/src/components/decision-surface.tsx",
+    "path": "frontend/src/components/decision-surface.tsx",
+    "responsibility": "frontend source file",
+    "key_symbols": [
+      "DecisionSurface"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/decision-surface.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-deploy-wizard-tsx",
+    "name": "frontend/src/components/deploy-wizard.tsx",
+    "path": "frontend/src/components/deploy-wizard.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "DeployWizard"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/deploy-wizard.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-ecosystem-input-form-tsx",
+    "name": "frontend/src/components/ecosystem-input-form.tsx",
+    "path": "frontend/src/components/ecosystem-input-form.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "EcosystemInputForm"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/ecosystem-input-form.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-event-stream-tsx",
+    "name": "frontend/src/components/event-stream.tsx",
+    "path": "frontend/src/components/event-stream.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "EventStream"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/event-stream.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-gate-decision-dialog-tsx",
+    "name": "frontend/src/components/gate-decision-dialog.tsx",
+    "path": "frontend/src/components/gate-decision-dialog.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "GateDecisionDialog"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/gate-decision-dialog.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-groups-panel-tsx",
+    "name": "frontend/src/components/groups-panel.tsx",
+    "path": "frontend/src/components/groups-panel.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "GroupsPanel"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/groups-panel.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-optimizer-apply-panel-tsx",
+    "name": "frontend/src/components/optimizer-apply-panel.tsx",
+    "path": "frontend/src/components/optimizer-apply-panel.tsx",
+    "responsibility": "frontend source file",
+    "key_symbols": [
+      "OptimizerApplyPanel"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/optimizer-apply-panel.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-outcome-panel-tsx",
+    "name": "frontend/src/components/outcome-panel.tsx",
+    "path": "frontend/src/components/outcome-panel.tsx",
+    "responsibility": "AWS Amplify authentication",
+    "key_symbols": [
+      "DeclaredArtifact",
+      "Outcome",
+      "OutcomePanel"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/outcome-panel.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-past-runs-modal-tsx",
+    "name": "frontend/src/components/past-runs-modal.tsx",
+    "path": "frontend/src/components/past-runs-modal.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "PastRunsModal"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/past-runs-modal.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-pipeline-graph-tsx",
+    "name": "frontend/src/components/pipeline-graph.tsx",
+    "path": "frontend/src/components/pipeline-graph.tsx",
+    "responsibility": "A pipeline node. `kind` drives the detail drawer; `meta` carries descriptor data.",
+    "key_symbols": [
+      "PNode",
+      "PEdge",
+      "PipelineGraph"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/pipeline-graph.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-presentation-player-tsx",
+    "name": "frontend/src/components/presentation-player.tsx",
+    "path": "frontend/src/components/presentation-player.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "Stat",
+      "Beat",
+      "Plan",
+      "Highlight",
+      "PresentationOverlay",
+      "PresentationPlayer"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/presentation-player.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-resume-dialog-tsx",
+    "name": "frontend/src/components/resume-dialog.tsx",
+    "path": "frontend/src/components/resume-dialog.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "ResumeAgent",
+      "ResumeDialog"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/resume-dialog.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-risk-banner-tsx",
+    "name": "frontend/src/components/risk-banner.tsx",
+    "path": "frontend/src/components/risk-banner.tsx",
+    "responsibility": "Per-category accent. Category -> archetype color for the animated hero banner (WS-7).",
+    "key_symbols": [
+      "RiskBanner",
+      "categoryColor"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/risk-banner.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-run-chat-tsx",
+    "name": "frontend/src/components/run-chat.tsx",
+    "path": "frontend/src/components/run-chat.tsx",
+    "responsibility": "One conversation turn. assistant turns carry which agent answered + an",
+    "key_symbols": [
+      "RunChat"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/run-chat.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-run-tab-content-tsx",
+    "name": "frontend/src/components/run-tab-content.tsx",
+    "path": "frontend/src/components/run-tab-content.tsx",
+    "responsibility": "frontend source file",
+    "key_symbols": [
+      "RunTabContent"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/run-tab-content.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-run-tuning-panel-tsx",
+    "name": "frontend/src/components/run-tuning-panel.tsx",
+    "path": "frontend/src/components/run-tuning-panel.tsx",
+    "responsibility": "Run Telemetry widget (spec-run-tuning \u00a75/\u00a76.3) \u2014 a floating, dockable panel",
+    "key_symbols": [
+      "RunTuningPanel"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/run-tuning-panel.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-shared-state-panel-tsx",
+    "name": "frontend/src/components/shared-state-panel.tsx",
+    "path": "frontend/src/components/shared-state-panel.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "SharedStatePanel"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/shared-state-panel.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-sharing-dialog-tsx",
+    "name": "frontend/src/components/sharing-dialog.tsx",
+    "path": "frontend/src/components/sharing-dialog.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "SharingDialog",
+      "AccessSummary"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/sharing-dialog.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-tab-bar-tsx",
+    "name": "frontend/src/components/tab-bar.tsx",
+    "path": "frontend/src/components/tab-bar.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "TabBar"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/tab-bar.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-tessera-logo-tsx",
+    "name": "frontend/src/components/tessera-logo.tsx",
+    "path": "frontend/src/components/tessera-logo.tsx",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "TesseraLogo"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/tessera-logo.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-tessera-spinner-tsx",
+    "name": "frontend/src/components/tessera-spinner.tsx",
+    "path": "frontend/src/components/tessera-spinner.tsx",
+    "responsibility": "frontend source file",
+    "key_symbols": [
+      "TesseraSpinner"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/tessera-spinner.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-components-workflow-visualizer-tsx",
+    "name": "frontend/src/components/workflow-visualizer.tsx",
+    "path": "frontend/src/components/workflow-visualizer.tsx",
+    "responsibility": "Derive agents and their deps from config",
+    "key_symbols": [
+      "WorkflowVisualizer"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/components/workflow-visualizer.tsx",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-hooks-use-ag-ui-ts",
+    "name": "frontend/src/hooks/use-ag-ui.ts",
+    "path": "frontend/src/hooks/use-ag-ui.ts",
+    "responsibility": "frontend source file",
+    "key_symbols": [
+      "RunStatus",
+      "ConnectionState",
+      "useAGUI"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/hooks/use-ag-ui.ts",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-hooks-use-auto-scroll-ts",
+    "name": "frontend/src/hooks/use-auto-scroll.ts",
+    "path": "frontend/src/hooks/use-auto-scroll.ts",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "useAutoScroll"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/hooks/use-auto-scroll.ts",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-hooks-use-client-ws-ts",
+    "name": "frontend/src/hooks/use-client-ws.ts",
+    "path": "frontend/src/hooks/use-client-ws.ts",
+    "responsibility": "frontend source file",
+    "key_symbols": [
+      "useClientWebSocket"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/hooks/use-client-ws.ts",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-hooks-use-run-instance-ts",
+    "name": "frontend/src/hooks/use-run-instance.ts",
+    "path": "frontend/src/hooks/use-run-instance.ts",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "RunStatus",
+      "useRunInstance"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/hooks/use-run-instance.ts",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-hooks-use-run-tabs-ts",
+    "name": "frontend/src/hooks/use-run-tabs.ts",
+    "path": "frontend/src/hooks/use-run-tabs.ts",
+    "responsibility": "\"use client\";",
+    "key_symbols": [
+      "TabStatus",
+      "RunTab",
+      "useRunTabs"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/hooks/use-run-tabs.ts",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-hooks-use-websocket-ts",
+    "name": "frontend/src/hooks/use-websocket.ts",
+    "path": "frontend/src/hooks/use-websocket.ts",
+    "responsibility": "frontend source file",
+    "key_symbols": [
+      "useWebSocket"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/hooks/use-websocket.ts",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-lib-a2ui-protocol-ts",
+    "name": "frontend/src/lib/a2ui-protocol.ts",
+    "path": "frontend/src/lib/a2ui-protocol.ts",
+    "responsibility": "frontend source file",
+    "key_symbols": [
+      "DynamicValue",
+      "FunctionCall",
+      "A2UIComponent",
+      "A2UISurface",
+      "ChildList",
+      "resolvePath",
+      "resolveDynamic",
+      "toDisplayString",
+      "runFunction",
+      "formatString"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/lib/a2ui-protocol.ts",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-lib-ag-ui-types-ts",
+    "name": "frontend/src/lib/ag-ui-types.ts",
+    "path": "frontend/src/lib/ag-ui-types.ts",
+    "responsibility": "frontend source file",
+    "key_symbols": [
+      "AGUIEventType",
+      "AGUIEvent",
+      "RunStartedEvent",
+      "TextMessageStartEvent",
+      "TextMessageContentEvent",
+      "TextMessageEndEvent",
+      "ToolCallStartEvent",
+      "ToolCallArgsEvent",
+      "ToolCallEndEvent",
+      "ToolCallResultEvent",
+      "StateDeltaOperation",
+      "StateDeltaEvent"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/lib/ag-ui-types.ts",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-lib-auth-ts",
+    "name": "frontend/src/lib/auth.ts",
+    "path": "frontend/src/lib/auth.ts",
+    "responsibility": "frontend source file",
+    "key_symbols": [
+      "AuthUser",
+      "getAuthUser",
+      "getIdToken",
+      "refreshToken"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/lib/auth.ts",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-lib-decision-ts",
+    "name": "frontend/src/lib/decision.ts",
+    "path": "frontend/src/lib/decision.ts",
+    "responsibility": "The unifying primitive for every human decision point in Tessera.",
+    "key_symbols": [
+      "DecisionKind",
+      "CommitKind",
+      "DecisionAssumption",
+      "DecisionOption",
+      "DecisionField",
+      "DecisionPoint",
+      "DecisionResolution",
+      "isIrreversible"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/lib/decision.ts",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "frontend-src-lib-platform-agents-ts",
+    "name": "frontend/src/lib/platform-agents.ts",
+    "path": "frontend/src/lib/platform-agents.ts",
+    "responsibility": "Platform-agent display helper.",
+    "key_symbols": [
+      "DisplayAgent",
+      "expandWithPlatformAgents"
+    ],
+    "depends_on": [],
+    "produces": [
+      "frontend"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "frontend/src/lib/platform-agents.ts",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-auth-py",
+    "name": "lambdas/.shared_layer/python/auth.py",
+    "path": "lambdas/.shared_layer/python/auth.py",
+    "responsibility": "Shared auth module \u2014 extract Amazon Cognito claims from Amazon API Gateway authorizer context. The Amazon Cognito Authorizer on Amazon API Gateway validates the JWT signature and expiry. By the time the Lambda runs, the token is guaranteed valid. We just read the claims.",
+    "key_symbols": [
+      "get_user_from_event",
+      "is_admin",
+      "require_auth",
+      "auth_error_response"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/auth.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-pricing-py",
+    "name": "lambdas/.shared_layer/python/pricing.py",
+    "path": "lambdas/.shared_layer/python/pricing.py",
+    "responsibility": "Shared model price table + cost estimation (spec-run-tuning \u00a75.1). INTERNAL COST ESTIMATE ONLY \u2014 not authoritative billing. For real charges consult the AWS Billing console / Bedrock pricing. Prices are list prices per 1,000 tokens and are easy to edit as models/pricing change. U",
+    "key_symbols": [
+      "price_for",
+      "estimate_cost",
+      "is_priced"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/pricing.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-tessera-platform-init-py",
+    "name": "lambdas/.shared_layer/python/tessera_platform/__init__.py",
+    "path": "lambdas/.shared_layer/python/tessera_platform/__init__.py",
+    "responsibility": "lambdas source file",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/tessera_platform/__init__.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-tessera-platform-catalog-init-py",
+    "name": "lambdas/.shared_layer/python/tessera_platform/catalog/__init__.py",
+    "path": "lambdas/.shared_layer/python/tessera_platform/catalog/__init__.py",
+    "responsibility": "tessera_platform.catalog \u2014 the shared, domain-agnostic catalog ingestion runtime. A new domain's ingest is DECLARATIVE (a descriptor + a records schema); this package executes it. See docs/spec-declarative-ingest.md. engine.CatalogStore \u2014 non-destructive incremental upsert into A",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/tessera_platform/catalog/__init__.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-tessera-platform-catalog-adapter-py",
+    "name": "lambdas/.shared_layer/python/tessera_platform/catalog/adapter.py",
+    "path": "lambdas/.shared_layer/python/tessera_platform/catalog/adapter.py",
+    "responsibility": "tessera_platform.catalog.adapter \u2014 the SourceAdapter contract. One declarative source = fetch (via connectors) + normalize (map | builder | agent). This is the single seam every domain source conforms to; the engine and orchestrator never change per domain. adapter = SourceAdapte",
+    "key_symbols": [
+      "SourceAdapter"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/tessera_platform/catalog/adapter.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-tessera-platform-catalog-blob-py",
+    "name": "lambdas/.shared_layer/python/tessera_platform/catalog/blob.py",
+    "path": "lambdas/.shared_layer/python/tessera_platform/catalog/blob.py",
+    "responsibility": "tessera_platform.catalog.blob \u2014 S3 overflow for oversized catalog records. AgentCore Memory rejects any record whose content.text exceeds 16,000 chars (BatchCreateMemoryRecords ValidationException). Rich, growing dossiers (e.g. enriched `risk` records) exceed that. Rather than TR",
+    "key_symbols": [
+      "_bucket",
+      "_s3",
+      "blob_key",
+      "_lean",
+      "pack",
+      "resolve",
+      "delete_ref"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/tessera_platform/catalog/blob.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-tessera-platform-catalog-connectors-py",
+    "name": "lambdas/.shared_layer/python/tessera_platform/catalog/connectors.py",
+    "path": "lambdas/.shared_layer/python/tessera_platform/catalog/connectors.py",
+    "responsibility": "tessera_platform.catalog.connectors \u2014 declarative fetchers per transport. A source's `fetch:` block is executed here \u2014 no per-domain code. Each transport splits into a PURE parser (unit-tested with in-memory bytes) and a thin network fetch, so the parsing logic is verifiable offl",
+    "key_symbols": [
+      "parse_json",
+      "parse_csv",
+      "parse_yaml",
+      "_render_tables_md",
+      "_strip_html",
+      "parse_html",
+      "_resolve_api_key",
+      "_apply_auth",
+      "_http_get",
+      "_t_http_json",
+      "_t_http_csv",
+      "_t_http_yaml"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/tessera_platform/catalog/connectors.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-tessera-platform-catalog-descriptor-py",
+    "name": "lambdas/.shared_layer/python/tessera_platform/catalog/descriptor.py",
+    "path": "lambdas/.shared_layer/python/tessera_platform/catalog/descriptor.py",
+    "responsibility": "tessera_platform.catalog.descriptor \u2014 load + validate a domain's declarative ingest. A domain's ingest lives in its descriptor's `ingest:` block (domains/<id>.yaml) or a sibling domains/<id>/catalog.yaml. This turns the declaration into validated SourceAdapters + refresh/synthesi",
+    "key_symbols": [
+      "Descriptor",
+      "_domains_dir",
+      "load_schema",
+      "load",
+      "_load_s3",
+      "from_dict"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/tessera_platform/catalog/descriptor.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-tessera-platform-catalog-engine-py",
+    "name": "lambdas/.shared_layer/python/tessera_platform/catalog/engine.py",
+    "path": "lambdas/.shared_layer/python/tessera_platform/catalog/engine.py",
+    "responsibility": "tessera_platform.catalog.engine \u2014 the domain-agnostic catalog write engine. Extracted VERBATIM (behavior-preserving) from lambdas/catalog-ingest/handler.py so every domain shares one incremental, non-destructive upsert engine instead of forking it. Operates purely on `(entity_typ",
+    "key_symbols": [
+      "slug",
+      "today_iso",
+      "content_hash",
+      "diff_plan",
+      "diff_snapshots",
+      "CatalogStore"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/tessera_platform/catalog/engine.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-tessera-platform-catalog-formats-py",
+    "name": "lambdas/.shared_layer/python/tessera_platform/catalog/formats.py",
+    "path": "lambdas/.shared_layer/python/tessera_platform/catalog/formats.py",
+    "responsibility": "tessera_platform.catalog.formats \u2014 shared, cross-domain STANDARD-FORMAT builders. These parse well-known authoritative formats (MITRE ATT&CK STIX, NIST OSCAL, MITRE ATLAS, VERIS/VCDB, OWASP, NIST AI RMF, Wiz CVDB) into entity-keyed catalog records. They are PLATFORM primitives \u2014 ",
+    "key_symbols": [
+      "_slug",
+      "_today",
+      "_mitre_ext",
+      "_live",
+      "build_attack_records",
+      "build_kev_records",
+      "_veris_keys",
+      "build_veris",
+      "build_owasp",
+      "build_nist",
+      "build_gai_risk",
+      "build_eu_ai_act"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/tessera_platform/catalog/formats.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-tessera-platform-catalog-mapping-py",
+    "name": "lambdas/.shared_layer/python/tessera_platform/catalog/mapping.py",
+    "path": "lambdas/.shared_layer/python/tessera_platform/catalog/mapping.py",
+    "responsibility": "tessera_platform.catalog.mapping \u2014 the declarative `mode: map` normalizer. Turns a raw fetched feed into `[(entity_type, key_field, record)]` from a pure, declarative spec \u2014 no per-domain Python. A spec is: { \"entity_type\": \"vulnerability\", \"key_field\": \"cve_or_ref\", \"select\": \"v",
+    "key_symbols": [
+      "_oscal_statement",
+      "_mitre_ext",
+      "_CatalogFunctions",
+      "_sel_oscal_controls",
+      "Mapping"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/tessera_platform/catalog/mapping.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-tessera-platform-catalog-normalize-py",
+    "name": "lambdas/.shared_layer/python/tessera_platform/catalog/normalize.py",
+    "path": "lambdas/.shared_layer/python/tessera_platform/catalog/normalize.py",
+    "responsibility": "tessera_platform.catalog.normalize \u2014 schema validation + the agentic normalizer. For unstructured/HTML/PDF sources with no clean feed (`normalize.mode: agent`). A generic normalizer agent turns raw source text into schema-conformant catalog records, fenced by JSON-Schema validati",
+    "key_symbols": [
+      "load_schema",
+      "_def_for",
+      "_minimal_validate",
+      "validate_record",
+      "render_key",
+      "_default_model",
+      "AgentNormalizer"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/tessera_platform/catalog/normalize.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-tessera-platform-catalog-orchestrate-py",
+    "name": "lambdas/.shared_layer/python/tessera_platform/catalog/orchestrate.py",
+    "path": "lambdas/.shared_layer/python/tessera_platform/catalog/orchestrate.py",
+    "responsibility": "tessera_platform.catalog.orchestrate \u2014 generic, descriptor-driven ingest verbs. The single place ingestion is orchestrated for ANY domain. The Lambda handler is a thin shim: load the domain's descriptor, dispatch the action here. Core functions take injectable deps (store, refres",
+    "key_symbols": [
+      "_report_summary",
+      "ingest_all",
+      "ingest_source",
+      "mark_source",
+      "mark_run",
+      "plan_synthesis",
+      "get_mission",
+      "checkpoint_cluster",
+      "coverage",
+      "mint_version",
+      "build_version",
+      "validate_version"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/tessera_platform/catalog/orchestrate.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-tessera-platform-catalog-store-py",
+    "name": "lambdas/.shared_layer/python/tessera_platform/catalog/store.py",
+    "path": "lambdas/.shared_layer/python/tessera_platform/catalog/store.py",
+    "responsibility": "tessera_platform.catalog.store \u2014 refresh state store (DynamoDB single-table). THE single shared copy (previously duplicated byte-for-byte in lambdas/catalog-ingest/ and lambdas/catalog-api/). Backs incremental checkpoints (resume), the per-source manifest (versioning), per-cluste",
+    "key_symbols": [
+      "_table",
+      "_now",
+      "put_source_manifest",
+      "get_source_manifest",
+      "put_source",
+      "put_cluster",
+      "get_cluster",
+      "get_run",
+      "put_run",
+      "query_domain",
+      "acquire_lock",
+      "release_lock"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/tessera_platform/catalog/store.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-tessera-platform-catalog-synth-risk-py",
+    "name": "lambdas/.shared_layer/python/tessera_platform/catalog/synth_risk.py",
+    "path": "lambdas/.shared_layer/python/tessera_platform/catalog/synth_risk.py",
+    "responsibility": "tessera_platform.catalog.synth_risk \u2014 the cyber-security-risk synthesis plugin. The OPTIONAL Synthesizer plugin (spec-declarative-ingest.md \u00a75) for the risk domain, runnable on the GENERIC ingest path: `synthesis: {plugin: tessera_platform.catalog.synth_risk}`. Two halves: \u2022 PURE",
+    "key_symbols": [
+      "cluster",
+      "cluster_agentic",
+      "cluster_scenarios",
+      "_obligation_gov_cat",
+      "cluster_governance",
+      "_slug",
+      "_tech_matches",
+      "enumerate_slots",
+      "covered_cells",
+      "_slot_covered",
+      "plan_slots",
+      "cluster_digest"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/tessera_platform/catalog/synth_risk.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-python-tessera-platform-catalog-synthesis-py",
+    "name": "lambdas/.shared_layer/python/tessera_platform/catalog/synthesis.py",
+    "path": "lambdas/.shared_layer/python/tessera_platform/catalog/synthesis.py",
+    "responsibility": "tessera_platform.catalog.synthesis \u2014 the OPTIONAL synthesis plugin contract. Most domains need no synthesis (advice: `synthesis: none`). Domains that derive records (risk: cluster ATT&CK tactics -> risk slots) declare `synthesis: {plugin: <module>}` and the plugin implements this",
+    "key_symbols": [
+      "Synthesizer",
+      "NoopSynthesizer",
+      "ModuleSynthesizer",
+      "load_synthesizer"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer/python/tessera_platform/catalog/synthesis.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-ingest-python-tessera-platform-init-py",
+    "name": "lambdas/.shared_layer_ingest/python/tessera_platform/__init__.py",
+    "path": "lambdas/.shared_layer_ingest/python/tessera_platform/__init__.py",
+    "responsibility": "lambdas source file",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer_ingest/python/tessera_platform/__init__.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-ingest-python-tessera-platform-catalog-init-py",
+    "name": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/__init__.py",
+    "path": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/__init__.py",
+    "responsibility": "tessera_platform.catalog \u2014 the shared, domain-agnostic catalog ingestion runtime. A new domain's ingest is DECLARATIVE (a descriptor + a records schema); this package executes it. See docs/spec-declarative-ingest.md. engine.CatalogStore \u2014 non-destructive incremental upsert into A",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/__init__.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-ingest-python-tessera-platform-catalog-adapter-py",
+    "name": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/adapter.py",
+    "path": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/adapter.py",
+    "responsibility": "tessera_platform.catalog.adapter \u2014 the SourceAdapter contract. One declarative source = fetch (via connectors) + normalize (map | builder | agent). This is the single seam every domain source conforms to; the engine and orchestrator never change per domain. adapter = SourceAdapte",
+    "key_symbols": [
+      "SourceAdapter"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/adapter.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-ingest-python-tessera-platform-catalog-blob-py",
+    "name": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/blob.py",
+    "path": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/blob.py",
+    "responsibility": "tessera_platform.catalog.blob \u2014 S3 overflow for oversized catalog records. AgentCore Memory rejects any record whose content.text exceeds 16,000 chars (BatchCreateMemoryRecords ValidationException). Rich, growing dossiers (e.g. enriched `risk` records) exceed that. Rather than TR",
+    "key_symbols": [
+      "_bucket",
+      "_s3",
+      "blob_key",
+      "_lean",
+      "pack",
+      "resolve",
+      "delete_ref"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/blob.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-ingest-python-tessera-platform-catalog-connectors-py",
+    "name": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/connectors.py",
+    "path": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/connectors.py",
+    "responsibility": "tessera_platform.catalog.connectors \u2014 declarative fetchers per transport. A source's `fetch:` block is executed here \u2014 no per-domain code. Each transport splits into a PURE parser (unit-tested with in-memory bytes) and a thin network fetch, so the parsing logic is verifiable offl",
+    "key_symbols": [
+      "parse_json",
+      "parse_csv",
+      "parse_yaml",
+      "_render_tables_md",
+      "_strip_html",
+      "parse_html",
+      "_resolve_api_key",
+      "_apply_auth",
+      "_http_get",
+      "_t_http_json",
+      "_t_http_csv",
+      "_t_http_yaml"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/connectors.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-ingest-python-tessera-platform-catalog-descriptor-py",
+    "name": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/descriptor.py",
+    "path": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/descriptor.py",
+    "responsibility": "tessera_platform.catalog.descriptor \u2014 load + validate a domain's declarative ingest. A domain's ingest lives in its descriptor's `ingest:` block (domains/<id>.yaml) or a sibling domains/<id>/catalog.yaml. This turns the declaration into validated SourceAdapters + refresh/synthesi",
+    "key_symbols": [
+      "Descriptor",
+      "_domains_dir",
+      "load_schema",
+      "load",
+      "_load_s3",
+      "from_dict"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/descriptor.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-ingest-python-tessera-platform-catalog-engine-py",
+    "name": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/engine.py",
+    "path": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/engine.py",
+    "responsibility": "tessera_platform.catalog.engine \u2014 the domain-agnostic catalog write engine. Extracted VERBATIM (behavior-preserving) from lambdas/catalog-ingest/handler.py so every domain shares one incremental, non-destructive upsert engine instead of forking it. Operates purely on `(entity_typ",
+    "key_symbols": [
+      "slug",
+      "today_iso",
+      "content_hash",
+      "diff_plan",
+      "diff_snapshots",
+      "CatalogStore"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/engine.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-ingest-python-tessera-platform-catalog-formats-py",
+    "name": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/formats.py",
+    "path": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/formats.py",
+    "responsibility": "tessera_platform.catalog.formats \u2014 shared, cross-domain STANDARD-FORMAT builders. These parse well-known authoritative formats (MITRE ATT&CK STIX, NIST OSCAL, MITRE ATLAS, VERIS/VCDB, OWASP, NIST AI RMF, Wiz CVDB) into entity-keyed catalog records. They are PLATFORM primitives \u2014 ",
+    "key_symbols": [
+      "_slug",
+      "_today",
+      "_mitre_ext",
+      "_live",
+      "build_attack_records",
+      "build_kev_records",
+      "_veris_keys",
+      "build_veris",
+      "build_owasp",
+      "build_nist",
+      "build_gai_risk",
+      "build_eu_ai_act"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/formats.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-ingest-python-tessera-platform-catalog-mapping-py",
+    "name": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/mapping.py",
+    "path": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/mapping.py",
+    "responsibility": "tessera_platform.catalog.mapping \u2014 the declarative `mode: map` normalizer. Turns a raw fetched feed into `[(entity_type, key_field, record)]` from a pure, declarative spec \u2014 no per-domain Python. A spec is: { \"entity_type\": \"vulnerability\", \"key_field\": \"cve_or_ref\", \"select\": \"v",
+    "key_symbols": [
+      "_oscal_statement",
+      "_mitre_ext",
+      "_CatalogFunctions",
+      "_sel_oscal_controls",
+      "Mapping"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/mapping.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-ingest-python-tessera-platform-catalog-normalize-py",
+    "name": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/normalize.py",
+    "path": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/normalize.py",
+    "responsibility": "tessera_platform.catalog.normalize \u2014 schema validation + the agentic normalizer. For unstructured/HTML/PDF sources with no clean feed (`normalize.mode: agent`). A generic normalizer agent turns raw source text into schema-conformant catalog records, fenced by JSON-Schema validati",
+    "key_symbols": [
+      "load_schema",
+      "_def_for",
+      "_minimal_validate",
+      "validate_record",
+      "render_key",
+      "_default_model",
+      "AgentNormalizer"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/normalize.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-ingest-python-tessera-platform-catalog-orchestrate-py",
+    "name": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/orchestrate.py",
+    "path": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/orchestrate.py",
+    "responsibility": "tessera_platform.catalog.orchestrate \u2014 generic, descriptor-driven ingest verbs. The single place ingestion is orchestrated for ANY domain. The Lambda handler is a thin shim: load the domain's descriptor, dispatch the action here. Core functions take injectable deps (store, refres",
+    "key_symbols": [
+      "_report_summary",
+      "ingest_all",
+      "ingest_source",
+      "mark_source",
+      "mark_run",
+      "plan_synthesis",
+      "get_mission",
+      "checkpoint_cluster",
+      "coverage",
+      "mint_version",
+      "build_version",
+      "validate_version"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/orchestrate.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-ingest-python-tessera-platform-catalog-store-py",
+    "name": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/store.py",
+    "path": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/store.py",
+    "responsibility": "tessera_platform.catalog.store \u2014 refresh state store (DynamoDB single-table). THE single shared copy (previously duplicated byte-for-byte in lambdas/catalog-ingest/ and lambdas/catalog-api/). Backs incremental checkpoints (resume), the per-source manifest (versioning), per-cluste",
+    "key_symbols": [
+      "_table",
+      "_now",
+      "put_source_manifest",
+      "get_source_manifest",
+      "put_source",
+      "put_cluster",
+      "get_cluster",
+      "get_run",
+      "put_run",
+      "query_domain",
+      "acquire_lock",
+      "release_lock"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/store.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-ingest-python-tessera-platform-catalog-synth-risk-py",
+    "name": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/synth_risk.py",
+    "path": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/synth_risk.py",
+    "responsibility": "tessera_platform.catalog.synth_risk \u2014 the cyber-security-risk synthesis plugin. The OPTIONAL Synthesizer plugin (spec-declarative-ingest.md \u00a75) for the risk domain, runnable on the GENERIC ingest path: `synthesis: {plugin: tessera_platform.catalog.synth_risk}`. Two halves: \u2022 PURE",
+    "key_symbols": [
+      "cluster",
+      "cluster_agentic",
+      "cluster_scenarios",
+      "_obligation_gov_cat",
+      "cluster_governance",
+      "_slug",
+      "_tech_matches",
+      "enumerate_slots",
+      "covered_cells",
+      "_slot_covered",
+      "plan_slots",
+      "cluster_digest"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/synth_risk.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-shared-layer-ingest-python-tessera-platform-catalog-synthesis-py",
+    "name": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/synthesis.py",
+    "path": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/synthesis.py",
+    "responsibility": "tessera_platform.catalog.synthesis \u2014 the OPTIONAL synthesis plugin contract. Most domains need no synthesis (advice: `synthesis: none`). Domains that derive records (risk: cluster ATT&CK tactics -> risk slots) declare `synthesis: {plugin: <module>}` and the plugin implements this",
+    "key_symbols": [
+      "Synthesizer",
+      "NoopSynthesizer",
+      "ModuleSynthesizer",
+      "load_synthesizer"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/.shared_layer_ingest/python/tessera_platform/catalog/synthesis.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-admin-users-handler-py",
+    "name": "lambdas/admin-users/handler.py",
+    "path": "lambdas/admin-users/handler.py",
+    "responsibility": "Admin users Lambda \u2014 list pending users, approve/reject. Routes: GET /api/admin/users \u2192 list disabled (pending) users POST /api/admin/users/{sub}/approve \u2192 enable user POST /api/admin/users/{sub}/reject \u2192 delete user",
+    "key_symbols": [
+      "handler",
+      "list_all_users",
+      "list_pending_users",
+      "approve_user",
+      "reject_user",
+      "_get_username_by_sub"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/admin-users/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-agent-invoker-handler-py",
+    "name": "lambdas/agent-invoker/handler.py",
+    "path": "lambdas/agent-invoker/handler.py",
+    "responsibility": "Agent Invoker Lambda \u2014 called by AWS Step Functions. Services: AWS Step Functions, Amazon S3, Amazon Bedrock, Amazon DynamoDB. Invokes an agent via AgentCore Runtime (AG-UI protocol) and forwards each AG-UI event to WebSocket clients. Pure passthrough \u2014 no parsing, no escaping. T",
+    "key_symbols": [
+      "AgentStreamSilenceError",
+      "_write_attention_item",
+      "_safe",
+      "_inline_screenshot_refs",
+      "_checkpoint_feedback_key",
+      "_read_checkpoint_feedback",
+      "_write_checkpoint_feedback",
+      "_clear_checkpoint_feedback",
+      "_read_operator_guidance",
+      "_handle_checkpoint_verdict",
+      "_handle_gate_failure",
+      "handler"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/agent-invoker/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-apply-eco-patch-handler-py",
+    "name": "lambdas/apply-eco-patch/handler.py",
+    "path": "lambdas/apply-eco-patch/handler.py",
+    "responsibility": "POST /api/apply-eco-patch \u2014 applies a patch_synthesizer's proposal to a target ecosystem and writes a new version. Versioning convention (matches existing repo pattern, e.g. hedge-fund-trading-desk-v1.yaml + hedge-fund-trading-desk.yaml): - Bare ID (`<eco_id>.yaml`) holds the *la",
+    "key_symbols": [
+      "_list_existing_versions",
+      "_next_snapshot_version",
+      "_validate_new_yaml",
+      "_read_current_yaml",
+      "_write_yaml",
+      "_trigger_asl_recompile",
+      "_write_audit_record",
+      "_response",
+      "handler"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/apply-eco-patch/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-auth-py",
+    "name": "lambdas/auth.py",
+    "path": "lambdas/auth.py",
+    "responsibility": "Shared auth module \u2014 extract Amazon Cognito claims from Amazon API Gateway authorizer context. The Amazon Cognito Authorizer on Amazon API Gateway validates the JWT signature and expiry. By the time the Lambda runs, the token is guaranteed valid. We just read the claims.",
+    "key_symbols": [
+      "get_user_from_event",
+      "is_admin",
+      "require_auth",
+      "auth_error_response"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/auth.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-catalog-api-handler-py",
+    "name": "lambdas/catalog-api/handler.py",
+    "path": "lambdas/catalog-api/handler.py",
+    "responsibility": "catalog-api \u2014 read-only Risk Catalog Browser API (private, JWT-authorized). Serves the cyber-security-risk domain catalog (AgentCore Memory) to the frontend Risk Browser. Fronted by an API Gateway HTTP API with a Cognito JWT authorizer (NO public Lambda Function URL \u2014 see cdk/sta",
+    "key_symbols": [
+      "_descriptor",
+      "_known_types",
+      "_ingest_sources",
+      "_active_source_records",
+      "_agent_mission",
+      "_active_version",
+      "_base",
+      "parse_route",
+      "record_from_summary",
+      "filter_records",
+      "_verify_token",
+      "_mem"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/catalog-api/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-catalog-ingest-generic-handler-py",
+    "name": "lambdas/catalog-ingest-generic/handler.py",
+    "path": "lambdas/catalog-ingest-generic/handler.py",
+    "responsibility": "catalog-ingest-generic \u2014 the DECLARATIVE, domain-agnostic ingest Lambda. A thin dispatcher: every domain runs the SAME code. It loads the domain's descriptor (from S3 via TESSERA_DOMAINS_BUCKET, or local fs) and dispatches the action to the shared orchestrator. A new domain needs",
+    "key_symbols": [
+      "handler"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/catalog-ingest-generic/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-catalog-ingest-handler-py",
+    "name": "lambdas/catalog-ingest/handler.py",
+    "path": "lambdas/catalog-ingest/handler.py",
+    "responsibility": "catalog-ingest \u2014 platform ingestion Lambda (INFRASTRUCTURE, not an ecosystem). Deterministic ETL that populates the cyber-security-risk domain catalog (LTM) from authoritative sources. EventBridge-scheduled. Per-source NORMALIZERS map raw feeds to the entity-keyed record schema (",
+    "key_symbols": [
+      "_slug",
+      "_today",
+      "_mitre_ext",
+      "_live",
+      "build_attack_records",
+      "build_kev_records",
+      "_fetch_json",
+      "normalize_attack",
+      "normalize_cisa_kev",
+      "_veris_keys",
+      "build_veris",
+      "normalize_veris"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/catalog-ingest/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-catalog-ingest-synth-plan-py",
+    "name": "lambdas/catalog-ingest/synth_plan.py",
+    "path": "lambdas/catalog-ingest/synth_plan.py",
+    "responsibility": "Legacy import shim \u2014 the risk synthesis logic now lives in ONE place: `tessera_platform.catalog.synth_risk` (the shared, vendored plugin). This module re-exports it verbatim so the legacy catalog-ingest handler (`import synth_plan`) keeps working with zero drift \u2014 there is no cop",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/catalog-ingest/synth_plan.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-catalog-regrounding-handler-py",
+    "name": "lambdas/catalog-regrounding/handler.py",
+    "path": "lambdas/catalog-regrounding/handler.py",
+    "responsibility": "Re-grounding router + worker (spec-regrounding-bus.md). Consumes a ChangeSignal from the `tessera-regrounding` EventBridge bus, maps it to SUBSCRIBING catalogs via a data-driven registry, and runs the appropriate worker. The SOURCE never decides consumers \u2014 this router does. Env:",
+    "key_symbols": [
+      "_matches",
+      "_eco_record",
+      "_reground_self_eco",
+      "handler"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/catalog-regrounding/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-catalog-write-handler-py",
+    "name": "lambdas/catalog-write/handler.py",
+    "path": "lambdas/catalog-write/handler.py",
+    "responsibility": "catalog-write \u2014 the `catalog_write` MCP tool (AgentCore Gateway). Exposes the shared CatalogStore.upsert engine as a tool so ANY ecosystem/agent can write durable, entity-keyed catalog records (non-destructive incremental diff-upsert with provenance + soft-tombstone + sanity guar",
+    "key_symbols": [
+      "_coerce",
+      "handler"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/catalog-write/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-chat-handler-py",
+    "name": "lambdas/chat/handler.py",
+    "path": "lambdas/chat/handler.py",
+    "responsibility": "Chat Lambda \u2014 post-run follow-up Q&A against a Tessera ecosystem run. Services: Amazon Bedrock, AWS Step Functions, Amazon S3. Route: POST /api/runs/{sessionId}/chat Body: {\"question\": \"...\"} Pipeline: 1. Resolve ecosystem from sessionId (format: <ecosystem-id>-<8hex>). 2. Load e",
+    "key_symbols": [
+      "_user_id",
+      "_safe_key",
+      "_chat_actor",
+      "_load_chat_history",
+      "_append_chat_event",
+      "_clear_chat_history",
+      "_resp",
+      "handler",
+      "_ecosystem_from_session",
+      "_load_ecosystem_agents",
+      "_load_run_outputs",
+      "_fetch_s3"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/chat/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-concierge-ws-handler-py",
+    "name": "lambdas/concierge-ws/handler.py",
+    "path": "lambdas/concierge-ws/handler.py",
+    "responsibility": "Concierge over WebSocket \u2014 a fast, streaming, tool-using front-door agent. One streaming agent (Bedrock converse_stream) grounded in a compact capability index (the self-model digest) + the ratified two-direction intent. It answers directly for discovery/Q&A, and uses TOOLS for d",
+    "key_symbols": [
+      "_verify_jwt",
+      "_mgmt",
+      "_pusher",
+      "_active_version",
+      "_list_type",
+      "capability_index",
+      "_eco_owner",
+      "_authorized",
+      "_sm_arn",
+      "tool_search_runs",
+      "_read_runs_json",
+      "tool_get_run"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/concierge-ws/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-domain-seed-handler-py",
+    "name": "lambdas/domain-seed/handler.py",
+    "path": "lambdas/domain-seed/handler.py",
+    "responsibility": "Domain-seed (Phase D.1, bottom-up) \u2014 infer a DOMAIN's canonical knowledge taxonomy from one or more existing ecosystems. For each agent it applies one rule: does the agent produce a durable, mission- INVARIANT *entity* fact (a thing that exists independent of any single run \u2014 a p",
+    "key_symbols": [
+      "_load_ecosystem",
+      "_declared_catalogs",
+      "_agent_brief",
+      "_seed_one",
+      "_loads_salvage",
+      "_converse_json",
+      "_describe",
+      "_converse_text",
+      "_turn_input",
+      "_parse_domain_turn",
+      "_converse",
+      "_list_domains"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/domain-seed/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-domains-handler-py",
+    "name": "lambdas/domains/handler.py",
+    "path": "lambdas/domains/handler.py",
+    "responsibility": "Domains CRUD (Phase D.2) \u2014 persist + list + get domain taxonomies. A Domain owns a canonical, entity-keyed catalog taxonomy that ecosystems mount and inherit (see docs/spec-domains-knowledge-taxonomy.md). This Lambda stores domains as governed assets under domains/<id>.yaml in th",
+    "key_symbols": [
+      "_load",
+      "_put",
+      "_slug",
+      "_cors",
+      "_save",
+      "_propose",
+      "_ratify",
+      "_get",
+      "_list",
+      "_declared_catalogs",
+      "_assign",
+      "_seg"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/domains/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-ecosystem-files-handler-py",
+    "name": "lambdas/ecosystem-files/handler.py",
+    "path": "lambdas/ecosystem-files/handler.py",
+    "responsibility": "Ecosystem Files API \u2014 list, delete, update metadata for ecosystem file library.",
+    "key_symbols": [
+      "handler",
+      "list_files",
+      "update_meta",
+      "delete_file",
+      "resp"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/ecosystem-files/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-external-grounding-handler-py",
+    "name": "lambdas/external-grounding/handler.py",
+    "path": "lambdas/external-grounding/handler.py",
+    "responsibility": "External Grounding Lambda \u2014 verifies time-sensitive claims against fresh web sources. Amazon Bedrock Guardrails contextual grounding only checks claims against artifacts the system already produced (upstream agents + tool results). It cannot catch hallucinations of dates, prices,",
+    "key_symbols": [
+      "get_websearch_api_key",
+      "handler",
+      "extract_time_sensitive_claims",
+      "verify_claim",
+      "web_search",
+      "_summarize",
+      "push_event"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/external-grounding/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-file-classify-handler-py",
+    "name": "lambdas/file-classify/handler.py",
+    "path": "lambdas/file-classify/handler.py",
+    "responsibility": "File classify \u2014 validates, classifies (Haiku), extracts if large, stores .meta.json. Triggered by S3 event (or invoked directly after presign upload completes). Handles both ecosystem files and run attachments.",
+    "key_symbols": [
+      "handler",
+      "_extract_pdf_text",
+      "classify_file",
+      "store_meta"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/file-classify/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-gate-cleanup-handler-py",
+    "name": "lambdas/gate-cleanup/handler.py",
+    "path": "lambdas/gate-cleanup/handler.py",
+    "responsibility": "Gate cleanup \u2014 clears orphaned human-gate state when a run reaches a terminal state. Triggered by an EventBridge rule on \"Step Functions Execution Status Change\" for terminal statuses (ABORTED / FAILED / TIMED_OUT / SUCCEEDED). This is the authoritative, path-independent cleanup:",
+    "key_symbols": [
+      "_clear_attention",
+      "_delete_gate_files",
+      "handler"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/gate-cleanup/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-gate-decision-handler-py",
+    "name": "lambdas/gate-decision/handler.py",
+    "path": "lambdas/gate-decision/handler.py",
+    "responsibility": "POST /api/runs/{sessionId}/gate-decision \u2014 operator responds to an ask-mode gate. Services: AWS Step Functions, Amazon S3. Receives the operator's decision (continue/retry/stop) and the task token that was broadcast via WebSocket when the gate fired. Calls SendTaskSuccess or Send",
+    "key_symbols": [
+      "_token_gone",
+      "_clear_attention_item",
+      "_cdp_navigate",
+      "_bl_key",
+      "_browser_login",
+      "_gate_chat",
+      "handler",
+      "_response"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/gate-decision/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-get-ecosystem-handler-py",
+    "name": "lambdas/get-ecosystem/handler.py",
+    "path": "lambdas/get-ecosystem/handler.py",
+    "responsibility": "Get one ecosystem config from Amazon S3. Returns the RAW saved config (user agents only). Platform agents \u2014 the Challenger, the final Report, and per-level checkpoints \u2014 are NOT injected here. They are injected by the compiler at deploy time (save-ecosystem.compile_to_asl) and mi",
+    "key_symbols": [
+      "handler"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/get-ecosystem/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-grounding-check-handler-py",
+    "name": "lambdas/grounding-check/handler.py",
+    "path": "lambdas/grounding-check/handler.py",
+    "responsibility": "Grounding Check Lambda \u2014 validates agent output against grounding source. Called by AWS Step Functions after each agent that has dependencies. Uses guardrails for Amazon Bedrock contextual-grounding policy. The grounding source is a combination of: 1. Upstream agent outputs (tran",
+    "key_symbols": [
+      "_fetch_s3_uri",
+      "_resolve_output",
+      "_resolve_tool_results",
+      "handler",
+      "_apply_guardrail_with_grounding",
+      "_summarize_assessments",
+      "push_event",
+      "_chunk_text"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/grounding-check/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-groups-handler-py",
+    "name": "lambdas/groups/handler.py",
+    "path": "lambdas/groups/handler.py",
+    "responsibility": "Groups \u2014 AWS Lambda function to manage Amazon Cognito groups (admin only). Routes: GET /api/admin/groups \u2192 list groups POST /api/admin/groups \u2192 create group DELETE /api/admin/groups/{name} \u2192 delete group GET /api/admin/groups/{name}/members \u2192 list members POST /api/admin/groups/{",
+    "key_symbols": [
+      "handler",
+      "list_groups",
+      "create_group",
+      "delete_group",
+      "list_members",
+      "add_member",
+      "remove_member",
+      "_get_username_by_sub",
+      "_ok",
+      "_err"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/groups/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-interactive-invoke-handler-py",
+    "name": "lambdas/interactive-invoke/handler.py",
+    "path": "lambdas/interactive-invoke/handler.py",
+    "responsibility": "Interactive eco serve engine (spec-interactive-eco.md). Runs an `strategy: interactive` ecosystem's multi-agent graph in dependency layers (parallel within a layer), grounded in the eco's mounted catalog namespaces. A multi-agent turn takes tens of seconds, which exceeds API Gate",
+    "key_symbols": [
+      "_layers",
+      "_grounding",
+      "_run_agent",
+      "_serve",
+      "_job_key",
+      "_ok",
+      "handler"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/interactive-invoke/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-list-agents-handler-py",
+    "name": "lambdas/list-agents/handler.py",
+    "path": "lambdas/list-agents/handler.py",
+    "responsibility": "List all agents from all ecosystem YAMLs in S3.",
+    "key_symbols": [
+      "handler"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/list-agents/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-list-ecosystems-handler-py",
+    "name": "lambdas/list-ecosystems/handler.py",
+    "path": "lambdas/list-ecosystems/handler.py",
+    "responsibility": "List all ecosystems from Amazon S3, filtered by Amazon Verified Permissions authorization.",
+    "key_symbols": [
+      "handler",
+      "_filter_by_avp",
+      "_ok"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/list-ecosystems/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-list-tools-handler-py",
+    "name": "lambdas/list-tools/handler.py",
+    "path": "lambdas/list-tools/handler.py",
+    "responsibility": "List all tools \u2014 platform + ecosystem tools from S3.",
+    "key_symbols": [
+      "handler"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/list-tools/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-optimize-ecosystem-handler-py",
+    "name": "lambdas/optimize-ecosystem/handler.py",
+    "path": "lambdas/optimize-ecosystem/handler.py",
+    "responsibility": "POST /api/optimize-ecosystem \u2014 bundles target ecosystem telemetry then Services: Amazon Bedrock, Amazon S3, AWS Step Functions. launches the platform-optimizer Step Functions execution. The platform-optimizer ecosystem (ecosystems/_platform/platform-optimizer.yaml) expects a stru",
+    "key_symbols": [
+      "_load_target_yaml",
+      "_list_recent_executions",
+      "_safe_get_object_text",
+      "_safe_get_object_size",
+      "_list_run_agents",
+      "_count_tool_calls_by_name",
+      "_agent_telemetry",
+      "_bundle_run",
+      "_build_mission",
+      "_response",
+      "handler"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/optimize-ecosystem/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-post-confirmation-handler-py",
+    "name": "lambdas/post-confirmation/handler.py",
+    "path": "lambdas/post-confirmation/handler.py",
+    "responsibility": "Post-confirmation trigger \u2014 disables each new user (pending admin approval) and notifies admins via SNS so they can review and enable the account.",
+    "key_symbols": [
+      "handler"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/post-confirmation/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-presign-upload-handler-py",
+    "name": "lambdas/presign-upload/handler.py",
+    "path": "lambdas/presign-upload/handler.py",
+    "responsibility": "Presign upload \u2014 generates presigned PUT URLs for file uploads.",
+    "key_symbols": [
+      "handler",
+      "resp"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/presign-upload/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-pricing-py",
+    "name": "lambdas/pricing.py",
+    "path": "lambdas/pricing.py",
+    "responsibility": "Shared model price table + cost estimation (spec-run-tuning \u00a75.1). INTERNAL COST ESTIMATE ONLY \u2014 not authoritative billing. For real charges consult the AWS Billing console / Bedrock pricing. Prices are list prices per 1,000 tokens and are easy to edit as models/pricing change. U",
+    "key_symbols": [
+      "price_for",
+      "estimate_cost",
+      "is_priced"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/pricing.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-run-artifact-handler-py",
+    "name": "lambdas/run-artifact/handler.py",
+    "path": "lambdas/run-artifact/handler.py",
+    "responsibility": "GET /api/runs/{sessionId}/artifacts/{artifactKey+} \u2014 fetch a typed run artifact from Amazon S3. artifact produced by an agent run. Phase 5f.3 (MVP). Returns either: - The file CONTENT directly (?inline=true, useful for small text/json/yaml artifacts that the frontend wants to dis",
+    "key_symbols": [
+      "_content_type_for",
+      "_is_text_inline_safe",
+      "_validate_artifact_key",
+      "_validate_session_id",
+      "_bundle_run",
+      "context_now_iso",
+      "_response",
+      "handler"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/run-artifact/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-runs-api-handler-py",
+    "name": "lambdas/runs-api/handler.py",
+    "path": "lambdas/runs-api/handler.py",
+    "responsibility": "Runs API Lambda \u2014 list past AWS Step Functions executions per ecosystem and Services: AWS Step Functions, Amazon S3. reconstruct full per-agent run data from SFN history + S3 outputs. Routes: GET /api/ecosystems/{id}/runs \u2192 list recent executions GET /api/ecosystems/{id}/runs/{ex",
+    "key_symbols": [
+      "_resp",
+      "_get_ecosystem_owner",
+      "handler",
+      "_list_attention",
+      "_list",
+      "_detail",
+      "_safe_seg",
+      "_read_json_key",
+      "_is_agent_state",
+      "_manifest",
+      "_manifest_obj",
+      "_rating"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/runs-api/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-save-ecosystem-handler-py",
+    "name": "lambdas/save-ecosystem/handler.py",
+    "path": "lambdas/save-ecosystem/handler.py",
+    "responsibility": "Save ecosystem YAML to Amazon S3 and deploy AWS Step Functions state machine. Injects platform agents (challenger, report) and grounding checks into the ASL.",
+    "key_symbols": [
+      "_create_owner_policy",
+      "challenger_agent_config",
+      "checkpoint_challenger_config",
+      "report_agent_config",
+      "handler",
+      "save_yaml",
+      "_emit_change_event",
+      "deploy_state_machine",
+      "_fetch_template_body",
+      "validate_ecosystem",
+      "compile_to_asl",
+      "build_task"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/save-ecosystem/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-sharing-handler-py",
+    "name": "lambdas/sharing/handler.py",
+    "path": "lambdas/sharing/handler.py",
+    "responsibility": "Sharing Lambda \u2014 manage ecosystem sharing via Amazon Verified Permissions (AVP) Cedar policies. Routes: GET /api/ecosystems/{id}/sharing \u2192 list sharing policies POST /api/ecosystems/{id}/sharing \u2192 grant access DELETE /api/ecosystems/{id}/sharing/{policyId} \u2192 revoke access GET /ap",
+    "key_symbols": [
+      "handler",
+      "list_shares_for_principal",
+      "list_sharing",
+      "create_sharing",
+      "delete_sharing",
+      "_parse_policy_statement",
+      "_detect_permission",
+      "_resolve_email",
+      "_ok",
+      "_err"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/sharing/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-suggest-agent-handler-py",
+    "name": "lambdas/suggest-agent/handler.py",
+    "path": "lambdas/suggest-agent/handler.py",
+    "responsibility": "AI generates agent config via Amazon Bedrock.",
+    "key_symbols": [
+      "handler"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/suggest-agent/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-suggest-ecosystem-handler-py",
+    "name": "lambdas/suggest-ecosystem/handler.py",
+    "path": "lambdas/suggest-ecosystem/handler.py",
+    "responsibility": "AI generates ecosystem config via Amazon Bedrock. Architecture: - Sync entry from Amazon API Gateway returns 202 + jobId immediately (under the 29s timeout). - Async self-invocation does the actual Amazon Bedrock call (can take 30-60s). - Result is pushed to the client via WebSoc",
+    "key_symbols": [
+      "_websearch_key",
+      "web_search",
+      "_ground_facts",
+      "_parse_turn",
+      "_turn_messages",
+      "converse",
+      "_resolve_connections",
+      "_post",
+      "converse_stream",
+      "_enrich_attachments",
+      "_mission_turn_messages",
+      "_parse_mission_turn"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/suggest-ecosystem/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-tool-catalog-handler-py",
+    "name": "lambdas/tool-catalog/handler.py",
+    "path": "lambdas/tool-catalog/handler.py",
+    "responsibility": "Tool Catalog CRUD \u2014 wraps Amazon Bedrock Agent Runtime Gateway target + Identity credential provider APIs.",
+    "key_symbols": [
+      "handler",
+      "test_connection",
+      "list_tools",
+      "get_tool",
+      "create_tool",
+      "update_tool",
+      "delete_tool",
+      "_ensure_credential_provider",
+      "resp"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/tool-catalog/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "lambdas-websocket-handler-py",
+    "name": "lambdas/websocket/handler.py",
+    "path": "lambdas/websocket/handler.py",
+    "responsibility": "WebSocket AWS Lambda \u2014 handles connect, disconnect, launch, chat, and SFN callback routes. Services: Amazon DynamoDB, AWS Step Functions, Amazon S3, Amazon Bedrock.",
+    "key_symbols": [
+      "_load_attachment_block",
+      "handler",
+      "on_connect",
+      "on_disconnect",
+      "on_ping",
+      "on_register",
+      "on_unregister",
+      "_verify_jwt",
+      "on_launch",
+      "on_sfn_complete",
+      "on_chat",
+      "push_event"
+    ],
+    "depends_on": [],
+    "produces": [
+      "lambdas"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "lambdas/websocket/handler.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-init-py",
+    "name": "scripts/__init__.py",
+    "path": "scripts/__init__.py",
+    "responsibility": "scripts source file",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/__init__.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-build-feature-sh",
+    "name": "scripts/build-feature.sh",
+    "path": "scripts/build-feature.sh",
+    "responsibility": "set -e",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/build-feature.sh",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-check-citations-sh",
+    "name": "scripts/check-citations.sh",
+    "path": "scripts/check-citations.sh",
+    "responsibility": "scripts/check-citations.sh",
+    "key_symbols": [
+      "print"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/check-citations.sh",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-check-memory-sh",
+    "name": "scripts/check-memory.sh",
+    "path": "scripts/check-memory.sh",
+    "responsibility": "Quick check whether AgentCore Memory extraction has produced records yet.",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/check-memory.sh",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-deploy-agent-sh",
+    "name": "scripts/deploy-agent.sh",
+    "path": "scripts/deploy-agent.sh",
+    "responsibility": "Deploy agent code to Amazon Bedrock AgentCore Runtime via the AgentCore CLI.",
+    "key_symbols": [
+      "get_out"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/deploy-agent.sh",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-deploy-domains-sh",
+    "name": "scripts/deploy-domains.sh",
+    "path": "scripts/deploy-domains.sh",
+    "responsibility": "scripts/deploy-domains.sh",
+    "key_symbols": [
+      "s3_exists",
+      "put"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/deploy-domains.sh",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-deploy-frontend-sh",
+    "name": "scripts/deploy-frontend.sh",
+    "path": "scripts/deploy-frontend.sh",
+    "responsibility": "Build and deploy frontend to S3 + invalidate CloudFront.",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/deploy-frontend.sh",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-deploy-infra-sh",
+    "name": "scripts/deploy-infra.sh",
+    "path": "scripts/deploy-infra.sh",
+    "responsibility": "Deploy infrastructure via CDK. Only run when adding/removing resources.",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/deploy-infra.sh",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-deploy-lambdas-sh",
+    "name": "scripts/deploy-lambdas.sh",
+    "path": "scripts/deploy-lambdas.sh",
+    "responsibility": "Deploy only changed Lambdas.",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/deploy-lambdas.sh",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-deploy-platform-ecosystems-sh",
+    "name": "scripts/deploy-platform-ecosystems.sh",
+    "path": "scripts/deploy-platform-ecosystems.sh",
+    "responsibility": "Cost: Each ecosystem creates an AWS Step Functions state machine (charges per transition).",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/deploy-platform-ecosystems.sh",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-deploy-platform-templates-sh",
+    "name": "scripts/deploy-platform-templates.sh",
+    "path": "scripts/deploy-platform-templates.sh",
+    "responsibility": "Cost: Templates stored in Amazon S3 incur standard storage charges.",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/deploy-platform-templates.sh",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-deploy-self-sh",
+    "name": "scripts/deploy-self.sh",
+    "path": "scripts/deploy-self.sh",
+    "responsibility": "Refresh Tessera's STRUCTURAL + DESIGN + NARRATIVE self-map from the codebase.",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/deploy-self.sh",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-gen-conformity-samples-py",
+    "name": "scripts/gen_conformity_samples.py",
+    "path": "scripts/gen_conformity_samples.py",
+    "responsibility": "Generate the ai-governance-conformity sample document packages as PDFs. Two packages, contrasting breadth: - au-loan-approval/ (BROAD): a company profile, a solution overview WITH an architecture diagram, and six supporting-evidence documents whose content EXPLICITLY evidences co",
+    "key_symbols": [
+      "_s",
+      "Doc",
+      "_title",
+      "_h",
+      "_p",
+      "_bullets",
+      "build",
+      "au_architecture",
+      "gen_au",
+      "gen_eu"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/gen_conformity_samples.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-gen-domains-py",
+    "name": "scripts/gen_domains.py",
+    "path": "scripts/gen_domains.py",
+    "responsibility": "Generate Tessera domain taxonomies (governed assets) -> domains/<id>.yaml. Taxonomies are bottom-up validated: each domain's entity types were derived by running domain-seed over every belonging ecosystem (entity-vs-conclusion classification) and reconciled with a top-down review",
+    "key_symbols": [
+      "build"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/gen_domains.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-gen-iress-samples-py",
+    "name": "scripts/gen_iress_samples.py",
+    "path": "scripts/gen_iress_samples.py",
+    "responsibility": "Generate a realistic, holistic client document pack for the iress-adviser-copilot ecosystem \u2014 the fictional pre-retiree client John Doe. Profile (kept CONSISTENT across every document): - John Andrew Doe, DOB 14/03/1965 (age 60), married to Jane Louise Doe (58). - 2 adult, financ",
+    "key_symbols": [
+      "_s",
+      "Doc",
+      "_title",
+      "_h",
+      "_p",
+      "_note",
+      "_bullets",
+      "_kv",
+      "_table",
+      "build",
+      "fact_find",
+      "portfolio"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/gen_iress_samples.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-ingest-attack-py",
+    "name": "scripts/ingest_attack.py",
+    "path": "scripts/ingest_attack.py",
+    "responsibility": "R.1 ingestion proof \u2014 MITRE ATT&CK (STIX) -> cyber-security-risk domain catalog. This is the producer (risk-reasoning) ingestion path for ONE source, run standalone to prove the end-to-end loop on the real platform: fetch STIX -> normalize to the `attack-technique` schema -> vali",
+    "key_symbols": [
+      "build_records",
+      "slug",
+      "strategy_id",
+      "normalize",
+      "main"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/ingest_attack.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-interactive-concierge-py",
+    "name": "scripts/interactive_concierge.py",
+    "path": "scripts/interactive_concierge.py",
+    "responsibility": "Interactive eco serve loop \u2014 PROTOTYPE (the new 'answering eco' archetype). Runs the SAME tessera-concierge agents (loaded from its eco YAML) but SYNCHRONOUSLY: need_analyst -> (capability_matcher || honesty_gate) -> concierge_responder, grounded in the live tessera-self catalog,",
+    "key_symbols": [
+      "prompts",
+      "ground",
+      "agent",
+      "main"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/interactive_concierge.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-migrate-ecosystems-py",
+    "name": "scripts/migrate-ecosystems.py",
+    "path": "scripts/migrate-ecosystems.py",
+    "responsibility": "One-off config migration for stored ecosystems. WHY THIS EXISTS --------------- Re-saving an ecosystem recompiles its Step Functions ASL with the *current* compiler, so compiler-DERIVED upgrades (memory ACLs, tool budgets, retry policies, grounding wiring, citation contracts, gat",
+    "key_symbols": [
+      "_is_legacy_on",
+      "_challenger_str",
+      "plan_changes",
+      "main"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/migrate-ecosystems.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-recompile-all-ecosystems-sh",
+    "name": "scripts/recompile-all-ecosystems.sh",
+    "path": "scripts/recompile-all-ecosystems.sh",
+    "responsibility": "scripts/recompile-all-ecosystems.sh",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/recompile-all-ecosystems.sh",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-risk-cluster-py",
+    "name": "scripts/risk_cluster.py",
+    "path": "scripts/risk_cluster.py",
+    "responsibility": "Deterministic risk clustering \u2014 groups the raw catalog into BOUNDED candidate clusters for the synthesis Map fan-out. Pure grouping, no LLM, no reasoning: the LLM is bad at grouping across 1000+ records, so we don't ask it to. Each cluster is a coherent ATT&CK-tactic theme = its ",
+    "key_symbols": [
+      "cluster",
+      "_load_catalog"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/risk_cluster.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-risk-fair-py",
+    "name": "scripts/risk_fair.py",
+    "path": "scripts/risk_fair.py",
+    "responsibility": "Quantitative risk frameworks (risk-assessment consumer) \u2014 deterministic-by-code. The FAIR (Monte-Carlo ALE) and Decision-Tree (EMV) frameworks from docs/Risk Reasoning/risk-assessment-final.html / spec \u00a74. Pure + seedable so they are testable and reproducible; in the eco these ru",
+    "key_symbols": [
+      "fair_simulate",
+      "emv",
+      "fair_from_record"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/risk_fair.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-risk-match-py",
+    "name": "scripts/risk_match.py",
+    "path": "scripts/risk_match.py",
+    "responsibility": "Consumer matcher (risk-assessment) \u2014 deterministic, NO LLM. Given an org architecture and the cyber-security-risk domain's attack-technique catalog (LTM), return the applicable techniques ranked by relevance. This is the \"Risk Matcher\" step from docs/spec-risk-reasoning.md \u00a74 \u2014 p",
+    "key_symbols": [
+      "_norm",
+      "match",
+      "_load_catalog"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/risk_match.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-run-ash-sh",
+    "name": "scripts/run-ash.sh",
+    "path": "scripts/run-ash.sh",
+    "responsibility": "Run ASH security scan. Removes cdk.out first (regenerated by cdk synth).",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/run-ash.sh",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-self-classify-py",
+    "name": "scripts/self_classify.py",
+    "path": "scripts/self_classify.py",
+    "responsibility": "Grounded eco classifier \u2014 the real `normalize: mode agent` pass for eco-ingest (spec-self-awareness \u00a74.5 / \u00a713.5). Replaces the keyword triage in self_ingest.py. For each deployed eco it asks the platform model to classify the eco AGAINST the drafted intent (core value + non-goal",
+    "key_symbols": [
+      "eco_summary",
+      "classify",
+      "main"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/self_classify.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-self-ingest-py",
+    "name": "scripts/self_ingest.py",
+    "path": "scripts/self_ingest.py",
+    "responsibility": "Reflexive eco-ingest (first-slice MVP) \u2014 spec-self-awareness.md \u00a74.5 / \u00a712. Reads the deployed ecosystems (Tessera's OWN substrate) and produces: - domains/tessera-self/records/ecosystem.json \u2014 the OPERATIONAL layer, schema-conforming - domains/tessera-self/records/gap.json \u2014 int",
+    "key_symbols": [
+      "_first_sentence",
+      "_capabilities",
+      "_deliverable",
+      "classify",
+      "build",
+      "report"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/self_ingest.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-self-ingest-code-py",
+    "name": "scripts/self_ingest_code.py",
+    "path": "scripts/self_ingest_code.py",
+    "responsibility": "Structural self-map ingest (spec-self-awareness \u00a74.2) \u2014 maps the WHOLE codebase (not just lambdas) into `component` records, updated by CODE CHANGES (git diff). Sources of truth = the repository. So this runs where the repo lives (a git hook / CI), NOT the re-grounding Lambda. It",
+    "key_symbols": [
+      "_git",
+      "_head",
+      "_all_files",
+      "_changed",
+      "_summary",
+      "_symbols",
+      "_component",
+      "main"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/self_ingest_code.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-self-ingest-meta-py",
+    "name": "scripts/self_ingest_meta.py",
+    "path": "scripts/self_ingest_meta.py",
+    "responsibility": "Design + narrative ingest + cross-layer gap engine (spec-self-awareness \u00a74.3/\u00a74.4/\u00a75). - doc-ingest -> feature-spec (per docs/spec-*.md) + invariant (curated from README principles) - git-ingest -> evolution-event (recent commits / change-log) - gap-engine -> cross-layer `gap` re",
+    "key_symbols": [
+      "_prov",
+      "feature_specs",
+      "invariants",
+      "evolution_events",
+      "gaps",
+      "main"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/self_ingest_meta.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-self-load-py",
+    "name": "scripts/self_load.py",
+    "path": "scripts/self_load.py",
+    "responsibility": "Load the self-model into the LIVE versioned catalog via the platform's own write path (CatalogStore.upsert + refresh store promote). spec-self-awareness \u00a712/Phase 2. Merges the grounded classification (ecosystem.classified.json) into the operational ecosystem records (ecosystem.j",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/self_load.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-self-load-intent-py",
+    "name": "scripts/self_load_intent.py",
+    "path": "scripts/self_load_intent.py",
+    "responsibility": "Load the RATIFIED intentional layer (docs/tessera-intent.draft.md A/B/C/E) into the live active `tessera-self` version. Makes the self-model authoritative. \u00a74.1. Env: TESSERA_MEMORY_ID, CATALOG_REFRESH_TABLE, AWS_PROFILE/REGION",
+    "key_symbols": [
+      "R"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/self_load_intent.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-snapshot-v1-sh",
+    "name": "scripts/snapshot-v1.sh",
+    "path": "scripts/snapshot-v1.sh",
+    "responsibility": "scripts/snapshot-v1.sh",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/snapshot-v1.sh",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "scripts-wire-domains-py",
+    "name": "scripts/wire_domains.py",
+    "path": "scripts/wire_domains.py",
+    "responsibility": "Bulk: unify catalog naming to domain canon + wire ecosystems to their domain(s). Per eco: backup -> rename catalog namespaces to canonical -> scope write:[all] to seed producers -> POST /api/domains/{dom}/apply (adds domains[], mounts inherited read-only, recompiles). Reports per",
+    "key_symbols": [
+      "canon",
+      "seed",
+      "apply"
+    ],
+    "depends_on": [],
+    "produces": [
+      "scripts"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "scripts/wire_domains.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-init-py",
+    "name": "tessera_platform/__init__.py",
+    "path": "tessera_platform/__init__.py",
+    "responsibility": "tessera_platform source file",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/__init__.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-agentcore-src-main-py",
+    "name": "tessera_platform/agentcore/src/main.py",
+    "path": "tessera_platform/agentcore/src/main.py",
+    "responsibility": "Tessera Agent \u2014 Native AG-UI server on AgentCore Runtime. Uses ag-ui-strands to wrap a Strands agent and emit native AG-UI events. Events flow: RUN_STARTED \u2192 TEXT_MESSAGE_START \u2192 TEXT_MESSAGE_CONTENT (delta) \u2192 TEXT_MESSAGE_END \u2192 TOOL_CALL_START \u2192 TOOL_CALL_ARGS \u2192 TOOL_CALL_END \u2192 ",
+    "key_symbols": [
+      "_usage_record",
+      "_usage_pop",
+      "_UsageRecordingBedrockModel",
+      "_get_gateway_secret",
+      "_sanitize_http_response",
+      "_cap_with_marker",
+      "_html_to_text",
+      "_namespace_allowed",
+      "_namespace_to_actor_session",
+      "_is_single_segment",
+      "_is_prefix_only",
+      "_list_session_events"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/agentcore/src/main.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-catalog-init-py",
+    "name": "tessera_platform/catalog/__init__.py",
+    "path": "tessera_platform/catalog/__init__.py",
+    "responsibility": "tessera_platform.catalog \u2014 the shared, domain-agnostic catalog ingestion runtime. A new domain's ingest is DECLARATIVE (a descriptor + a records schema); this package executes it. See docs/spec-declarative-ingest.md. engine.CatalogStore \u2014 non-destructive incremental upsert into A",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/catalog/__init__.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-catalog-adapter-py",
+    "name": "tessera_platform/catalog/adapter.py",
+    "path": "tessera_platform/catalog/adapter.py",
+    "responsibility": "tessera_platform.catalog.adapter \u2014 the SourceAdapter contract. One declarative source = fetch (via connectors) + normalize (map | builder | agent). This is the single seam every domain source conforms to; the engine and orchestrator never change per domain. adapter = SourceAdapte",
+    "key_symbols": [
+      "SourceAdapter"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/catalog/adapter.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-catalog-blob-py",
+    "name": "tessera_platform/catalog/blob.py",
+    "path": "tessera_platform/catalog/blob.py",
+    "responsibility": "tessera_platform.catalog.blob \u2014 S3 overflow for oversized catalog records. AgentCore Memory rejects any record whose content.text exceeds 16,000 chars (BatchCreateMemoryRecords ValidationException). Rich, growing dossiers (e.g. enriched `risk` records) exceed that. Rather than TR",
+    "key_symbols": [
+      "_bucket",
+      "_s3",
+      "blob_key",
+      "_lean",
+      "pack",
+      "resolve",
+      "delete_ref"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/catalog/blob.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-catalog-connectors-py",
+    "name": "tessera_platform/catalog/connectors.py",
+    "path": "tessera_platform/catalog/connectors.py",
+    "responsibility": "tessera_platform.catalog.connectors \u2014 declarative fetchers per transport. A source's `fetch:` block is executed here \u2014 no per-domain code. Each transport splits into a PURE parser (unit-tested with in-memory bytes) and a thin network fetch, so the parsing logic is verifiable offl",
+    "key_symbols": [
+      "parse_json",
+      "parse_csv",
+      "parse_yaml",
+      "_render_tables_md",
+      "_strip_html",
+      "parse_html",
+      "_resolve_api_key",
+      "_apply_auth",
+      "_http_get",
+      "_t_http_json",
+      "_t_http_csv",
+      "_t_http_yaml"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/catalog/connectors.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-catalog-descriptor-py",
+    "name": "tessera_platform/catalog/descriptor.py",
+    "path": "tessera_platform/catalog/descriptor.py",
+    "responsibility": "tessera_platform.catalog.descriptor \u2014 load + validate a domain's declarative ingest. A domain's ingest lives in its descriptor's `ingest:` block (domains/<id>.yaml) or a sibling domains/<id>/catalog.yaml. This turns the declaration into validated SourceAdapters + refresh/synthesi",
+    "key_symbols": [
+      "Descriptor",
+      "_domains_dir",
+      "load_schema",
+      "load",
+      "_load_s3",
+      "from_dict"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/catalog/descriptor.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-catalog-engine-py",
+    "name": "tessera_platform/catalog/engine.py",
+    "path": "tessera_platform/catalog/engine.py",
+    "responsibility": "tessera_platform.catalog.engine \u2014 the domain-agnostic catalog write engine. Extracted VERBATIM (behavior-preserving) from lambdas/catalog-ingest/handler.py so every domain shares one incremental, non-destructive upsert engine instead of forking it. Operates purely on `(entity_typ",
+    "key_symbols": [
+      "slug",
+      "today_iso",
+      "content_hash",
+      "diff_plan",
+      "diff_snapshots",
+      "CatalogStore"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/catalog/engine.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-catalog-formats-py",
+    "name": "tessera_platform/catalog/formats.py",
+    "path": "tessera_platform/catalog/formats.py",
+    "responsibility": "tessera_platform.catalog.formats \u2014 shared, cross-domain STANDARD-FORMAT builders. These parse well-known authoritative formats (MITRE ATT&CK STIX, NIST OSCAL, MITRE ATLAS, VERIS/VCDB, OWASP, NIST AI RMF, Wiz CVDB) into entity-keyed catalog records. They are PLATFORM primitives \u2014 ",
+    "key_symbols": [
+      "_slug",
+      "_today",
+      "_mitre_ext",
+      "_live",
+      "build_attack_records",
+      "build_kev_records",
+      "_veris_keys",
+      "build_veris",
+      "build_owasp",
+      "build_nist",
+      "build_gai_risk",
+      "build_eu_ai_act"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/catalog/formats.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-catalog-mapping-py",
+    "name": "tessera_platform/catalog/mapping.py",
+    "path": "tessera_platform/catalog/mapping.py",
+    "responsibility": "tessera_platform.catalog.mapping \u2014 the declarative `mode: map` normalizer. Turns a raw fetched feed into `[(entity_type, key_field, record)]` from a pure, declarative spec \u2014 no per-domain Python. A spec is: { \"entity_type\": \"vulnerability\", \"key_field\": \"cve_or_ref\", \"select\": \"v",
+    "key_symbols": [
+      "_oscal_statement",
+      "_mitre_ext",
+      "_CatalogFunctions",
+      "_sel_oscal_controls",
+      "Mapping"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/catalog/mapping.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-catalog-normalize-py",
+    "name": "tessera_platform/catalog/normalize.py",
+    "path": "tessera_platform/catalog/normalize.py",
+    "responsibility": "tessera_platform.catalog.normalize \u2014 schema validation + the agentic normalizer. For unstructured/HTML/PDF sources with no clean feed (`normalize.mode: agent`). A generic normalizer agent turns raw source text into schema-conformant catalog records, fenced by JSON-Schema validati",
+    "key_symbols": [
+      "load_schema",
+      "_def_for",
+      "_minimal_validate",
+      "validate_record",
+      "render_key",
+      "_default_model",
+      "AgentNormalizer"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/catalog/normalize.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-catalog-orchestrate-py",
+    "name": "tessera_platform/catalog/orchestrate.py",
+    "path": "tessera_platform/catalog/orchestrate.py",
+    "responsibility": "tessera_platform.catalog.orchestrate \u2014 generic, descriptor-driven ingest verbs. The single place ingestion is orchestrated for ANY domain. The Lambda handler is a thin shim: load the domain's descriptor, dispatch the action here. Core functions take injectable deps (store, refres",
+    "key_symbols": [
+      "_report_summary",
+      "ingest_all",
+      "ingest_source",
+      "mark_source",
+      "mark_run",
+      "plan_synthesis",
+      "get_mission",
+      "checkpoint_cluster",
+      "coverage",
+      "mint_version",
+      "build_version",
+      "validate_version"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/catalog/orchestrate.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-catalog-store-py",
+    "name": "tessera_platform/catalog/store.py",
+    "path": "tessera_platform/catalog/store.py",
+    "responsibility": "tessera_platform.catalog.store \u2014 refresh state store (DynamoDB single-table). THE single shared copy (previously duplicated byte-for-byte in lambdas/catalog-ingest/ and lambdas/catalog-api/). Backs incremental checkpoints (resume), the per-source manifest (versioning), per-cluste",
+    "key_symbols": [
+      "_table",
+      "_now",
+      "put_source_manifest",
+      "get_source_manifest",
+      "put_source",
+      "put_cluster",
+      "get_cluster",
+      "get_run",
+      "put_run",
+      "query_domain",
+      "acquire_lock",
+      "release_lock"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/catalog/store.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-catalog-synth-risk-py",
+    "name": "tessera_platform/catalog/synth_risk.py",
+    "path": "tessera_platform/catalog/synth_risk.py",
+    "responsibility": "tessera_platform.catalog.synth_risk \u2014 the cyber-security-risk synthesis plugin. The OPTIONAL Synthesizer plugin (spec-declarative-ingest.md \u00a75) for the risk domain, runnable on the GENERIC ingest path: `synthesis: {plugin: tessera_platform.catalog.synth_risk}`. Two halves: \u2022 PURE",
+    "key_symbols": [
+      "cluster",
+      "cluster_agentic",
+      "cluster_scenarios",
+      "_obligation_gov_cat",
+      "cluster_governance",
+      "_slug",
+      "_tech_matches",
+      "enumerate_slots",
+      "covered_cells",
+      "_slot_covered",
+      "plan_slots",
+      "cluster_digest"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/catalog/synth_risk.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-catalog-synthesis-py",
+    "name": "tessera_platform/catalog/synthesis.py",
+    "path": "tessera_platform/catalog/synthesis.py",
+    "responsibility": "tessera_platform.catalog.synthesis \u2014 the OPTIONAL synthesis plugin contract. Most domains need no synthesis (advice: `synthesis: none`). Domains that derive records (risk: cluster ATT&CK tactics -> risk slots) declare `synthesis: {plugin: <module>}` and the plugin implements this",
+    "key_symbols": [
+      "Synthesizer",
+      "NoopSynthesizer",
+      "ModuleSynthesizer",
+      "load_synthesizer"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/catalog/synthesis.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-compiler-init-py",
+    "name": "tessera_platform/compiler/__init__.py",
+    "path": "tessera_platform/compiler/__init__.py",
+    "responsibility": "tessera_platform source file",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/compiler/__init__.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-compiler-yaml-to-asl-py",
+    "name": "tessera_platform/compiler/yaml_to_asl.py",
+    "path": "tessera_platform/compiler/yaml_to_asl.py",
+    "responsibility": "Tessera Compiler \u2014 YAML ecosystem \u2192 AWS Step Functions ASL. Reads an ecosystem YAML and produces an Amazon States Language definition that orchestrates agents via AgentCore Runtime invocations. Injects platform agents (challenger, report) based on quality settings.",
+    "key_symbols": [
+      "challenger_agent_config",
+      "report_agent_config",
+      "compile_ecosystem",
+      "build_dag_state_machine",
+      "build_agent_task",
+      "compute_layers",
+      "layer_name",
+      "compile_all"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/compiler/yaml_to_asl.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-orchestrator-init-py",
+    "name": "tessera_platform/orchestrator/__init__.py",
+    "path": "tessera_platform/orchestrator/__init__.py",
+    "responsibility": "tessera_platform source file",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/orchestrator/__init__.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-orchestrator-engine-py",
+    "name": "tessera_platform/orchestrator/engine.py",
+    "path": "tessera_platform/orchestrator/engine.py",
+    "responsibility": "Tessera Ecosystem Orchestrator \u2014 Runs ecosystem YAML configurations. Handles: graph execution, parallel swarms, decision points, memory namespace enforcement.",
+    "key_symbols": [
+      "AgentStatus",
+      "ExerciseState",
+      "Orchestrator"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/orchestrator/engine.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tessera-platform-orchestrator-server-py",
+    "name": "tessera_platform/orchestrator/server.py",
+    "path": "tessera_platform/orchestrator/server.py",
+    "responsibility": "Tessera Orchestrator \u2014 Calls real agent HTTP services via A2A protocol. Loads ecosystem YAML, resolves agent endpoints from Registry, calls each agent via A2A (POST /a2a), streams their AG-UI events to the frontend.",
+    "key_symbols": [
+      "check_grounding",
+      "REPORT_AGENT_CONFIG",
+      "CHALLENGER_AGENT_CONFIG",
+      "call_agent",
+      "run_ecosystem",
+      "run_dag",
+      "run_choreography",
+      "list_ecosystems",
+      "get_ecosystem",
+      "suggest_agent",
+      "suggest_ecosystem",
+      "save_ecosystem"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tessera_platform"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tessera_platform/orchestrator/server.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-init-py",
+    "name": "tests/__init__.py",
+    "path": "tests/__init__.py",
+    "responsibility": "tests source file",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/__init__.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-builder-eval-test-builder-compile-py",
+    "name": "tests/builder_eval/test_builder_compile.py",
+    "path": "tests/builder_eval/test_builder_compile.py",
+    "responsibility": "Builder eval harness \u2014 regression suite for the conversational builder. Two layers: 1. DETERMINISTIC (always runs, no Bedrock): given an agreed DesignState, assert the builder's compile contract (`_compile_design_to_yaml` + `_extract_*`) produces the expected ecosystem SHAPE \u2014 de",
+    "key_symbols": [
+      "_load_builder",
+      "_bundle_design",
+      "_report_design",
+      "test_bundle_deliverable_shape",
+      "test_per_level_quality_block",
+      "test_report_only_has_no_drafter",
+      "test_unsupported_format_is_clamped",
+      "test_extract_quality_normalizes_legacy_bool",
+      "test_live_first_turn_is_chat_first",
+      "record_post_gen_edit"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/builder_eval/test_builder_compile.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-conftest-py",
+    "name": "tests/conftest.py",
+    "path": "tests/conftest.py",
+    "responsibility": "os.environ[\"AWS_DEFAULT_REGION\"] = \"us-east-1\"",
+    "key_symbols": [
+      "aws_env"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/conftest.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-ground-truth-init-py",
+    "name": "tests/ground_truth/__init__.py",
+    "path": "tests/ground_truth/__init__.py",
+    "responsibility": "tests source file",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/ground_truth/__init__.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-ground-truth-conftest-py",
+    "name": "tests/ground_truth/conftest.py",
+    "path": "tests/ground_truth/conftest.py",
+    "responsibility": "Ground Truth Testing Framework. Each capability defines: - A dataset of known-correct inputs/outputs - An accuracy threshold - Deployment is blocked if accuracy drops below threshold Usage: Define test cases as (input, expected_output) pairs. Use assert_threshold() to enforce min",
+    "key_symbols": [
+      "assert_threshold",
+      "TestGroundTruthFramework"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/ground_truth/conftest.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-ground-truth-test-risk-reasoning-py",
+    "name": "tests/ground_truth/test_risk_reasoning.py",
+    "path": "tests/ground_truth/test_risk_reasoning.py",
+    "responsibility": "Ground truth tests for Risk Reasoning ecosystem. These tests validate AI capabilities against known-correct datasets. Each test loads a dataset, runs the capability, and asserts threshold.",
+    "key_symbols": [
+      "TestRiskCatalogIngestion",
+      "TestRiskMatching",
+      "TestFAIRCalculation"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/ground_truth/test_risk_reasoning.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-integration-init-py",
+    "name": "tests/integration/__init__.py",
+    "path": "tests/integration/__init__.py",
+    "responsibility": "tests source file",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/integration/__init__.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-integration-test-red-vs-blue-py",
+    "name": "tests/integration/test_red_vs_blue.py",
+    "path": "tests/integration/test_red_vs_blue.py",
+    "responsibility": "Integration test: Red vs Blue exercise end-to-end. Validates: orchestrator executes both swarms, tools route correctly, memory isolation enforced, AG-UI events emitted, decisions work.",
+    "key_symbols": [
+      "TestExerciseExecution",
+      "TestMemoryIsolation",
+      "TestToolExecution",
+      "TestAGUIEventStream"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/integration/test_red_vs_blue.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-regression-check-features-py",
+    "name": "tests/regression/check-features.py",
+    "path": "tests/regression/check-features.py",
+    "responsibility": "tests/regression/check-features.py Verifies that a Phase 4.5 regression test execution exercised every platform feature it was designed to test. Reads the SFN execution history, fetches per- agent outputs from S3, and prints a feature-coverage table. Exit code 0 if every feature ",
+    "key_symbols": [
+      "fetch_s3",
+      "find_state_for_succeeded",
+      "collect_agent_outputs",
+      "main"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/regression/check-features.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-regression-run-phase-test-sh",
+    "name": "tests/regression/run-phase-test.sh",
+    "path": "tests/regression/run-phase-test.sh",
+    "responsibility": "tests/regression/run-phase-test.sh",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/regression/run-phase-test.sh",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-init-py",
+    "name": "tests/unit/__init__.py",
+    "path": "tests/unit/__init__.py",
+    "responsibility": "tests source file",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/__init__.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-platform-init-py",
+    "name": "tests/unit/platform/__init__.py",
+    "path": "tests/unit/platform/__init__.py",
+    "responsibility": "tests source file",
+    "key_symbols": [],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/platform/__init__.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-platform-test-browser-tool-py",
+    "name": "tests/unit/platform/test_browser_tool.py",
+    "path": "tests/unit/platform/test_browser_tool.py",
+    "responsibility": "Unit tests for the `browser` platform tool, its SSRF guard, the server-side screenshot-ref inlining in agent-invoker, and the stage.yaml webapp_explorer wiring. Runtime deps ag_ui / ag_ui_strands are not installed in the test venv, so we stub just those two before importing the r",
+    "key_symbols": [
+      "_load_runtime",
+      "_load_invoker",
+      "test_ssrf_guard_allows_public_https",
+      "test_ssrf_guard_blocks_dangerous_urls",
+      "test_browser_is_opt_in_not_ambient",
+      "test_browser_granted_only_when_declared",
+      "test_browser_worker_class_exists",
+      "test_inline_screenshot_refs_replaces_token_with_data_uri",
+      "test_inline_screenshot_refs_degrades_on_missing_object",
+      "test_inline_screenshot_refs_noop_without_token",
+      "test_stage_yaml_has_webapp_explorer_wired",
+      "test_stage_yaml_compiles"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/platform/test_browser_tool.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-platform-test-gateway-py",
+    "name": "tests/unit/platform/test_gateway.py",
+    "path": "tests/unit/platform/test_gateway.py",
+    "responsibility": "sys.path.insert(0, os.path.join(os.path.dirname(__file__), \"../../..\"))",
+    "key_symbols": [
+      "TestGatewayListTools",
+      "TestGatewayCallTool",
+      "TestGatewaySearch",
+      "TestGatewayInvalidMethod"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/platform/test_gateway.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-platform-test-memory-py",
+    "name": "tests/unit/platform/test_memory.py",
+    "path": "tests/unit/platform/test_memory.py",
+    "responsibility": "sys.path.insert(0, os.path.join(os.path.dirname(__file__), \"../../..\"))",
+    "key_symbols": [
+      "_invoke",
+      "TestMemoryWrite",
+      "TestMemoryDelete"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/platform/test_memory.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-platform-test-registry-py",
+    "name": "tests/unit/platform/test_registry.py",
+    "path": "tests/unit/platform/test_registry.py",
+    "responsibility": "sys.path.insert(0, os.path.join(os.path.dirname(__file__), \"../../..\"))",
+    "key_symbols": [
+      "TestRegistryRegister",
+      "TestRegistryGet",
+      "TestRegistryList",
+      "TestRegistryDeregister"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/platform/test_registry.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-advice-domain-py",
+    "name": "tests/unit/test_advice_domain.py",
+    "path": "tests/unit/test_advice_domain.py",
+    "responsibility": "Proof of the whole model: a NEW domain (au-financial-advice) ingests with ZERO code \u2014 only domains/au-financial-advice.yaml + domains/schemas/au-financial-advice.records.json. The generic runtime loads the descriptor, builds agentic adapters, and the schema drives validation. No ",
+    "key_symbols": [
+      "test_advice_domain_loads_from_declaration_only",
+      "test_advice_schema_validates_records",
+      "test_advice_agent_adapter_end_to_end_with_fake_model"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_advice_domain.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-agent-invoker-records-py",
+    "name": "tests/unit/test_agent_invoker_records.py",
+    "path": "tests/unit/test_agent_invoker_records.py",
+    "responsibility": "Unit tests for agent-invoker multi-record catalog extraction helpers.",
+    "key_symbols": [
+      "_mod",
+      "test_extract_json_records_objects_and_arrays",
+      "test_extract_json_records_ignores_malformed",
+      "test_record_key_resolves_and_slugifies",
+      "test_extract_json_records_empty_when_none",
+      "test_record_key_agent_mode_fields",
+      "test_mission_field_parses_produces",
+      "test_catalog_type_templates_namespace"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_agent_invoker_records.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-ai-governance-py",
+    "name": "tests/unit/test_ai_governance.py",
+    "path": "tests/unit/test_ai_governance.py",
+    "responsibility": "AI-governance layer: curated builders + governance synthesis clustering. Verifies the EU AI Act / NIST AI RMF / AI-incident / crosswalk builders and that the synth plugin clusters governance risks (fairness-bias, transparency, \u2026) from GAI risks x obligations x controls x incident",
+    "key_symbols": [
+      "test_governance_builders_shape",
+      "test_cluster_governance_and_slots",
+      "test_governance_additive_coverage_exact_id"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_ai_governance.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-blue-green-py",
+    "name": "tests/unit/test_blue_green.py",
+    "path": "tests/unit/test_blue_green.py",
+    "responsibility": "Tests for the blue/green versioned catalog release pattern (spec \u00a75a): build a fresh GREEN version, gate on a green-vs-blue content diff, atomically promote, retire the old. Uses in-memory fakes for Memory + the refresh store (no AWS).",
+    "key_symbols": [
+      "test_catalogstore_namespaces_are_version_scoped",
+      "test_diff_snapshots_detects_identity_and_drift",
+      "FakeStore",
+      "FakeRefresh",
+      "_owasp_descriptor",
+      "test_blue_green_build_validate_promote_retire",
+      "test_promote_records_previous_for_rollback",
+      "test_migrate_builds_and_gates_promotion",
+      "test_bootstrap_stamps_existing_into_version",
+      "_synthesis_descriptor",
+      "_synth_into",
+      "test_versioned_build_ready_when_inputs_identical_and_coverage_met"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_blue_green.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-catalog-api-py",
+    "name": "tests/unit/test_catalog_api.py",
+    "path": "tests/unit/test_catalog_api.py",
+    "responsibility": "Unit tests for catalog-api pure helpers (no boto3, no network).",
+    "key_symbols": [
+      "_mod",
+      "test_parse_route",
+      "test_record_from_summary_parses_json_and_attaches_ns",
+      "test_record_from_summary_handles_nonjson",
+      "test_filter_records_severity_tactic_q",
+      "test_cors_headers_present",
+      "test_agent_mission_builds_input_context"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_catalog_api.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-catalog-blob-py",
+    "name": "tests/unit/test_catalog_blob.py",
+    "path": "tests/unit/test_catalog_blob.py",
+    "responsibility": "S3 overflow for oversized catalog records (tessera_platform.catalog.blob) + engine wiring. Verifies full-fidelity storage without truncation: a record that exceeds the 16k Memory cap is written whole to S3 with a lean record + content_ref kept in Memory; resolve() reconstitutes t",
+    "key_symbols": [
+      "FakeS3",
+      "_Body",
+      "fake_s3",
+      "test_small_record_stays_inline",
+      "test_large_record_offloads_full_to_s3_and_resolves",
+      "FakeAC",
+      "FakeCPC",
+      "test_engine_offloads_and_loads_full"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_catalog_blob.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-catalog-ingest-py",
+    "name": "tests/unit/test_catalog_ingest.py",
+    "path": "tests/unit/test_catalog_ingest.py",
+    "responsibility": "Unit tests for the catalog-ingest pure builders (no network, no boto3).",
+    "key_symbols": [
+      "_mod",
+      "test_build_attack_records_techniques_controls_and_xrefs",
+      "test_build_attack_records_tech_limit_caps_techniques_only",
+      "test_build_kev_records_shapes_vulnerability_and_ransomware_flag",
+      "test_build_kev_records_limit",
+      "test_build_owasp_llm_and_agentic",
+      "test_build_nist_ai_rmf",
+      "test_build_veris_breach_shaping_and_cap",
+      "test_build_wiz_cloud_vuln",
+      "test_build_nist80053_oscal_controls_and_enhancements",
+      "test_content_hash_ignores_volatile_provenance",
+      "test_diff_plan_create_update_skip"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_catalog_ingest.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-catalog-write-path-py",
+    "name": "tests/unit/test_catalog_write_path.py",
+    "path": "tests/unit/test_catalog_write_path.py",
+    "responsibility": "Real CatalogStore.upsert write path (batched Memory writes). The upsert write mechanics (create/update/deprecate + batching at the 100-record API cap) were previously only exercised indirectly. This pins them with a fake bedrock-agentcore client, guarding the change that batches ",
+    "key_symbols": [
+      "FakeAC",
+      "FakeCPC",
+      "_store",
+      "test_upsert_batches_creates_at_100_cap",
+      "test_upsert_update_and_deprecate_semantics",
+      "test_upsert_sanity_guard_aborts_on_mass_drop"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_catalog_write_path.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-declarative-ingest-py",
+    "name": "tests/unit/test_declarative_ingest.py",
+    "path": "tests/unit/test_declarative_ingest.py",
+    "responsibility": "Tests for the declarative ingest framework (docs/spec-declarative-ingest.md). Covers: shared builders parity vs the handler; connector parsers; descriptor validation; SourceAdapter (map/builder); agentic normalizer + schema validation; generic orchestrator with fakes; and the ris",
+    "key_symbols": [
+      "_handler",
+      "test_formats_builders_match_handler",
+      "test_connector_parsers",
+      "test_connector_static_no_network",
+      "test_connector_unknown_transport_raises",
+      "test_descriptor_validates_and_lists_sources",
+      "test_descriptor_rejects_bad_specs",
+      "test_adapter_map_mode",
+      "test_adapter_builder_static_needs_no_fetch",
+      "test_agent_normalizer_validates_and_keys_and_drops_bad",
+      "test_validate_record_reports_errors",
+      "_FakeStore"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_declarative_ingest.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-declarative-mapping-py",
+    "name": "tests/unit/test_declarative_mapping.py",
+    "path": "tests/unit/test_declarative_mapping.py",
+    "responsibility": "Parity proof for the declarative mapping DSL (docs/spec-declarative-ingest.md, Stage 3). Asserts that a DECLARATIVE `mode: map` spec reproduces the hand-written Python normalizers in lambdas/catalog-ingest/handler.py BYTE-FOR-BYTE on the same fixtures. If these pass, the determin",
+    "key_symbols": [
+      "_ingest",
+      "test_kev_declarative_matches_python_builder",
+      "test_kev_declarative_limit_matches",
+      "test_nist80053_oscal_declarative_matches_python_builder",
+      "test_engine_pure_functions_match_handler"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_declarative_mapping.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-domain-converse-py",
+    "name": "tests/unit/test_domain_converse.py",
+    "path": "tests/unit/test_domain_converse.py",
+    "responsibility": "Unit tests for the conversational domain builder (Phase 1) in lambdas/domain-seed. Covers the pure two-part parser (_parse_domain_turn) and the handler's mode=converse dispatch. No boto3 / no network \u2014 the Bedrock call (_converse_text) is monkeypatched.",
+    "key_symbols": [
+      "_mod",
+      "test_parse_turn_open_normalizes_taxonomy",
+      "test_parse_turn_converged",
+      "test_parse_turn_no_marker_is_safe",
+      "test_handler_converse_dispatch"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_domain_converse.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-risk-catalog-py",
+    "name": "tests/unit/test_risk_catalog.py",
+    "path": "tests/unit/test_risk_catalog.py",
+    "responsibility": "Unit tests \u2014 cyber-security-risk catalog contract + ATT&CK ingestion (R.1). No AWS required. Guards: - the record JSON Schema is meta-valid (draft 2020-12) - the schema's key patterns match the live domain taxonomy - the producer's normalize() emits schema-valid attack-technique ",
+    "key_symbols": [
+      "_load_schema",
+      "_ingest_module",
+      "test_schema_is_meta_valid",
+      "test_schema_keys_match_domain",
+      "test_every_keyed_type_has_a_def",
+      "test_normalize_produces_schema_valid_record",
+      "test_normalize_skips_pattern_without_mitre_id",
+      "test_slug_is_stable_and_safe",
+      "test_build_records_entity_keys_and_payload"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_risk_catalog.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-risk-cluster-py",
+    "name": "tests/unit/test_risk_cluster.py",
+    "path": "tests/unit/test_risk_cluster.py",
+    "responsibility": "Unit tests for the deterministic risk clustering (pure, no network).",
+    "key_symbols": [
+      "_mod",
+      "_fixture",
+      "test_cluster_groups_by_tactic_and_gathers_controls",
+      "test_cluster_prefers_mitigated_techniques_and_caps",
+      "test_cluster_attaches_exploited_ransomware_context_only"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_risk_cluster.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-risk-fair-py",
+    "name": "tests/unit/test_risk_fair.py",
+    "path": "tests/unit/test_risk_fair.py",
+    "responsibility": "Unit tests \u2014 FAIR Monte-Carlo + decision-tree EMV (R.3). No AWS. Run: pytest tests/unit/test_risk_fair.py -q --noconftest",
+    "key_symbols": [
+      "_m",
+      "test_fair_percentiles_monotonic_and_positive",
+      "test_fair_is_deterministic_with_seed",
+      "test_fair_control_reduces_ale",
+      "test_fair_from_record_requires_defaults",
+      "test_emv_exact_and_recommends_implement",
+      "test_emv_recommends_accept_when_hedge_too_costly"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_risk_fair.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-risk-match-py",
+    "name": "tests/unit/test_risk_match.py",
+    "path": "tests/unit/test_risk_match.py",
+    "responsibility": "Unit tests \u2014 consumer deterministic matcher (R.3). No AWS required. Run: pytest tests/unit/test_risk_match.py -q --noconftest",
+    "key_symbols": [
+      "_m",
+      "test_match_ranks_platform_and_keyword_hits_first",
+      "test_match_scoring_components_contribute",
+      "test_match_empty_architecture_returns_nothing",
+      "test_match_is_deterministic",
+      "test_match_respects_top_k"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_risk_match.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-risk-synth-plugin-py",
+    "name": "tests/unit/test_risk_synth_plugin.py",
+    "path": "tests/unit/test_risk_synth_plugin.py",
+    "responsibility": "Risk synthesis plugin (tessera_platform.catalog.synth_risk) on the GENERIC ingest path. Proves: \u2022 the shared plugin exposes the Synthesizer contract `plan_synthesis(store, domain, event)` \u2022 it reads inputs via the (version-scoped) store, clusters, enumerates standards-anchored sl",
+    "key_symbols": [
+      "FakeStore",
+      "_inputs",
+      "test_plan_synthesis_returns_contract_and_clusters",
+      "test_plan_synthesis_additive_topup_suppresses_covered_slots",
+      "test_generic_orchestrator_loads_plugin_from_descriptor",
+      "test_legacy_shim_reexports_same_functions"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_risk_synth_plugin.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  },
+  {
+    "component_id": "tests-unit-test-version-aware-synthesis-py",
+    "name": "tests/unit/test_version_aware_synthesis.py",
+    "path": "tests/unit/test_version_aware_synthesis.py",
+    "responsibility": "Version-aware synthesis wiring + the gai-risk builder. - gai-risk builder (NIST AI 600-1) produces the 12 durable GAI-risk reference records. - synth_risk.plan_synthesis prepends a `catalog_version:` line to each mission when the store is version-scoped, so agent-invoker auto-per",
+    "key_symbols": [
+      "test_gai_risk_builder_produces_nist_ai_600_1_records",
+      "_VersionStore",
+      "test_plan_synthesis_embeds_catalog_version_in_missions",
+      "test_plan_synthesis_no_version_header_for_unversioned_store"
+    ],
+    "depends_on": [],
+    "produces": [
+      "tests"
+    ],
+    "provenance": {
+      "layer": "code-grounded",
+      "source_ref": "tests/unit/test_version_aware_synthesis.py",
+      "confidence": "high",
+      "captured_at": "2026-07-14T06:31:20.071306+00:00"
+    }
+  }
+]

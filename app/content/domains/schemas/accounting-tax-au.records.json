@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tessera.dev/schemas/accounting-tax-au.records.json",
+  "title": "accounting-tax-au domain — catalog record contract",
+  "description": "Entity-keyed reference records for the AU accounting & tax-risk domain. Anchored on authoritative governing statutes from the Federal Register of Legislation (legislation.gov.au) via the OData API and Australian Accounting Standards from the AASB. A specific entity's accounting treatment, tax position, provision, or disclosure judgement for a run are CONCLUSIONS — NEVER cataloged.",
+  "x-tessera-domain": "accounting-tax-au",
+  "x-tessera-keys": {
+    "legal-instrument": "{instrument_id}",
+    "accounting-standard": "{standard_id}",
+    "tax-guidance": "{guidance_id}"
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "ingested_by": { "type": "string" },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "refresh_date": { "type": "string", "format": "date" },
+        "supersedes": { "type": "string" }
+      },
+      "required": ["ingested_by", "refresh_date"]
+    },
+    "legal-instrument": {
+      "type": "object",
+      "description": "An authoritative governing Act from the Federal Register of Legislation — Income Tax Assessment Act 1997/1936, Corporations Act 2001 (financial reporting, Ch 2M) — register id + current in-force status.",
+      "properties": {
+        "instrument_id": { "type": "string", "examples": ["C2004A05138", "C1936A00027", "C2004A00818"] },
+        "title": { "type": "string" },
+        "collection": { "type": "string", "examples": ["Act"] },
+        "in_force": { "type": "boolean" },
+        "status": { "type": "string", "examples": ["InForce", "Repealed"] },
+        "making_date": { "type": "string" },
+        "register_url": { "type": "string", "format": "uri" },
+        "administered_by": { "type": "string", "examples": ["ATO", "ASIC"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["instrument_id", "title", "provenance"]
+    },
+    "accounting-standard": {
+      "type": "object",
+      "description": "An Australian Accounting Standard (AASB) — its number, title, and objective (e.g. AASB 9 Financial Instruments, AASB 15 Revenue, AASB 16 Leases, AASB 137 Provisions, AASB 112 Income Taxes).",
+      "properties": {
+        "standard_id": { "type": "string", "examples": ["aasb-9", "aasb-15", "aasb-16", "aasb-112", "aasb-137"] },
+        "title": { "type": "string", "examples": ["Financial Instruments", "Revenue from Contracts with Customers"] },
+        "objective": { "type": "string", "description": "what the standard prescribes" },
+        "administered_by": { "type": "string", "examples": ["AASB"] },
+        "status": { "type": "string", "examples": ["current", "superseded"] },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["standard_id", "title", "provenance"]
+    },
+    "tax-guidance": {
+      "type": "object",
+      "description": "An ATO ruling / guidance item (public ruling, taxation ruling, practical compliance guideline). Populated bottom-up from runs (no reliable small ATO index source wired yet).",
+      "properties": {
+        "guidance_id": { "type": "string", "examples": ["tr-2024-1", "pcg-2023-1"] },
+        "title": { "type": "string" },
+        "summary": { "type": "string" },
+        "topic": { "type": "string", "examples": ["transfer-pricing", "thin-capitalisation", "r&d-tax-incentive", "gst"] },
+        "administered_by": { "type": "string", "examples": ["ATO"] },
+        "status": { "type": "string" },
+        "references": { "type": "array", "items": { "type": "string", "format": "uri" } },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "required": ["guidance_id", "title", "provenance"]
+    }
+  }
+}

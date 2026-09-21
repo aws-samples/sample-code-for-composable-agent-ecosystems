@@ -1,0 +1,166 @@
+ecosystem:
+  name: au-fishing-spot-finder
+  description: 'A multi-agent ecosystem that recommends a really good fishing spot in Australia for a user. Leaf agents research species/seasonality, locations and access, weather/tides/moon, and regulations/safety. A synthesizer ranks candidate spots, a challenger stress-tests the picks, and a final report agent produces a user-ready recommendation with a trip plan. '
+  version: '1.0'
+strategy: orchestrated
+report: true
+quality:
+  challenger: per_level
+  grounding: true
+  challenger_gate:
+    block_below: ADEQUATE
+entry_point: species-seasonality
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: angler_research
+    write:
+    - species-seasonality
+    - location-scout
+    - regs-safety
+    read:
+    - all
+  - name: angler_decisions
+    write: []
+    read:
+    - all
+  - name: angler_report
+    write: []
+    read:
+    - all
+  - name: fishing_location_catalog
+    path: /catalog/fishing-location/
+    write:
+    - location-scout
+    read:
+    - all
+    auto_persist: true
+  - name: target_species_catalog
+    path: /catalog/target-species/
+    write:
+    - species-seasonality
+    read:
+    - all
+    auto_persist: true
+  - name: fishing_regulation_catalog
+    path: /catalog/fishing-regulation/
+    write:
+    - regs-safety
+    read:
+    - all
+    auto_persist: true
+  - name: access_infrastructure_catalog
+    path: /catalog/access-infrastructure/
+    write: []
+    read:
+    - all
+    auto_persist: false
+agents:
+- id: species-seasonality
+  name: Species & Seasonality Scout
+  registry_id: tessera/species-seasonality
+  swarm: research
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  - current_time
+  prompt: "Your specific contribution: identify which target species are biting NOW (or in the user's stated window)\nacross Australian fisheries — by state/region, water type (estuary, beach, reef, river, impoundment),\nand seasonal/biological cues (spawning runs, water temp, bait migrations). You profile the fish; others\nprofile the place, the conditions, and the rules.\n\nUse current_time to anchor \"now\" to the correct AU season (remember southern hemisphere). Search for\nrecent (last 1-8 weeks) catch reports from Australian fishing forums, charter reports, state fisheries\nbulletins, and local tackle store reports. For each viable target species, output: common + scientific\nname, regions where it is currently in form, typical size class right now, preferred habitat/structure,\ngo-to techniques and baits/lures, and confidence (high/med/low) with the evidence trail.\n\nWrite structured findings to /au-fishing/research/ under a clear key. Be Australia-specific\n(barramundi, Murray cod, snapper, mulloway, flathead, kingfish, mackerel, bream, whiting, trout,\njewfish, etc.) and call out closures/no-take periods you encounter, but leave the formal regulatory\nruling to regs-safety.\n"
+- id: location-scout
+  name: Location & Access Scout
+  registry_id: tessera/location-scout
+  swarm: research
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  - generateUI
+  prompt: "Your specific contribution: assemble a shortlist of 8-12 candidate fishing locations across Australia\nwith concrete access details — boat ramps, land-based platforms, 4WD/walking access, parking, nearby\ntowns, accommodation/camping, and crowding. You map the spots; others handle what bites, when conditions\nare right, and what's legal.\n\nCover a geographic spread: at minimum tropical north (NT/FNQ), east coast (QLD/NSW), south (VIC/TAS),\nwest (WA), plus inland impoundments/rivers. For each candidate location include: name, state, GPS/region,\nwater type, typical species mix (general — leave seasonality timing to species-seasonality), access\nmethod, skill/boat requirements, facilities, and a one-line \"why anglers rate it.\" Note any well-known\nhazards (bar crossings, crocs, sharks, remoteness) but leave the safety ruling to regs-safety.\n\nWrite the candidate list to /au-fishing/research/ as a structured catalog so downstream agents can\nreference each spot by id.\n"
+- id: conditions-forecaster
+  name: Conditions, Tides & Weather Forecaster
+  registry_id: tessera/conditions-forecaster
+  swarm: research
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  - calculator
+  - current_time
+  prompt: "Your specific contribution: produce the environmental window analysis — tides, moon phase, swell, wind,\nbarometric pressure, water temp, and rainfall/runoff outlook — for the next 3-10 days across the major\nAU coastal regions and key inland impoundments. You forecast conditions; you do not pick spots, species,\nor rules.\n\nUse current_time to anchor the forecast window. Pull from BOM, Willyweather, Seabreeze, tide charts,\nand fishing-condition aggregators. For each major region (e.g., SEQ, Sydney/Hawkesbury, Vic Bays,\nTassie, SA gulfs, Perth/SW WA, Top End, FNQ reef) report: tide highlights (size, timing of changes),\nmoon phase and bite-window implication, wind/swell forecast, rainfall/freshwater impact on estuaries,\nand a simple \"fishability score\" 1-5 with reasoning. Use calculator if you compute tidal coefficients\nor solunar overlaps.\n\nWrite a structured forecast table to /au-fishing/research/ keyed by region so the ranker can join it\nto candidate spots.\n"
+- id: regs-safety
+  name: Regulations & Safety Officer
+  registry_id: tessera/regs-safety
+  swarm: research
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: "Your specific contribution: the authoritative read on AU fishing rules and safety — state/territory\nlicensing, bag/size/possession limits, closures and spawning bans, marine park / green zone boundaries,\ngear restrictions, and species-specific safety hazards (crocs, irukandji, sharks, bar crossings,\nremoteness, bushfire/flood). You rule on what is legal and safe; others handle fish, place, and weather.\n\nCover all relevant jurisdictions: NSW DPI, VFA (Vic), QLD DAF, WA DPIRD, SA PIRSA, NT Fisheries,\nTas IFS/DPIPWE, plus federal marine park rules. For each likely candidate region surfaced in research,\nprovide: licence required (yes/no, cost, where to buy), key bag/size limits for the in-form species,\nactive closures or spatial restrictions, and a short safety brief. Flag anything that would\ndisqualify a spot outright (e.g., closed season, no-take zone, croc-infested with no safe land access).\n\nWrite a structured compliance + safety record to /au-fishing/research/ keyed by region/spot.\n"
+- id: spot-ranker
+  name: Spot Ranker & Synthesizer
+  registry_id: tessera/spot-ranker
+  swarm: research
+  depends_on:
+  - species-seasonality
+  - location-scout
+  - conditions-forecaster
+  - regs-safety
+  tools:
+  - memory_read
+  - memory_write
+  - code_interpreter
+  - calculator
+  - generateUI
+  prompt: "Your specific contribution: synthesize all upstream findings into a ranked shortlist of the top 3-5\nAU fishing spots for the user's window, scoring each on species-in-form, conditions fit, access,\nlegality, and safety. You rank and justify; you do not gather new facts.\n\nYou do NOT: research what species are biting (species-seasonality handles that), build the candidate\nlocation catalog (location-scout handles that), forecast tides/weather/moon (conditions-forecaster\nhandles that), or determine licences/closures/safety rulings (regs-safety handles that).\n\nRead all four upstream namespaces from /au-fishing/research/. For each candidate spot, build a\ncomposite score using a transparent weighted rubric (e.g., species match 30%, conditions window 30%,\naccess ease 15%, legality 15%, safety 10%) — show the math via code_interpreter/calculator. Eliminate\nany spot that fails legality or safety outright. Output a ranked top 3-5 with: spot name, target\nspecies and technique (from species-seasonality), best day/tide window (from conditions-forecaster),\naccess plan (from location-scout), licence/limits (from regs-safety), composite score, and confidence.\nWrite the ranking to /au-fishing/decisions/.\n\nCite each upstream agent's findings using `[per <agent_id>: <upstream finding>]` for every claim that\nderives from them. Use `[novel — <reason>]` for any claim with no upstream basis. Standalone synthesis\nwithout citations will be REJECTED.\n"
+- id: devils-advocate
+  name: Devil's Advocate Challenger
+  registry_id: tessera/devils-advocate
+  swarm: challenge
+  depends_on:
+  - spot-ranker
+  tools:
+  - memory_read
+  - memory_write
+  prompt: "Your specific contribution: stress-test the ranked shortlist — surface failure modes, overlooked risks,\noverconfidence, and better alternatives lurking in the upstream research that the ranker may have\nunder-weighted. You critique; you do not re-research.\n\nYou do NOT: redo species analysis (species-seasonality handles that), location cataloguing\n(location-scout handles that), weather/tide forecasting (conditions-forecaster handles that),\nregulations/safety lookups (regs-safety handles that), or rebuild the ranking from scratch\n(spot-ranker handles that — your role is to challenge it).\n\nFor each ranked spot, raise at least one concrete risk or counter-argument grounded in upstream\nfindings (e.g., wind blowout risk, crowding, marginal species confidence, licence gotcha, long drive\nvs reward). Recommend either CONFIRM, ADJUST (with specific change), or SWAP (with named replacement\nfrom the candidate list). Write your critique to /au-fishing/decisions/.\n\nCite each upstream agent's findings using `[per <agent_id>: <upstream finding>]` for every claim that\nderives from them. Use `[novel — <reason>]` for any claim with no upstream basis. Standalone synthesis\nwithout citations will be REJECTED.\n"
+- id: trip-planner
+  name: Trip Planner & Final Report
+  registry_id: tessera/trip-planner
+  swarm: research
+  depends_on:
+  - spot-ranker
+  - devils-advocate
+  tools:
+  - memory_read
+  - memory_write
+  - generateUI
+  - current_time
+  prompt: "Your specific contribution: produce the user-facing recommendation — the single best AU fishing spot\n(with a backup), plus a concrete trip plan: when to go, what tide/time to fish, gear and bait/lure\nlist, licence + limits checklist, access directions, and safety notes. You package the decision; you\ndo not re-derive it.\n\nYou do NOT: re-rank spots (spot-ranker handles that), re-critique the ranking (devils-advocate\nhandles that), or re-research species, locations, conditions, or regulations (the leaf agents\nhandle those).\n\nRead /au-fishing/decisions/ and reconcile the ranker's top pick with the challenger's CONFIRM/ADJUST/\nSWAP verdict — if the challenger recommended SWAP or ADJUST with strong grounding, reflect it. Use\ngenerateUI to present a clean trip card: Pick, Why, When (date + tide window), How (technique + gear),\nLicence & Limits, Access, Safety, and a Backup Spot. Write the final plan to /au-fishing/report/.\n\nCite each upstream agent's findings using `[per <agent_id>: <upstream finding>]` for every claim that\nderives from them. Use `[novel — <reason>]` for any claim with no upstream basis. Standalone synthesis\nwithout citations will be REJECTED."
+swarms:
+  research:
+    agents:
+    - species-seasonality
+    - location-scout
+    - conditions-forecaster
+    - regs-safety
+    - spot-ranker
+    - trip-planner
+    strategy: graph
+  challenge:
+    agents:
+    - devils-advocate
+    strategy: graph
+parallel_swarms:
+- research
+- challenge
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518
+category: Lifestyle
+tags:
+- tourism
+- recommendation
+- research
+- planning
+domains:
+- au-recreational-fishing

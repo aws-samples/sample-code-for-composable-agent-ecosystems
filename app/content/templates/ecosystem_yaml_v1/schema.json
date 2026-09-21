@@ -1,0 +1,125 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "tessera.templates.ecosystem_yaml_v1",
+  "title": "Tessera Ecosystem YAML v1",
+  "description": "Schema for a Tessera ecosystem definition. Validates the YAML structure used by the save-ecosystem Lambda's compiler.",
+  "type": "object",
+  "required": ["ecosystem", "agents"],
+  "properties": {
+    "ecosystem": {
+      "type": "object",
+      "required": ["name", "description", "version"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 10 },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$" }
+      }
+    },
+    "platform": {
+      "type": "boolean",
+      "description": "True for repo-managed platform ecosystems (read-only via API)"
+    },
+    "strategy": { "enum": ["orchestrated", "choreography"] },
+    "report": { "type": "boolean" },
+    "quality": {
+      "type": "object",
+      "properties": {
+        "challenger": { "type": "boolean" },
+        "grounding": { "type": "boolean" }
+      }
+    },
+    "entry_point": { "type": "string" },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "label"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "enum": ["text", "file", "select"] },
+          "label": { "type": "string" },
+          "required": { "type": "boolean" },
+          "default": { "type": "string" }
+        }
+      }
+    },
+    "memory": {
+      "type": "object",
+      "properties": {
+        "strategies": {
+          "type": "array",
+          "items": { "enum": ["semantic", "episodic"] }
+        },
+        "shared_namespaces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "write": { "type": "array" },
+              "read": { "type": "array" }
+            }
+          }
+        }
+      }
+    },
+    "agents": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "swarm", "prompt"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+          "name": { "type": "string" },
+          "registry_id": { "type": "string" },
+          "swarm": { "type": "string" },
+          "depends_on": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "tools": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "tool_budget": {
+            "type": "object",
+            "additionalProperties": { "type": "integer", "minimum": 1 }
+          },
+          "prompt": { "type": "string", "minLength": 50 },
+          "output_kind": {
+            "enum": ["analyst", "synthesizer", "challenger", "reporter",
+                     "drafter", "creative", "chat", "operator"]
+          },
+          "output_format": {
+            "type": "object",
+            "properties": {
+              "type": { "enum": ["markdown", "json", "yaml", "html",
+                                 "csv", "pdf", "docx", "png"] },
+              "file_extension": { "type": "string" },
+              "schema_id": { "type": "string" },
+              "template_id": { "type": "string" },
+              "save_as": { "type": "string" },
+              "validate": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "swarms": { "type": "object" },
+    "parallel_swarms": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "triggers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "enum": ["manual", "schedule", "event"] }
+        }
+      }
+    }
+  }
+}

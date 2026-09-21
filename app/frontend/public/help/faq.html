@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tessera Help — FAQ</title>
+<meta name="description" content="Frequently asked questions about Tessera: troubleshooting runs, understanding quality gates, and managing ecosystems." />
+<link rel="stylesheet" href="help.css" />
+</head>
+<body>
+<!-- This FAQ uses direct address (second person) per standard FAQ conventions. -->
+<div class="container">
+
+<header>
+  <h1>Frequently Asked Questions</h1>
+  <p class="subtitle">Common questions and troubleshooting.</p>
+</header>
+
+<nav class="nav-bar">
+  <a href="index.html">Overview</a>
+  <a href="ecosystems.html">Ecosystems</a>
+  <a href="running.html">Running</a>
+  <a href="builder.html">Builder</a>
+  <a href="tools.html">Tool Catalog</a>
+  <a href="quality.html">Quality</a>
+  <a href="agent-types.html">Agent Types</a>
+  <a href="quality-gates.html">Quality Gates</a>
+  <a href="files.html">Files</a>
+  <a href="faq.html" class="active">FAQ</a>
+</nav>
+
+<section>
+  <h2>General</h2>
+
+  <h3>What models does Tessera use?</h3>
+  <p>Agents run on Amazon Bedrock, primarily using Claude Sonnet 4. The model is configured at the system level — you don't need to select it per agent.</p>
+
+  <h3>Do I need to write code to create an ecosystem?</h3>
+  <p>No. Ecosystems are defined in YAML via the Builder UI. You can use AI assistance to generate the entire configuration from a natural language description.</p>
+
+  <h3>Can I run multiple ecosystems simultaneously?</h3>
+  <p>The UI tracks one active run at a time. However, multiple runs can operate in the backend — you'll see the most recently launched one in the Live Run view.</p>
+</section>
+
+<section>
+  <h2>Running</h2>
+
+  <h3>My run seems stuck — nothing is happening</h3>
+  <p>Check the activity strip. If it shows "Verifying findings" or "External grounding", quality checks are running between agent layers. These can take 10–30 seconds per agent. If the connection indicator shows "polling" or "offline", your WebSocket may have dropped — the run continues in the backend regardless.</p>
+
+  <h3>How do I describe what a run should do?</h3>
+  <p>The run dialog is <strong>conversational</strong> by default: describe your goal and the planner asks one focused question at a time until it has a complete brief for that ecosystem (you can watch the briefing checklist fill in on the right). It won't let you launch — or invent details you didn't give — until the brief is complete. Prefer a one-shot? Choose <strong>Type it myself</strong> for a plain mission box.</p>
+
+  <h3>Can I attach files to a run?</h3>
+  <p>Yes — every run dialog has an optional "Attach files" area, for any ecosystem. Attachments are classified and considered in the mission chat, then passed to the agents. Some ecosystems also declare specific (sometimes required) file-input fields. See <a href="files.html">Files</a>.</p>
+
+  <h3>A run failed — can I retry? And what about a run that "succeeded" but produced nothing?</h3>
+  <p>Two options from <strong>📜 History</strong>: <strong>Redrive</strong> resumes a <em>failed</em> run from the failure point (native, completed agents aren't re-run). <strong>Resume from here</strong> is more general — click any node in the run's DAG and resume from there, reusing all completed upstream steps. It works for <em>failed and succeeded</em> runs alike, so you can re-run just the final step of a "succeeded but empty" run without redoing the whole pipeline.</p>
+
+  <h3>What does the cost figure in telemetry mean?</h3>
+  <p>It's an <strong>internal estimate</strong> — model list prices × the tokens each agent used — for comparing runs and agents. It is not an authoritative bill; consult the AWS console for actual charges.</p>
+
+  <h3>I refreshed the page during a run — is it lost?</h3>
+  <p>No. Tessera persists active run state to your browser's local storage. On reload, it automatically resumes tracking via AWS Step Functions polling.</p>
+
+  <h3>What does "polling" mean in the connection indicator?</h3>
+  <p>The WebSocket connection dropped (common after ~10 minutes of idle). Tessera falls back to polling Step Functions every 5 seconds. The run continues normally — you get slightly delayed updates.</p>
+
+  <h3>How long do runs typically take?</h3>
+  <p>Depends on the ecosystem. Simple 3-agent ecosystems: 30–60 seconds. Complex ecosystems with 8+ agents, grounding checks, and challenger: 3–8 minutes. The activity strip shows progress throughout.</p>
+</section>
+
+<section>
+  <h2>Builder</h2>
+
+  <h3>Can I edit a system-managed ecosystem?</h3>
+  <p>No. System-managed ecosystems (marked 🔒) are maintained by the Tessera team. You can clone the concept by creating a new ecosystem with similar agents.</p>
+
+  <h3>What happens when I save an ecosystem?</h3>
+  <p>The YAML is saved to the backend and compiled into a Step Functions state machine. The ecosystem becomes immediately available for running. No separate deploy step needed.</p>
+
+  <h3>Can agents run in parallel?</h3>
+  <p>Yes. Agents with no <code>depends_on</code> (or whose dependencies are all satisfied) run in parallel automatically. The DAG visualization shows which agents can run simultaneously.</p>
+
+  <h3>What's the difference between orchestrated and choreography?</h3>
+  <p><strong>Orchestrated</strong> uses a static DAG — you define dependencies explicitly. <strong>Choreography</strong> is event-driven — agents trigger based on events other agents emit. Most ecosystems use orchestrated.</p>
+</section>
+
+<section>
+  <h2>Tools</h2>
+
+  <h3>What happens if I reference a tool that isn't registered?</h3>
+  <p>The agent still runs. It improvises using system tools (web_search, http_request, etc.) to approximate the missing tool's functionality. Registering the actual tool gives agents real data.</p>
+
+  <h3>How do I rotate an API key for a tool?</h3>
+  <p>Go to Tool Catalog → choose Edit on the tool → enter the new API key → Save. The old key is replaced in AgentCore Identity Token Vault.</p>
+
+  <h3>Can multiple tools share the same credential?</h3>
+  <p>Each tool registration has its own credential configuration. If multiple tools use the same API service, you'll configure the key separately for each.</p>
+</section>
+
+<section>
+  <h2>Quality</h2>
+
+  <h3>Can I disable grounding checks for faster runs?</h3>
+  <p>Yes. In the Builder, uncheck "Grounding checks" under Quality Features. This skips internal and external verification. Not recommended for production use.</p>
+
+  <h3>What does "contradicted" mean in external grounding?</h3>
+  <p>The agent made a claim that web search results actively contradict. This is stronger than "unverified" (no evidence found) — it means evidence exists that says the opposite.</p>
+
+  <h3>Why did my agent fail with "missing STRUCTURED FINDINGS"?</h3>
+  <p>Every agent must produce output containing <code>## STRUCTURED FINDINGS</code> and <code>## OPEN QUESTIONS</code> sections. This is a hard requirement — no fallback. The agent's prompt may need adjustment so that it produces this format.</p>
+</section>
+
+<section>
+  <h2>Troubleshooting</h2>
+
+  <h3>The ecosystem list is empty</h3>
+  <p>Check that the backend API is reachable. The status indicator in the sidebar should show "Amazon Bedrock connected". If not, the API URL may be misconfigured or the backend may be down.</p>
+
+  <h3>AI suggestion is stuck on "Thinking..."</h3>
+  <p>The suggest feature requires an active WebSocket connection to receive the async result. If the WebSocket indicator shows disconnected, refresh the page and try again.</p>
+
+  <h3>File upload shows no progress</h3>
+  <p>Files upload directly to S3 via presigned URL. Large files may take time. After upload, classification takes a few seconds. Refresh the file list if the status doesn't update.</p>
+</section>
+
+<div class="footer">
+  <a href="index.html">← Back to Help Overview</a>
+</div>
+
+</div>
+</body>
+</html>

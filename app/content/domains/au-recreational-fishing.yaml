@@ -1,0 +1,34 @@
+domain: au-recreational-fishing
+name: Australian Recreational Fishing
+description: 'Durable AU recreational-fishing knowledge: locations, target species, regulations, and access infrastructure reused across spot recommendations.'
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: fishing-location
+  key: '{name}-{state}'
+  description: A fishing location — durable conditions, species, access, seasons.
+  status: active
+- type: target-species
+  key: '{species}'
+  description: A target species — habitat, seasonality, methods, durable facts.
+  status: active
+- type: fishing-regulation
+  key: '{state}-{ref}'
+  description: A durable fishing regulation — limits, closures, licences.
+  status: active
+- type: access-infrastructure
+  key: '{location}'
+  description: Durable access facts for a location — ramps, parking, facilities.
+  status: active
+conclusions_never_cataloged:
+- the recommended spot for a specific user/run
+seeded_from: &id001
+- au-fishing-spot-finder
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: bottom-up validated across belonging ecosystems (2026-06-30)

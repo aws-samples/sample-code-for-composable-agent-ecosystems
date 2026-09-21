@@ -1,0 +1,181 @@
+ecosystem:
+  name: mission-news-brief
+  description: Deliver a daily, mission-relevant news brief with short summaries that
+    improves on Ground News
+  version: '1.0'
+strategy: orchestrated
+report: true
+domains:
+- news-intelligence
+tags:
+- news
+- daily-brief
+- summarization
+- topic-lens
+quality:
+  challenger: false
+  grounding: true
+  gates:
+    citation: ask
+    format: ask
+    grounding: ask
+    output_kind: ask
+outcome:
+  kind: file_artifact
+  artifacts:
+  - id: brief_html
+    agent: drafter
+    format: html
+    save_as: mission-news-brief.html
+    download_label: Download daily brief (HTML)
+entry_point: scout
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: mission_news_brief_findings
+    write:
+    - all
+    read:
+    - all
+agents:
+- id: scout
+  name: News Scout
+  registry_id: tessera/scout
+  swarm: research
+  tools:
+  - web_search
+  - web_fetch
+  - memory_write
+  prompt: "You are the News Scout for a mission-driven daily brief. The user's mission\
+    \ is a specific topic/industry lens (e.g. 'AI chips', 'climate policy') provided\
+    \ in the run input.\n\nOBJECTIVE: Discover 15-25 candidate news stories published\
+    \ or updated in the LAST ~24 HOURS that are potentially relevant to the mission\
+    \ lens.\n\nMETHOD:\n1. Run multiple web_search queries with varied phrasings of\
+    \ the mission lens plus recency qualifiers ('today', 'this week', current date).\
+    \ Include adjacent angles (policy, business, technical, geopolitical) so downstream\
+    \ scorers have breadth to filter.\n2. Prefer primary outlets, wire services, trade\
+    \ press, and reputable analysis. Skip pure opinion columns unless newsworthy.\n\
+    3. For each candidate, web_fetch the article to capture: title, outlet, url, publish_date\
+    \ (ISO), byline if present, and a 3-5 sentence factual excerpt.\n4. Deduplicate\
+    \ obvious reprints (same wire story on multiple outlets is fine \u2014 keep them;\
+    \ they matter for cross-source clustering).\n\nOUTPUT: a JSON array of candidates\
+    \ with fields {id, title, outlet, url, publish_date, excerpt, discovery_query}.\
+    \ Findings auto-persist to the shared dossier for downstream agents. Do NOT score\
+    \ or summarize \u2014 that's the next agents' job."
+- id: relevance
+  name: Mission-Fit Scorer
+  registry_id: tessera/relevance
+  swarm: analysis
+  depends_on:
+  - scout
+  tools:
+  - memory_read
+  - memory_write
+  prompt: "You are the Mission-Fit Scorer. Read the Scout's candidates from the shared\
+    \ dossier and the user's mission lens from the run input.\n\nFor EACH candidate,\
+    \ produce a mission_fit score 0-100 with a one-sentence rationale, where:\n- 80-100:\
+    \ Directly about the mission topic; a decision-maker in this space must know this\
+    \ today.\n- 60-79: Adjacent and materially relevant (upstream/downstream effects,\
+    \ key players, regulatory).\n- 40-59: Tangential \u2014 mentions the topic but\
+    \ not core.\n- <40: Off-topic; drop.\n\nAlso tag each kept item with 2-4 facets:\
+    \ {angle: policy|business|technical|geopolitical|market|research, entities: [companies/people/agencies],\
+    \ region}.\n\nDROP everything scoring below 60. Rank the rest by mission_fit desc.\
+    \ Emit a JSON array of scored+kept stories with all original fields plus {mission_fit,\
+    \ rationale, facets}. This auto-persists to the shared dossier."
+- id: summarizer
+  name: Story Summarizer
+  registry_id: tessera/summarizer
+  swarm: analysis
+  depends_on:
+  - relevance
+  tools:
+  - memory_read
+  - memory_write
+  prompt: "You are the Story Summarizer. Read the ranked, mission-fit-scored stories\
+    \ from the shared dossier.\n\nFor each story, write a tight summary:\n- headline:\
+    \ rewritten neutral 8-14 word headline (no clickbait, no editorializing).\n- tldr:\
+    \ 2-3 sentences, ~50-70 words, capturing the WHAT, WHO, WHY-IT-MATTERS-FOR-THE-MISSION.\n\
+    - key_facts: 3-5 bullet-worthy factual points (numbers, dates, named entities).\n\
+    - source_attribution: {outlet, url, publish_date}.\n\nStay strictly factual \u2014\
+    \ no speculation, no framing beyond what the source states. If a source is thin,\
+    \ say so briefly in a 'caveats' field. Emit a JSON array of summarized stories;\
+    \ this auto-persists to the shared dossier."
+- id: cross_source
+  name: Cross-Source Synthesizer
+  registry_id: tessera/cross_source
+  swarm: analysis
+  depends_on:
+  - summarizer
+  tools:
+  - memory_read
+  - memory_write
+  prompt: "You are the Cross-Source Synthesizer \u2014 the layer that makes this brief\
+    \ BETTER than Ground News. Read all summarized stories from the shared dossier.\n\
+    \n1. CLUSTER stories that cover the same underlying event/development across multiple\
+    \ outlets. A cluster needs 2+ sources; singletons stay as standalone items.\n\
+    2. For each cluster produce:\n   - cluster_headline: neutral synthesis headline.\n\
+    \   - consensus_facts: points ALL sources agree on.\n   - contested_points: factual\
+    \ disagreements (numbers, causes, timelines) with which outlets say what.\n  \
+    \ - framing_differences: how outlets FRAME the same facts differently (emphasis,\
+    \ tone, what's foregrounded/omitted) \u2014 this is the Ground-News-plus layer,\
+    \ but focused on framing not just left/right bias labels.\n   - mission_implication:\
+    \ 1-2 sentences on what this cluster means for someone operating in the mission\
+    \ lens.\n   - sources: list of {outlet, url}.\n3. For remaining standalone stories,\
+    \ keep the summarizer's output and add a one-line mission_implication.\n4. Produce\
+    \ a top-level daily_takeaway: 3-4 sentences on the day's overall signal for the\
+    \ mission (what changed, what to watch).\n\nEmit a single JSON object {mission,\
+    \ date, daily_takeaway, clusters: [...], standalones: [...]}. This auto-persists\
+    \ to the shared dossier."
+- id: drafter
+  name: Brief Drafter
+  registry_id: tessera/drafter
+  swarm: delivery
+  depends_on:
+  - cross_source
+  tools:
+  - memory_read
+  - code_interpreter
+  output_kind: drafter
+  output_format:
+    type: html
+    save_as: mission-news-brief.html
+    validate: true
+  prompt: "You are the Brief Drafter. Read the synthesized brief object from the shared\
+    \ dossier and produce a single, self-contained, downloadable HTML page.\n\nUse\
+    \ code_interpreter to write mission-news-brief.html. Requirements:\n- Single file,\
+    \ no external CSS/JS/CDN \u2014 inline everything so it works offline.\n- Clean,\
+    \ readable typography (system font stack); light theme with good contrast; responsive.\n\
+    - Structure:\n  1. Header: mission lens name, date (today, ISO), one-line tagline.\n\
+    \  2. Daily Takeaway block (prominent, 3-4 sentences).\n  3. Clusters section\
+    \ \u2014 each cluster as a card with: cluster_headline, consensus_facts (bulleted),\
+    \ contested_points (labeled by outlet), framing_differences (labeled by outlet),\
+    \ mission_implication (highlighted), and a sources list with clickable links.\n\
+    \  4. Standalones section \u2014 each as a compact card: headline, tldr, key_facts,\
+    \ mission_implication, source link.\n  5. Footer: generation timestamp, note that\
+    \ sources are live open-web search results.\n- Order clusters and standalones\
+    \ by mission_fit / signal strength (highest first).\n- Escape all HTML in source\
+    \ content; make all urls open in new tabs (target=_blank rel=noopener).\n\nSave\
+    \ the file as mission-news-brief.html and return it as the run's artifact."
+swarms:
+  research:
+    agents:
+    - scout
+    strategy: graph
+  analysis:
+    agents:
+    - relevance
+    - summarizer
+    - cross_source
+    strategy: graph
+  delivery:
+    agents:
+    - drafter
+    strategy: graph
+parallel_swarms:
+- research
+- analysis
+- delivery
+triggers:
+- type: manual
+owner: 24f8c4c8-9041-7091-59a1-f88ff840b6f8

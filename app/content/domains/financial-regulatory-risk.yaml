@@ -1,0 +1,84 @@
+domain: financial-regulatory-risk
+name: Financial & Regulatory Risk
+description: 'Risk & resilience knowledge for regulated financial institutions: governed AI/ML models, the regulatory requirements & precedents binding them, resilience scenarios & post-mortems, and recurring controls/findings. Composes with cyber-security-risk for cyber exposure.'
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: model
+  key: '{model_id}'
+  description: An AI/ML model under governance — purpose, owner, deployment, lineage.
+  status: active
+- type: regulatory-requirement
+  key: '{requirement_id}'
+  description: A binding requirement/obligation (APRA prudential standards, ASIC, Basel, EU AI Act).
+  status: active
+- type: regulator-precedent
+  key: '{ref}'
+  description: A regulator action/guidance/precedent reusable across reviews.
+  status: active
+- type: control
+  key: '{control_id}'
+  description: A risk control — what it mitigates, evidence, framework mapping.
+  status: active
+- type: disruption-scenario
+  key: '{scenario_id}'
+  description: An operational-resilience scenario — critical operation, severe-but-plausible stress.
+  status: active
+- type: post-mortem
+  key: '{incident}-{date}'
+  description: A post-incident review — timeline, root cause, recovery, lessons.
+  status: active
+- type: finding-pattern
+  key: '{pattern_id}'
+  description: A recurring finding type reusable across reviews.
+  status: active
+- type: grading-rubric
+  key: '{rubric_id}'
+  description: A reusable grading/scoring rubric for model-risk tiers.
+  status: active
+- type: recovery-procedure
+  key: '{procedure_id}'
+  description: A reusable recovery/continuity procedure for a critical operation.
+  status: active
+- type: communications-playbook
+  key: '{playbook_id}'
+  description: A reusable stakeholder/regulator communications playbook.
+  status: active
+conclusions_never_cataloged:
+- model approval/risk-tier decision for a review
+- resilience pass-fail for an exercise
+- finding severity ranking for a run
+- board memo / recommendation
+seeded_from: &id001
+- model-risk-continuous-review
+- operational-resilience-war-room
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: bottom-up validated across belonging ecosystems (2026-06-30)
+- version: 2
+  action: added-top-down-source
+  detail: "Added the first TOP-DOWN authoritative source — key APRA cross-industry prudential standard obligations (CPS 220 Risk Management, CPS 230 Operational Risk Management, CPS 234 Information Security) populating regulatory-requirement. Parsed once into catalog-content/apra-cps.json and ingested deterministically via transport:s3 + mode:map (the nist-ai-rmf-playbook pattern), since APRA standards have no official API and are PDFs. regulatory-requirement key aligned to {requirement_id}. Other types remain bottom-up."
+catalog:
+  view:
+    default:
+      title: [name]
+      subtitle: [regulation]
+      summary: [description]
+    regulatory-requirement:
+      title: name
+      subtitle: regulation
+      summary: description
+  ingestion:
+    schedule: rate(90 days)
+    sources:
+    - id: apra-cps-standards
+      mode: map
+      produces:
+      - regulatory-requirement
+      authoritative_url: https://www.apra.gov.au
+      status: active

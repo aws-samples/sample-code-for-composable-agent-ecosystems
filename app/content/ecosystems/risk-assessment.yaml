@@ -1,0 +1,658 @@
+ecosystem:
+  name: risk-assessment
+  description: 'Comprehensive architecture risk assessment with 13 specialized threat analysts,
+
+    control mapping to frameworks (NIST CSF, ISO 27001, CPS 234), FAIR scoring,
+
+    and progressive catalog enrichment. Each run grows the authoritative risk
+
+    catalog at /tessera/catalog/risks for future assessments.
+
+    '
+  version: '2.0'
+  outcome:
+    kind: file_artifact
+    audience: the executive risk committee and board
+    artifacts:
+    - id: visual_assets
+      agent: visual_asset_generator
+      format: html
+      save_as: visual_assets.html
+      download_label: Visual Assets (Heatmaps & Diagrams)
+    - id: report
+      agent: report_composer
+      format: html
+      save_as: risk_assessment_report.html
+      download_label: Risk Assessment Report (HTML)
+  inputs:
+  - id: documents
+    type: file
+    label: Upload all documents (architecture, org profile, security policies, SOC2 reports, risk appetite, etc.)
+    required: true
+    multiple: true
+  - id: frameworks
+    type: select
+    label: Target compliance framework(s)
+    options:
+    - NIST CSF
+    - ISO 27001
+    - CPS 234
+    - SOC 2
+    - All frameworks
+    required: true
+  - id: focus_areas
+    type: text
+    label: Focus areas (optional)
+    required: false
+strategy: orchestrated
+report: false
+quality:
+  challenger: per_level
+  grounding: true
+  gates:
+    citation: warn
+    format: ask
+  challenger_gate:
+    block_below: ADEQUATE
+entry_point: architecture_intake
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: assessment
+    write:
+    - all
+    read:
+    - all
+  - name: catalog_risks
+    path: /tessera/catalog/risks
+    write:
+    - catalog_enricher
+    read:
+    - all
+  - name: attack_technique_catalog
+    path: /catalog/attack-technique/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: vulnerability_catalog
+    path: /catalog/vulnerability/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: security_control_catalog
+    path: /catalog/security-control/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: agentic_threat_catalog
+    path: /catalog/agentic-threat/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: breach_catalog
+    path: /catalog/breach/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: cyber_target_profile_catalog
+    path: /catalog/cyber-target-profile/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: vendor_catalog
+    path: /catalog/vendor/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: indicator_of_compromise_catalog
+    path: /catalog/indicator-of-compromise/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: asset_catalog
+    path: /catalog/asset/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: defense_pattern_catalog
+    path: /catalog/defense-pattern/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: trust_boundary_catalog
+    path: /catalog/trust-boundary/
+    write: []
+    read:
+    - all
+    auto_persist: false
+agents:
+- id: architecture_intake
+  name: Architecture Intake Analyst
+  swarm: intake
+  tools:
+  - memory_write
+  - code_interpreter
+  file_tags:
+  - architecture
+  prompt: "Your specific contribution: parse the uploaded architecture document and\nproduce a structured representation of the system under assessment,\nincluding a nodes table, data flows table, and architecture diagram.\n\nSTEP 1: Read the architecture document (provided as file input).\n\nSTEP 2: Produce a NODES TABLE — every component in the system:\n  | Node ID | Name | Type | Technology | Data Classification | Exposure | Trust Zone |\n  e.g. | N01 | User API | API Gateway | AWS API GW | PII | External | DMZ |\n\nSTEP 3: Produce a DATA FLOWS TABLE — every data movement:\n  | Flow ID | Source | Destination | Data Type | Protocol | Encrypted | Crosses Boundary |\n  e.g. | F01 | User API | Auth Service | Credentials | HTTPS | Yes | DMZ→Internal |\n\nSTEP 4: ARCHITECTURE DIAGRAM — prefer the ORIGINAL from the uploaded document.\n  - If the uploaded document contains an architecture diagram (image, Mermaid,\n    PlantUML, ASCII art, or any visual), EXTRACT and PRESERVE it exactly.\n    For images: describe it in detail for downstream agents.\n    For text-based diagrams (Mermaid/ASCII): copy verbatim into your output.\n  - If multiple diagrams exist, pick the one that best shows the full system\n    topology (nodes, flows, trust boundaries).\n  - ONLY if no diagram exists in the source document, generate one using\n    code_interpreter with matplotlib/networkx.\n\nSTEP 5: Tag which threat domains are relevant based on the nodes/flows:\n- network_infra: true if multiple network segments, cloud VPCs, on-prem\n- application: true if web apps, mobile apps, or user-facing services\n- data: true if sensitive data (PII, financial, health)\n- identity_access: true if auth/authz systems, IAM, SSO\n- cloud_config: true if cloud services (AWS, Azure, GCP)\n- insider: true if >50 employees or privileged access roles\n- operational_resilience: true if critical business systems\n- regulatory: true (always)\n- physical_social: true if physical infrastructure or end-user facing\n- cryptographic: true if encryption, key management, certificates\n- api_integration: true if APIs, webhooks, inter-service communication\n- ai_agentic: true if AI/ML models, LLMs, autonomous agents\n- supply_chain: true if third-party libraries, SaaS dependencies\n\nID SCHEME: Assign N-001, N-002... for nodes. Assign F-001, F-002... for flows.\n\nSTEP 6: memory_write to /tessera/assessment:\n- nodes_table (structured list of all nodes)\n- flows_table (structured list of all flows)\n- domain_tags (which threat domains are active)\n- architecture_summary (text overview)\n\nEmit ## STRUCTURED FINDINGS with node count, flow count, boundary count,\nand active threat domains.\n"
+- id: network_infra_threat_analyst
+  name: Network & Infrastructure Threat Analyst
+  swarm: threats
+  depends_on:
+  - architecture_intake
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Your specific contribution: identify network and infrastructure threats
+
+    specific to this architecture.
+
+
+    STEP 1: memory_read /tessera/assessment for architecture details.
+
+    STEP 2: Identify threats: lateral movement paths, segmentation gaps,
+
+    firewall misconfigs, DNS poisoning, MITM opportunities, cloud VPC
+
+    misconfigs, container escape paths.
+
+    STEP 3: web_search MITRE ATT&CK for relevant techniques (TA0008 Lateral
+
+    Movement, TA0007 Discovery). Reference by ATT&CK ID.
+
+    STEP 4: memory_write threats to /tessera/assessment.
+
+    STEP 5: memory_write any NEW catalog entries to /tessera/catalog/risks.
+
+
+    Each threat: {id, title, description, attack_technique, attck_id,
+
+    affected_components, likelihood_factors, impact_factors}
+
+
+    Cite sources. Emit ## STRUCTURED FINDINGS.
+
+    '
+- id: application_threat_analyst
+  name: Application Threat Analyst
+  swarm: threats
+  depends_on:
+  - architecture_intake
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Your specific contribution: identify application-layer threats.
+
+
+    Focus: injection (SQLi, XSS, command), auth bypass, session hijacking,
+
+    business logic flaws, insecure deserialization, SSRF, file upload abuse.
+
+
+    Reference OWASP Top 10 (2021+) by ID (A01-A10).
+
+    web_search for any technology-specific vulnerabilities.
+
+    memory_write threats to /tessera/assessment + new entries to /tessera/catalog/risks.
+
+
+    Cite sources. Emit ## STRUCTURED FINDINGS.
+
+    '
+- id: data_threat_analyst
+  name: Data Threat Analyst
+  swarm: threats
+  depends_on:
+  - architecture_intake
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Your specific contribution: identify data exfiltration and exposure threats.
+
+
+    Focus: unencrypted data at rest/in transit, excessive access to data stores,
+
+    backup exposure, logging sensitive data, data residency violations,
+
+    shadow copies, analytics pipeline leaks.
+
+
+    Reference: ATT&CK TA0010 (Exfiltration), data protection regulations.
+
+    memory_write threats + catalog entries.
+
+
+    Cite sources. Emit ## STRUCTURED FINDINGS.
+
+    '
+- id: identity_access_threat_analyst
+  name: Identity & Access Threat Analyst
+  swarm: threats
+  depends_on:
+  - architecture_intake
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Your specific contribution: identify identity and access management threats.
+
+
+    Focus: privilege escalation, credential stuffing, MFA bypass, session
+
+    fixation, OAuth/OIDC misconfig, service account over-privilege, token
+
+    theft, password spray, kerberoasting.
+
+
+    Reference: ATT&CK TA0004 (Privilege Escalation), TA0006 (Credential Access).
+
+    memory_write threats + catalog entries.
+
+
+    Cite sources. Emit ## STRUCTURED FINDINGS.
+
+    '
+- id: cloud_config_threat_analyst
+  name: Cloud Configuration Threat Analyst
+  swarm: threats
+  depends_on:
+  - architecture_intake
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Your specific contribution: identify cloud misconfiguration threats.
+
+
+    Focus: public S3/blob storage, overpermissive IAM policies, metadata
+
+    service abuse (IMDS), cross-account access, security group gaps,
+
+    unencrypted EBS/RDS, CloudTrail disabled, root account usage.
+
+
+    Reference: CIS Benchmarks, AWS/Azure/GCP security best practices.
+
+    memory_write threats + catalog entries.
+
+
+    Cite sources. Emit ## STRUCTURED FINDINGS.
+
+    '
+- id: insider_threat_analyst
+  name: Insider Threat Analyst
+  swarm: threats
+  depends_on:
+  - architecture_intake
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Your specific contribution: identify insider threat scenarios.
+
+
+    Focus: malicious insiders (data theft, sabotage), negligent insiders
+
+    (accidental exposure, phishing victims), excessive access accumulation,
+
+    separation of duties violations, privileged user monitoring gaps,
+
+    offboarding failures.
+
+
+    Reference: CERT Insider Threat patterns, VERIS insider incidents.
+
+    memory_write threats + catalog entries.
+
+
+    Cite sources. Emit ## STRUCTURED FINDINGS.
+
+    '
+- id: operational_resilience_analyst
+  name: Operational Resilience Threat Analyst
+  swarm: threats
+  depends_on:
+  - architecture_intake
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Your specific contribution: identify operational resilience threats.
+
+
+    Focus: single points of failure, cascading failure paths, DR/BCP gaps,
+
+    dependency chain risks (if X fails, what else fails?), blast radius
+
+    of component failures, RTO/RPO gaps, runbook absence.
+
+
+    Reference: CPS 230 (APRA), DORA (EU), operational resilience frameworks.
+
+    memory_write threats + catalog entries.
+
+
+    Cite sources. Emit ## STRUCTURED FINDINGS.
+
+    '
+- id: regulatory_compliance_analyst
+  name: Regulatory & Compliance Threat Analyst
+  swarm: threats
+  depends_on:
+  - architecture_intake
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Your specific contribution: identify regulatory non-compliance risks.
+
+
+    Focus: what happens when obligations are NOT met? GDPR breach penalties,
+
+    CPS 234 non-compliance (APRA enforcement), PCI DSS gaps, HIPAA violations,
+
+    FAR accountability failures, mandatory breach notification failures.
+
+
+    Based on the org_profile (jurisdiction, industry), identify which
+
+    regulations apply and where the architecture may fall short.
+
+
+    memory_write threats + catalog entries.
+
+
+    Cite sources. Emit ## STRUCTURED FINDINGS.
+
+    '
+- id: physical_social_engineering_analyst
+  name: Physical & Social Engineering Analyst
+  swarm: threats
+  depends_on:
+  - architecture_intake
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Your specific contribution: identify physical and social engineering threats.
+
+
+    Focus: phishing paths (who has access to what after a successful phish?),
+
+    pretexting scenarios, physical access to servers/network equipment,
+
+    USB drop attacks, tailgating, dumpster diving, social media OSINT.
+
+
+    Reference: ATT&CK TA0001 (Initial Access), social engineering frameworks.
+
+    memory_write threats + catalog entries.
+
+
+    Cite sources. Emit ## STRUCTURED FINDINGS.
+
+    '
+- id: cryptographic_threat_analyst
+  name: Cryptographic Threat Analyst
+  swarm: threats
+  depends_on:
+  - architecture_intake
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Your specific contribution: identify cryptographic weaknesses.
+
+
+    Focus: weak algorithms (MD5, SHA1, DES), poor key management, hardcoded
+
+    keys, certificate expiry/pinning gaps, TLS misconfig, quantum readiness,
+
+    insufficient entropy, replay attack vectors.
+
+
+    Reference: NIST cryptographic standards, OWASP Cryptographic Failures.
+
+    memory_write threats + catalog entries.
+
+
+    Cite sources. Emit ## STRUCTURED FINDINGS.
+
+    '
+- id: api_integration_threat_analyst
+  name: API & Integration Threat Analyst
+  swarm: threats
+  depends_on:
+  - architecture_intake
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Your specific contribution: identify API and integration threats.
+
+
+    Focus: broken object-level auth (BOLA), mass assignment, rate limiting
+
+    gaps, webhook abuse, schema validation failures, inter-service trust
+
+    assumptions, API key exposure, GraphQL introspection, CORS misconfig.
+
+
+    Reference: OWASP API Security Top 10.
+
+    memory_write threats + catalog entries.
+
+
+    Cite sources. Emit ## STRUCTURED FINDINGS.
+
+    '
+- id: ai_agentic_threat_analyst
+  name: AI & Agentic System Threat Analyst
+  swarm: threats
+  depends_on:
+  - architecture_intake
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Your specific contribution: identify AI and agentic system threats.
+
+
+    Focus: prompt injection (direct/indirect), tool misuse by agents,
+
+    excessive agency, model poisoning, training data extraction, hallucination
+
+    exploitation, agent-to-agent manipulation, autonomous action without
+
+    human approval, insecure output handling.
+
+
+    Reference: OWASP LLM Top 10 (2025), OWASP Agentic Security (ASI01-ASI10).
+
+    memory_write threats + catalog entries.
+
+
+    Cite sources. Emit ## STRUCTURED FINDINGS.
+
+    '
+- id: supply_chain_threat_analyst
+  name: Supply Chain Threat Analyst
+  swarm: threats
+  depends_on:
+  - architecture_intake
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  prompt: 'Your specific contribution: identify supply chain and dependency threats.
+
+
+    Focus: compromised packages (typosquatting, maintainer takeover),
+
+    vulnerable transitive dependencies, SaaS provider compromise,
+
+    CI/CD pipeline poisoning, build system integrity, SBOM gaps,
+
+    vendor access over-privilege.
+
+
+    Reference: SLSA framework, NIST SSDF, recent supply chain incidents.
+
+    memory_write threats + catalog entries.
+
+
+    Cite sources. Emit ## STRUCTURED FINDINGS.
+
+    '
+- id: catalog_enricher
+  name: Risk Catalog Enricher
+  swarm: synthesis
+  depends_on:
+  - network_infra_threat_analyst
+  - application_threat_analyst
+  - data_threat_analyst
+  - identity_access_threat_analyst
+  - cloud_config_threat_analyst
+  - insider_threat_analyst
+  - operational_resilience_analyst
+  - regulatory_compliance_analyst
+  - physical_social_engineering_analyst
+  - cryptographic_threat_analyst
+  - api_integration_threat_analyst
+  - ai_agentic_threat_analyst
+  - supply_chain_threat_analyst
+  tools:
+  - memory_read
+  - memory_write
+  - code_interpreter
+  prompt: "Your specific contribution: deduplicate and normalize all threats from\nthe 13 specialists into the persistent risk catalog.\n\nSTEP 1: memory_read /tessera/assessment for all threat entries.\nSTEP 2: memory_read /tessera/catalog/risks for existing catalog.\nSTEP 3: Deduplicate — if a threat already exists in catalog (same ATT&CK\nID or same OWASP ref), don't re-add. Only add genuinely new entries.\nSTEP 4: Normalize new entries to schema: {risk_id, title, description,\nsource_framework, source_id, category, typical_likelihood, typical_impact}\nSTEP 5: memory_write new entries to /tessera/catalog/risks.\nSTEP 6: Report: X new risks added, Y already existed, Z total in catalog.\n\nCite [per <specialist>] for each new entry. Emit ## STRUCTURED FINDINGS.\n"
+- id: control_mapper
+  name: Control Mapping Analyst
+  swarm: synthesis
+  depends_on:
+  - network_infra_threat_analyst
+  - application_threat_analyst
+  - data_threat_analyst
+  - identity_access_threat_analyst
+  - cloud_config_threat_analyst
+  - insider_threat_analyst
+  - operational_resilience_analyst
+  - regulatory_compliance_analyst
+  - physical_social_engineering_analyst
+  - cryptographic_threat_analyst
+  - api_integration_threat_analyst
+  - ai_agentic_threat_analyst
+  - supply_chain_threat_analyst
+  tools:
+  - memory_read
+  - memory_write
+  - web_search
+  - code_interpreter
+  prompt: "Your specific contribution: map existing controls to framework requirements\nand identify gaps — based on EVIDENCE from uploaded documents, not assumptions.\n\nSTEP 1: memory_read /tessera/assessment for threats and architecture.\nSTEP 2: Read the uploaded documents (security policies, SOC2 reports, org profile,\ncompliance reports) from the input context. These are your SOURCE OF TRUTH for\nwhat controls actually exist.\n\nSTEP 3: For each threat, identify what controls SHOULD exist (per the selected\nframework — NIST CSF / ISO 27001 / CPS 234).\n\nSTEP 4: Determine control STATUS using ONLY evidence:\n- PRESENT: document explicitly states this control is in place (cite the source)\n- PARTIAL: document mentions it but with caveats or limited scope\n- ABSENT: no document mentions this control\n- UNVERIFIED: architecture suggests it might exist but no documentary evidence\n\nDO NOT assume controls exist based on technology stack alone.\n\"They use AWS\" does NOT mean they have CloudTrail enabled, properly configured\nIAM policies, or encryption at rest. Only mark PRESENT if a document says so.\n\nSTEP 5: Produce control mapping matrix:\n{threat_id, framework_control_id, control_name, status, evidence_source}\nevidence_source = which document + section confirms the control, or \"none\" if absent.\n\nID SCHEME: Assign GAP-001, GAP-002... to each gap (status = absent or partial).\nEach gap MUST reference affected Threat IDs (T-xxx).\n\nSTEP 6: memory_write the matrix to /tessera/assessment.\n\nCite framework references AND document sources. Emit ## STRUCTURED FINDINGS with gap count.\n"
+- id: risk_scorer
+  name: FAIR Risk Scorer
+  swarm: synthesis
+  depends_on:
+  - catalog_enricher
+  - control_mapper
+  tools:
+  - memory_read
+  - memory_write
+  - code_interpreter
+  prompt: "Your specific contribution: score all identified risks using FAIR\nmethodology with org-specific context from uploaded documents.\n\nSTEP 1: memory_read /tessera/assessment for threats + control gaps.\nAlso read the uploaded documents (security policies, SOC2 reports, org profile,\nrisk appetite statements) from the input context.\n\nEVIDENCE-BASED SCORING (critical):\n- Control effectiveness MUST be based on what the control_mapper found in documents,\n  NOT on assumptions about what \"probably exists.\"\n- If control_mapper marked a control as PRESENT with evidence, factor it as mitigating.\n- If control_mapper marked a control as ABSENT, do NOT assume it exists anyway.\n- If uploaded documents state the org provides a platform-level control (e.g.\n  \"Control Tower guardrails enforce encryption\", \"CrowdStrike deployed fleet-wide\",\n  \"WAF managed by platform team\"), factor it as an EXISTING mitigating control\n  even if the solution architecture doesn't show it explicitly.\n- Mark such risks as \"Mitigated by org control: [control name from document]\"\n  and reduce LEF/LM accordingly.\n\nID SCHEME: Assign R-001, R-002... to each risk. Each risk MUST reference its\nsource Threat IDs (T-xxx). For each risk, state which assessment model was used:\nFAIR-lite (frequency/magnitude), CVSS-v4 (technical vulns), Qualitative\n(insider/process), or Regulatory-deadline (compliance).\n\nSTEP 2: For each threat, calculate:\n- Loss Event Frequency (LEF): threat capability × vulnerability × contact\n- Loss Magnitude (LM): primary + secondary losses\n- Factor in autonomous attacker modeling: machine-speed probing increases\n  LEF for externally-exposed threats by 10-100x vs human attackers\n- Factor in control effectiveness: ONLY controls with documentary evidence\n  (PRESENT/PARTIAL from control_mapper) reduce LEF/LM\n\nSTEP 3: Use code_interpreter to compute risk scores, rank, and categorize:\n- Critical (score > 80): immediate action required\n- High (60-80): address within 30 days\n- Medium (40-60): address within 90 days\n- Low (<40): accept or address opportunistically\n\nSTEP 4: memory_write risk register to /tessera/assessment.\n\nCite [per control_mapper] and [per catalog_enricher].\nEmit ## STRUCTURED FINDINGS with risk distribution.\n"
+- id: visual_asset_generator
+  name: Visual Asset Generator
+  swarm: output
+  depends_on:
+  - risk_scorer
+  tools:
+  - code_interpreter
+  - memory_read
+  output_kind: drafter
+  output_format:
+    type: html
+    save_as: visual_assets.html
+    validate: false
+  prompt: "Your specific contribution: generate the complete visual asset pack as a\nself-contained HTML file with interactive inline SVG charts.\n\nSTEP 1: memory_read /tessera/assessment for risk register + control matrix + architecture.\nSTEP 2: Use code_interpreter to generate ALL of the following as inline SVG in a single HTML file:\n  a) RISK HEATMAP — 5×5 grid (likelihood × impact), plot each risk as a colored dot\n  b) CONTROL COVERAGE RADAR — spider chart by framework domain\n  c) THREAT DISTRIBUTION — bar chart by domain (network, app, data, identity, cloud, etc.)\n  d) TOP 10 RISKS — horizontal bar chart ranked by score\n  e) BOW-TIE DIAGRAM — for the #1 risk (threats → event → consequences)\n  f) RISK TREND / DISTRIBUTION — pie or donut chart of Critical/High/Medium/Low\n\nINTERACTIVITY (critical):\n- Every risk dot/bar in the charts that refers to a specific risk (R-xxx) MUST be:\n  1. Wrapped in an <a href=\"#R-xxx\"> link so clicking navigates to the risk in the Risk Register tab\n  2. Have a <title>R-xxx: Risk Title (Score: X.X)</title> child element for hover tooltip\n- Example for a heatmap dot:\n  <a href=\"#R-005\"><circle cx=\"...\" cy=\"...\" r=\"6\" fill=\"#ef4444\"><title>R-005: Landing PII exposure (Score: 95.0)</title></circle></a>\n- Example for a bar:\n  <a href=\"#R-001\"><rect ...><title>R-001: AiTM/MFA bypass (Score: 92.5)</title></rect></a>\n- The bow-tie diagram elements linking to threats should use <a href=\"#T-xxx\">\n\nUse matplotlib with svg backend (plt.savefig with format='svg', then extract the SVG XML).\nAFTER extracting SVG, post-process it to add the <a> wraps and <title> tooltips.\nEach chart should be wrapped in a <div class=\"visual-section\"><h3>Title</h3>...</div>.\n\nSTEP 3: Style the HTML to match dark theme (background:#161a24, text:#e2e8f0).\nSave as visual_assets.html.\n\nIMPORTANT: Output must be a SINGLE self-contained HTML file. No external dependencies.\nEach SVG must be inline (not base64 image). Use the dark theme colors for chart backgrounds.\n\nEmit ## SUMMARY with list of visuals generated.\n"
+- id: risk_aggregator
+  name: Business Risk Aggregator
+  prompt: "Your specific contribution: aggregate technical risks into business-level\nrisks that a CISO/board would act on.\n\nSTEP 1: memory_read /tessera/assessment for:\n- Technical risk register (R-xxx entries from risk_scorer)\n- Threat catalogue (T-xxx entries)\n- Org profile, risk appetite, and uploaded documents (security policies, SOC2, etc.)\n\nSTEP 2: Cluster technical risks into 5-12 BUSINESS RISK THEMES based on\nbusiness impact, not technical category. Examples:\n- \"Unauthorised disclosure of customer PII\" (not \"SQL injection\")\n- \"Prolonged service unavailability\" (not \"DDoS on load balancer\")\n- \"Regulatory non-compliance penalty\" (not \"missing encryption at rest\")\n- \"Supply chain compromise propagation\" (not \"dependency vulnerability\")\n\nFor each business risk:\n- ID: BR-001, BR-002, ...\n- Title: business-language risk statement\n- Contributing technical risks: list of R-xxx IDs (linked)\n- Contributing threats: list of T-xxx IDs (linked)\n- Business impact: revenue, reputation, regulatory, operational (quantified where possible)\n- Likelihood: based on aggregated technical risk scores\n- Annualised Loss Expectancy (ALE): estimated $ range\n- Risk appetite alignment: is this WITHIN or EXCEEDS the org's stated risk appetite?\n\nSTEP 3: CONTEXTUALISATION (CRITICAL):\n- Every business risk MUST be contextualised to the SPECIFIC organisation\n  (industry, size, jurisdiction, data types from org_profile input)\n- If the org's risk appetite document states they accept certain risk levels,\n  mark those as \"Within appetite — monitor only\"\n- If uploaded documents (SOC2 report, security policy) show org-level controls\n  that mitigate a business risk, state: \"Partially mitigated by org control: [X]\"\n  and reduce the ALE accordingly\n- Consider the SOLUTION in context: a startup MVP has different risk tolerance\n  than a bank's core banking platform\n\nSTEP 4: Produce a prioritised business risk register (max 12 entries) and\nmemory_write to /tessera/assessment/business_risks.\n\nEmit ## STRUCTURED FINDINGS with:\n- Total business risks: N\n- Exceeds appetite: N\n- Top business risk: [title]\n"
+  depends_on:
+  - risk_scorer
+  model: synthesizer
+- id: report_composer
+  name: Risk Assessment Report Composer
+  swarm: output
+  depends_on:
+  - risk_scorer
+  - architecture_intake
+  - control_mapper
+  - risk_aggregator
+  - visual_asset_generator
+  tools:
+  - code_interpreter
+  - memory_read
+  output_kind: drafter
+  output_format:
+    type: html
+    save_as: risk_assessment_report.html
+    validate: true
+    template_id: risk_assessment_report_v1
+  prompt: "Your job: fill the template.html file (pre-loaded in your sandbox) with real data.\n\nSTEP 1: Read template.html from the sandbox.\nSTEP 2: Read upstream data from memory (/tessera/assessment) for nodes, flows, threats, risks, control gaps.\nSTEP 3: Use code_interpreter to replace each {{PLACEHOLDER}} with real HTML table rows/content:\n  - {{REPORT_TITLE}}: Risk Assessment Report — [project name] — [date]\n  - {{REPORT_META}}: Generated date, scope, drafter info\n  - {{SCOPE_DESCRIPTION}}: What was assessed\n  - {{ARCHITECTURE_DIAGRAM}}: The ORIGINAL diagram from the uploaded architecture document.\n      If architecture_intake preserved a text diagram, use it verbatim in <pre class=\"diagram\">.\n      If it described an image, summarize what it shows.\n  - {{CRITICAL_COUNT}}, {{HIGH_COUNT}}, {{MEDIUM_COUNT}}, {{LOW_COUNT}}: risk counts\n  - {{THREAT_COUNT}}, {{GAP_COUNT}}: totals\n  - {{METHODOLOGY}}: FAIR + autonomous attacker modeling description\n  - {{VERDICT_TITLE}}: Go/No-Go verdict\n  - {{VERDICT_BODY}}: Verdict explanation\n  - {{EXECUTIVE_SUMMARY}}: Key findings, top 5 risks, posture overview\n  - {{NODES_ROWS}}: <tr id=\"N-xxx\"> rows for each node. MUST have id= attribute matching the Node ID. Format per template comment.\n  - {{FLOWS_ROWS}}: <tr id=\"F-xxx\"> rows for each flow. MUST have id= attribute. Source/Dest cells MUST link to nodes: <a href=\"#N-xxx\">Name</a>. Format per template comment.\n  - {{THREATS_ROWS}}: <tr id=\"T-xxx\"> rows. Affected Nodes/Flows cell MUST use <a href=\"#N-xxx\">N-xxx</a> and <a href=\"#F-xxx\">F-xxx</a> links. Format per template comment.\n  - {{RISK_ROWS}}: expandable <tr class=\"expandable\" onclick=\"toggleDetail(this)\"> + <tr class=\"risk-detail\"> pairs with FAIR detail\n  - {{GAPS_ROWS}}: <tr> rows (Gap ID, Framework Control, Status badge, Affected Risk IDs as links, Priority, Remediation)\n  - {{VISUAL_ASSETS}}: Read visual_assets.html from visual_asset_generator output (in memory\n      or upstream findings). Extract the <div class=\"visual-section\">...</div> blocks and paste\n      them VERBATIM into this placeholder. Do NOT regenerate charts — use exactly what the\n      visual_asset_generator produced.\n  - {{BUSINESS_RISK_ROWS}}: Same expandable format as RISK_ROWS but for BR-xxx business risks.\n      Each row: <tr id=\"BR-xxx\" class=\"expandable\" onclick=\"toggleDetail(this)\"><td>BR-xxx</td><td>Title</td>\n      <td><a href=\"#R-xxx\">R-001</a>, <a href=\"#R-xxx\">R-003</a></td><td>ALE</td><td>Score</td><td>Appetite</td></tr>\n      <tr class=\"risk-detail\"><td colspan=\"6\"><div class=\"detail-grid\">\n        <dt>Contributing Threats</dt><dd><a href=\"#T-xxx\">T-xxx</a>, ...</dd>\n        <dt>Business Impact</dt><dd>...</dd>\n        <dt>Org Context</dt><dd>...</dd>\n        <dt>Mitigating Org Controls</dt><dd>...</dd>\n      </div></td></tr>\n  - {{REFERENCES}}: <div class=\"ref\"> blocks with URLs\n  - {{FOOTER}}: Report ID, date, disclaimer\n\nSTEP 4: Write the filled HTML to 'risk_assessment_report.html'.\n\nIMPORTANT:\n- Use <code>N-xxx</code> for node IDs, <code>F-xxx</code> for flows, <code>T-xxx</code> for threats, <code>R-xxx</code> for risks, <code>GAP-xxx</code> for gaps\n- All IDs must be cross-linked with <a href=\"#tabname\"> anchors\n- Risk detail rows must show: description, affected nodes/flows, linked threats, FAIR breakdown (LEF, LM, score), current controls, mitigation, residual risk\n- Use badge classes: crit, high, med, low, ok for severity coloring\n\nEmit ## SUMMARY."
+swarms:
+  intake:
+    agents:
+    - architecture_intake
+    strategy: graph
+  threats:
+    agents:
+    - network_infra_threat_analyst
+    - application_threat_analyst
+    - data_threat_analyst
+    - identity_access_threat_analyst
+    - cloud_config_threat_analyst
+    - insider_threat_analyst
+    - operational_resilience_analyst
+    - regulatory_compliance_analyst
+    - physical_social_engineering_analyst
+    - cryptographic_threat_analyst
+    - api_integration_threat_analyst
+    - ai_agentic_threat_analyst
+    - supply_chain_threat_analyst
+    strategy: graph
+  synthesis:
+    agents:
+    - catalog_enricher
+    - control_mapper
+    - risk_scorer
+    strategy: graph
+  output:
+    agents:
+    - visual_asset_generator
+    - report_composer
+    strategy: graph
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518
+category: Risk & Compliance
+tags:
+- threat-analysis
+- architecture-assessment
+- framework-mapping
+- risk-catalog
+domains:
+- cyber-security-risk

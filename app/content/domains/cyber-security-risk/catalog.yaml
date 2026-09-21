@@ -1,0 +1,187 @@
+# Declarative ingest for the cyber-security-risk domain.
+# Proves Stage 5: the risk catalog is populated from CONFIG — each source names a
+# shared standard-format builder primitive (tessera_platform.catalog.formats.BUILDERS)
+# or a map/agent normalizer. No per-domain Python. Parity with the original
+# hand-written normalizers is pinned by tests/unit/test_risk_descriptor_parity.py.
+ingest:
+  sources:
+    - name: mitre-attack
+      produces: [attack-technique, security-control]
+      fetch:
+        transport: http_json
+        url: https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master/enterprise-attack/enterprise-attack.json
+        timeout: 180
+      normalize:
+        mode: builder
+        builder: attack
+        args: {tech_limit: 0}
+
+    - name: cisa-kev
+      produces: [vulnerability]
+      fetch:
+        transport: http_json
+        url: https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+        timeout: 180
+      normalize: {mode: builder, builder: kev}
+
+    - name: veris-vcdb
+      produces: [breach]
+      fetch:
+        transport: http_json
+        url: https://raw.githubusercontent.com/walkerandco/VCDB-JSON-Merged/master/vcdb-complete.json
+        timeout: 240
+      normalize: {mode: builder, builder: veris}
+
+    - name: owasp
+      produces: [agentic-threat]
+      fetch: {transport: static}
+      normalize: {mode: builder, builder: owasp}
+
+    - name: nist-ai-rmf
+      produces: [risk-method-profile]
+      fetch: {transport: static}
+      normalize: {mode: builder, builder: nist_ai_rmf}
+
+    - name: wiz-cvdb
+      produces: [vulnerability]
+      fetch:
+        transport: github_contents
+        url: https://api.github.com/repos/wiz-sec/open-cvdb/contents/vulnerabilities
+        exts: [.yaml, .yml]
+        timeout: 60
+      normalize: {mode: builder, builder: wiz}
+
+    - name: nist-800-53
+      produces: [security-control]
+      fetch:
+        transport: http_json
+        url: https://raw.githubusercontent.com/usnistgov/oscal-content/main/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json
+        timeout: 120
+      normalize: {mode: builder, builder: nist_800_53}
+
+    # ACSC ISM — DETERMINISTIC: Australian Government Information Security Manual, all controls
+    # from the authoritative OSCAL JSON (ASD/ACSC), fetched via jsDelivr CDN. Same OSCAL pattern
+    # as NIST 800-53. OFFICIAL:SENSITIVE baseline (~1035 controls).
+    - name: acsc-ism
+      produces: [security-control]
+      fetch:
+        transport: http_json
+        url: https://cdn.jsdelivr.net/gh/AustralianCyberSecurityCentre/ism-oscal@main/ISM_OFFICIAL_SENSITIVE-baseline-resolved-profile_catalog.json
+        timeout: 180
+      normalize: {mode: builder, builder: ism}
+
+    - name: mitre-atlas
+      produces: [ai-attack-technique]
+      fetch:
+        transport: http_yaml
+        url: https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/ATLAS.yaml
+        timeout: 60
+      normalize: {mode: builder, builder: atlas}
+
+    - name: nist-ai-600-1
+      produces: [gai-risk]
+      fetch: {transport: static}
+      normalize: {mode: builder, builder: nist_ai_600_1}
+
+    # ── AI-governance layer ──────────────────────────────────────────────────────
+    # EU AI Act — DETERMINISTIC: all 112 articles (full text) from a public HF CSV of
+    # Regulation (EU) 2024/1689 (no LLM). Replaces the earlier curated 15-obligation builder.
+    - name: eu-ai-act
+      produces: [regulatory-obligation]
+      fetch:
+        transport: http_csv
+        url: https://huggingface.co/datasets/laredoyin/eu-ai-act/resolve/main/ai_act_articles.csv
+        timeout: 60
+      normalize:
+        mode: map
+        entity_type: regulatory-obligation
+        key_field: obligation_id
+        select: "rows[?article_text]"
+        fields:
+          obligation_id: "join('', ['eu-ai-act-art-', article_number])"
+          framework: "'eu-ai-act'"
+          article: "join('', ['Article ', article_number])"
+          title: "article_title"
+          name: "article_title"
+          description: "truncate(article_text, `6000`)"
+          chapter: "chapter_number"
+          references: "[join('', ['https://artificialintelligenceact.eu/article/', article_number, '/'])]"
+        provenance: {ingested_by: catalog-ingest, sources: [eu-ai-act]}
+
+    # NIST AI RMF Playbook — DETERMINISTIC: all 72 subcategories (GOVERN/MAP/MEASURE/MANAGE)
+    # with outcome + About + Suggested Actions, parsed once from the authoritative NIST AIRC
+    # pages into a structured file in S3 (catalog-data/nist-ai-rmf-playbook.json; re-parse to
+    # refresh). Replaces the earlier curated 19-item builder.
+    - name: nist-ai-rmf-playbook
+      produces: [ai-governance-control]
+      fetch:
+        transport: s3
+        key: catalog-content/nist-ai-rmf-playbook.json
+      normalize:
+        mode: map
+        entity_type: ai-governance-control
+        key_field: control_id
+        select: "subcategories"
+        fields:
+          control_id: "control_id"
+          name: "name"
+          function: "function"
+          description: "description"
+          references: "references"
+        provenance: {ingested_by: catalog-ingest, sources: [nist-ai-rmf-playbook]}
+
+    # AI incidents — DETERMINISTIC: real GenAI/agentic incidents (framework-mapped to OWASP
+    # LLM/ASI, NIST AI RMF, MITRE ATLAS) fetched live from the genai_incidents dataset; capped
+    # to the high-quality "reviewed" tier. Replaces the earlier curated 10-incident builder.
+    - name: ai-incidents
+      produces: [ai-incident]
+      fetch:
+        transport: http_json
+        url: https://cdn.jsdelivr.net/gh/emmanuelgjr/genai_incidents@main/data/incidents.min.json
+        timeout: 120
+      normalize:
+        mode: map
+        entity_type: ai-incident
+        key_field: incident_id
+        select: "incidents[?quality_tier=='reviewed']"
+        fields:
+          incident_id: "id"
+          name: "title"
+          title: "title"
+          year: "year"
+          severity: "severity"
+          attack_vector: "attack_vector"
+          description: "truncate(description, `2000`)"
+          owasp_llm: "owasp_llm"
+          nist_ai_rmf: "nist_ai_rmf"
+          mitre_atlas: "mitre_atlas"
+          tags: "tags"
+          references: "[primary_reference]"
+        limit: 400
+        provenance: {ingested_by: catalog-ingest, sources: [ai-incidents]}
+
+    - name: framework-crosswalk
+      produces: [framework-crosswalk]
+      fetch: {transport: static}
+      normalize: {mode: builder, builder: framework_crosswalk}
+
+  refresh:
+    schedule: "rate(7 days)"
+    sanity_drop: 0.5
+  synthesis:
+    # Shared, vendored plugin (tessera_platform.catalog.synth_risk) — resolves on BOTH
+    # the legacy lambda and the generic ingest lambda. risk derives `risk` records via
+    # standards-anchored clustering + additive top-up (optional Synthesizer plugin).
+    plugin: tessera_platform.catalog.synth_risk
+    # Types the synthesizer EMITS (not produced by any source). On a versioned build these
+    # are generated fresh by running synthesis INTO the green version (never copied from
+    # blue), then verified by the coverage gate below.
+    produces: [risk]
+    # Declarative promotion gate for synthesized types (non-deterministic → coverage, not
+    # byte-identity): green must have >= min_total risks AND cover every required category.
+    coverage:
+      min_total: 90
+      required_categories: [data-breach, ransomware, insider-threat, supply-chain,
+        identity-access, service-disruption, regulatory-compliance, ip-theft,
+        reputational, ai-agent-compromise,
+        fairness-bias, transparency, accountability, safety, privacy, societal-harm, environmental]

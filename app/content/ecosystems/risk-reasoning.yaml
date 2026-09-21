@@ -1,0 +1,125 @@
+ecosystem:
+  name: risk-reasoning
+  description: Builds authoritative risk catalog from ATT&CK + OWASP Agentic sources
+  version: '1.0'
+  inputs: []
+strategy: graph
+report: true
+entry_point: ingestion
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: catalog_risks
+    path: /catalog/risks/
+    write:
+    - ingestion
+    read:
+    - all
+  - name: catalog_techniques
+    path: /catalog/attack-techniques/
+    write:
+    - ingestion
+    read:
+    - all
+  - name: session_log
+    path: /sessions/{sessionId}/agents/{agentId}/
+    write:
+    - all
+    read:
+    - all
+    auto_persist: true
+  - name: vulnerability_catalog
+    path: /catalog/vulnerability/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: security_control_catalog
+    path: /catalog/security-control/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: agentic_threat_catalog
+    path: /catalog/agentic-threat/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: breach_catalog
+    path: /catalog/breach/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: cyber_target_profile_catalog
+    path: /catalog/cyber-target-profile/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: vendor_catalog
+    path: /catalog/vendor/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: indicator_of_compromise_catalog
+    path: /catalog/indicator-of-compromise/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: asset_catalog
+    path: /catalog/asset/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: defense_pattern_catalog
+    path: /catalog/defense-pattern/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: trust_boundary_catalog
+    path: /catalog/trust-boundary/
+    write: []
+    read:
+    - all
+    auto_persist: false
+agents:
+- id: ingestion
+  name: Risk Ingestion
+  swarm: reasoning
+  depends_on: []
+  tools: []
+  prompt: "You are a Risk Ingestion agent. Your job is to populate the authoritative risk catalog\nfrom public security sources, then publish each risk to shared memory so that other\necosystems (risk-assessment, vendor-risk, etc.) can consult it later.\n\nSteps:\n1. Use web_search to find the current MITRE ATT&CK cloud techniques (search:\n   \"MITRE ATT&CK cloud techniques 2026 list\").\n2. Use web_search to find the current OWASP Agentic AI Top 10 risks\n   (search: \"OWASP Agentic AI Top 10 2026\").\n3. For each risk or technique found, call memory_write to publish it:\n      - For risks: memory_write(\"/tessera/catalog/risks\", \"<risk content>\")\n      - For techniques: memory_write(\"/tessera/catalog/attack-techniques\", \"<technique content>\")\n   Keep each entry to a single self-contained paragraph: include the risk/technique\n   id, title, brief description, severity, and one example mitigation.\n4. After publishing, summarize how many entries were cataloged from each source.\n\nDo NOT generate risks from your training data. Only catalog what the search results\nprovide. Cite each risk with [source: web_search] and include the URL.\n"
+- id: matcher
+  name: Risk Matcher
+  swarm: reasoning
+  depends_on:
+  - ingestion
+  tools: []
+  prompt: "You are a Risk Matcher agent. Verify the catalog is populated and queryable by\nreading from shared memory.\n\nSteps:\n1. Call memory_read(\"/tessera/catalog/risks\", \"S3 data exposure\") and report how\n   many entries match.\n2. Call memory_read(\"/tessera/catalog/risks\", \"Lambda execution risk\") and report\n   how many entries match.\n3. Call memory_read(\"/tessera/catalog/attack-techniques\", \"lateral movement cloud\")\n   and report results.\n4. Summarize total catalog availability and confirm the catalog is ready to be\n   consulted by downstream ecosystems (risk-assessment, vendor-risk).\n\nThis is a read-only validation step. Cite each finding with [per ingestion: ...].\n"
+swarms:
+  reasoning:
+    agents:
+    - ingestion
+    - matcher
+triggers:
+- type: manual
+owner: b4f86448-90b1-707d-be95-ed9fd9ce8518
+category: Risk & Compliance
+tags:
+- risk-catalog
+- threat-modeling
+- attack-framework
+- compliance
+quality:
+  challenger: per_level
+  challenger_gate:
+    block_below: ADEQUATE
+domains:
+- cyber-security-risk

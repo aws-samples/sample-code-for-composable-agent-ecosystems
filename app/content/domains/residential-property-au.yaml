@@ -1,0 +1,77 @@
+domain: residential-property-au
+name: Australian Residential Property
+description: 'Buyer- and vendor-side AU residential property: dwellings, the suburbs/markets they sit in, the schemes, people, authorities and durable market facts (sold comps, pipeline, overlays) reused across every deal in the same place.'
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: property
+  key: '{address}'
+  description: A dwelling — features, land, condition, title history.
+  status: active
+- type: suburb
+  key: '{name}-{postcode}-{state}'
+  description: Suburb/market intelligence — demographics, price trajectory, amenity.
+  status: active
+- type: strata-scheme
+  key: '{sp_number}'
+  description: Strata/body-corporate scheme — sinking fund, by-laws, insurance, levies.
+  status: active
+- type: comparable-sale
+  key: '{address}-{sale_date}'
+  description: A settled/observed transaction — durable local price fact.
+  status: active
+- type: selling-agent
+  key: '{name}-{agency}'
+  description: Agent/agency behaviour — under-quoting, auction style, sold-vs-guide.
+  status: active
+- type: development-application
+  key: '{da_number}'
+  description: Development application / pipeline item by precinct.
+  status: active
+- type: council
+  key: '{lga_name}'
+  description: Local government area — controls, DA norms, contributions.
+  status: active
+- type: planning-precedent
+  key: '{ref}'
+  description: A prior planning/DA decision reusable as precedent.
+  status: active
+- type: planning-control
+  key: '{lga}-{control_ref}'
+  description: A planning rule/control (zoning, FSR, height, setbacks).
+  status: active
+- type: service-availability
+  key: '{address_or_precinct}'
+  description: Utilities/infrastructure availability to a site (water, sewer, power, NBN).
+  status: active
+- type: overlay
+  key: '{parcel_or_area}'
+  description: Hazard/zoning overlay — bushfire/BAL, flood, heritage, contamination.
+  status: active
+- type: building
+  key: '{address}'
+  description: Physical structure condition — defects, materials, compliance.
+  status: active
+- type: title
+  key: '{volume}-{folio}-{state}'
+  description: Legal title — easements, covenants, encumbrances.
+  status: active
+conclusions_never_cataloged:
+- fair-value/valuation/walk-away price
+- risk ranking for a deal
+- auction/negotiation strategy
+- contract verdict / buy or sell recommendation
+seeded_from: &id001
+- buyerside
+- buyerside-premium
+- da-navigator
+- sale-ready
+- insurance-pds-navigator
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: bottom-up validated across belonging ecosystems (2026-06-30)

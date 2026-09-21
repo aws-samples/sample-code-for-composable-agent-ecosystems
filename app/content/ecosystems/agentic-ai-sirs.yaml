@@ -1,0 +1,258 @@
+ecosystem:
+  name: agentic-ai-sirs
+  description: 'Prepares and produces a complete Security Incident Response Simulation
+
+    (SIRS) workshop package focused on Agentic AI threats. Operator provides
+
+    customer context (industry, agent deployments, tech stack) and workshop
+
+    preferences. Four specialists work in parallel: one maps the OWASP
+
+    Agentic AI Top 10 to the customer''s specific environment, one designs
+
+    executable scenarios grounded in real incidents, one produces deployable
+
+    technical artifacts (Terraform, agent configs, poisoned RAG stores), and
+
+    one designs the facilitation flow. Two synthesizers assemble the master
+
+    execution plan and the customer-facing presentation deck.
+
+
+    All scenarios are tailored to the customer''s actual agent inventory and
+
+    tech stack. Each scenario maps to a specific OWASP Agentic risk
+
+    (ASI01-ASI10), uses a real analogous incident for credibility, and
+
+    includes both attacker and defender perspectives.
+
+    '
+  version: '1.0'
+  inputs:
+  - id: customer_context
+    type: text
+    label: Customer context (industry, size, regulator, cloud provider, current or planned AI/agent deployments)
+    required: true
+  - id: agent_inventory
+    type: text
+    label: 'Agent inventory (what agents they run or plan to run: purpose, tools, permissions, data access, orchestration pattern)'
+    required: true
+  - id: workshop_preferences
+    type: text
+    label: 'Workshop preferences (duration: half-day/full-day, audience: SOC/exec/mixed, format: tabletop/hands-on/hybrid, number of scenarios)'
+    required: true
+  - id: threat_priorities
+    type: text
+    label: 'Threat priorities (optional: which OWASP Agentic risks to focus on, e.g. ''ASI01 Goal Hijacking, ASI06 Memory Poisoning''. Leave blank for agents to recommend.)'
+    required: false
+  outcome:
+    kind: file_artifact
+    artifacts:
+    - id: execution_plan
+      agent: workshop_assembler
+      format: html
+      save_as: sirs-execution-plan.html
+      download_label: SIRS Execution Plan (HTML)
+    - id: workshop_deck
+      agent: presentation_drafter
+      format: html
+      save_as: sirs-workshop-deck.html
+      download_label: Workshop Deck (HTML)
+strategy: orchestrated
+report: true
+# Declare the HTML deliverables the synthesizer agents produce so the UI can surface
+# open/download buttons (openReport only opens DECLARED + produced artifacts). Filenames
+# must match what the agents save: <agent>/<save_as> under the run's S3 prefix.
+outcome:
+  kind: file_artifact
+  audience: workshop facilitators, security leadership, customer stakeholders
+  artifacts:
+  - id: execution_plan_html
+    agent: workshop_assembler
+    format: html
+    save_as: sirs-execution-plan.html
+    download_label: Download SIRS Execution Plan (HTML)
+  - id: presentation_deck_html
+    agent: presentation_drafter
+    format: html
+    save_as: sirs-workshop-deck.html
+    download_label: Download SIRS Workshop Deck (HTML)
+quality:
+  challenger: per_level
+  grounding: true
+  external_grounding: true
+  challenger_gate:
+    block_below: ADEQUATE
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: sirs_workshops
+    path: /catalog/sirs-workshops/
+    write:
+    - all
+    read:
+    - all
+    auto_persist: true
+  - name: agentic_threat_catalog
+    path: /catalog/agentic-threat/
+    write:
+    - threat_landscape_analyst
+    read:
+    - all
+    auto_persist: true
+  - name: attack_technique_catalog
+    path: /catalog/attack-technique/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: risk_catalog
+    path: /catalog/risk/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: vulnerability_catalog
+    path: /catalog/vulnerability/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: security_control_catalog
+    path: /catalog/security-control/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: breach_catalog
+    path: /catalog/breach/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: cyber_target_profile_catalog
+    path: /catalog/cyber-target-profile/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: vendor_catalog
+    path: /catalog/vendor/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: indicator_of_compromise_catalog
+    path: /catalog/indicator-of-compromise/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: asset_catalog
+    path: /catalog/asset/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: defense_pattern_catalog
+    path: /catalog/defense-pattern/
+    write: []
+    read:
+    - all
+    auto_persist: false
+  - name: trust_boundary_catalog
+    path: /catalog/trust-boundary/
+    write: []
+    read:
+    - all
+    auto_persist: false
+agents:
+- id: threat_landscape_analyst
+  name: Threat Landscape Analyst
+  swarm: research
+  depends_on: []
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  - current_time
+  - generateUI
+  tool_budget:
+    web_search: 12
+  prompt: "Your specific contribution: map the OWASP Top 10 for Agentic Applications\n(ASI01-ASI10) to this specific customer's agent inventory and produce a\nranked threat matrix showing which risks are most relevant to THEIR\nenvironment.\n\nYou do NOT: design scenarios (scenario_designer), produce technical\nartifacts (infra_architect), or plan workshop flow (facilitator_planner).\n\nMethod:\n1. Parse the customer's agent inventory: what agents, what tools, what\n   permissions, what data access, what orchestration pattern\n2. For each OWASP Agentic risk (ASI01-ASI10), assess applicability:\n   - ASI01 Agent Goal Hijacking\n   - ASI02 Tool Misuse and Exploitation\n   - ASI03 Identity and Privilege Abuse\n   - ASI04 Agentic Supply Chain Vulnerabilities\n   - ASI05 Unexpected Code Execution\n   - ASI06 Memory and Context Poisoning\n   - ASI07 Insecure Inter-Agent Communication\n   - ASI08 Cascading Failures\n   - ASI09 Human-Agent Trust Exploitation\n   - ASI10 Rogue Agents\n3. Use web_search to find real-world incidents (last 18 months) that\n   demonstrate each applicable risk. Prioritise incidents in the\n   customer's industry.\n4. Rank risks by: likelihood given their stack × impact given their\n   regulatory environment\n5. If operator provided threat_priorities, weight those higher but\n   still assess all 10\n\nRender via generateUI:\n- Ranked threat matrix (risk ID | risk name | applicability to customer |\n  likelihood | impact | real incident reference)\n- Top 5 recommendation with rationale\n\nWrite threat intelligence to /catalog/agentic-threats/ for reuse.\n"
+- id: scenario_designer
+  name: Scenario Designer
+  swarm: research
+  depends_on: []
+  tools:
+  - web_search
+  - memory_read
+  - memory_write
+  - generateUI
+  tool_budget:
+    web_search: 10
+  prompt: "Your specific contribution: design 3-5 executable SIRS scenarios\ntailored to the customer's agent inventory, tech stack, and industry.\nEach scenario must be relatable, realistic, and interactive.\n\nYou do NOT: produce technical deployment artifacts (infra_architect),\nplan facilitation timing (facilitator_planner), or assess the threat\nlandscape broadly (threat_landscape_analyst).\n\nMethod:\n1. Read the customer context and agent inventory carefully\n2. For each scenario, produce:\n   - MISSION BRIEF: 1-paragraph situation description (what happened,\n     what's at stake, time pressure)\n   - OWASP RISK MAPPED: which ASI risk this tests\n   - ATTACKER PROFILE: who, motivation, capability level\n   - ATTACK CHAIN: step-by-step how the attack unfolds (3-6 steps)\n   - EXPECTED INDICATORS: what defenders should notice at each stage\n   - DECISION POINTS: where participants must make choices\n   - SUCCESS CRITERIA: what \"good\" looks like for the defending team\n   - REAL INCIDENT ANCHOR: a real analogous incident (web-searched)\n     that grounds the scenario in reality\n3. Ensure scenarios:\n   - Use the customer's ACTUAL tech stack (their cloud, their agent\n     framework, their tools)\n   - Escalate in complexity (scenario 1 = detection, scenario 3 = full\n     response under pressure)\n   - Cover different OWASP risks (don't repeat the same risk)\n   - Are interactive (participants make decisions, not just observe)\n4. Use web_search to find real agentic AI incidents for each scenario\n   anchor\n\nRender via generateUI: scenario cards with mission brief, attack chain\ndiagram, and decision tree.\n\nEnd your output with a ## STRUCTURED FINDINGS section containing one\nfinding per scenario: scenario ID, OWASP risk mapped, complexity level,\nand one-line summary. This section is mandatory.\n"
+- id: infra_architect
+  name: Infrastructure Architect
+  swarm: research
+  depends_on: []
+  tools:
+  - web_search
+  - memory_read
+  - generateUI
+  tool_budget:
+    web_search: 6
+  prompt: "Your specific contribution: produce deployable technical artifacts that\ncreate the lab environment for each SIRS scenario. These artifacts let\nthe workshop facilitator spin up realistic vulnerable agent environments\nthat participants interact with.\n\nYou do NOT: design the scenarios themselves (scenario_designer), assess\nthreats (threat_landscape_analyst), or plan facilitation (facilitator_planner).\n\nMethod:\n1. Read the customer's tech stack and agent inventory\n2. For each likely scenario type (goal hijacking, memory poisoning,\n   privilege escalation, supply chain compromise, cascading failure),\n   produce:\n   - TERRAFORM/CLOUDFORMATION: infrastructure-as-code to deploy a\n     minimal vulnerable agent environment on the customer's cloud\n   - AGENT CONFIG: sample agent configuration with intentional\n     vulnerabilities (over-privileged IAM, unsandboxed code execution,\n     shared credential store)\n   - ATTACK PAYLOADS: example poisoned documents, malicious MCP server\n     configs, crafted prompt injections tailored to the agent's role\n   - DETECTION ARTIFACTS: what logs/traces/metrics would reveal the\n     attack (so defenders know what to look for)\n3. Use web_search for current best-practice lab setups and known\n   exploit patterns for agentic systems\n4. Ensure all artifacts are SAFE (clearly marked as workshop materials,\n   scoped to isolated environments, include teardown scripts)\n\nRender via generateUI: code blocks for each artifact with deployment\ninstructions and safety notes.\n"
+- id: facilitator_planner
+  name: Workshop Facilitator Planner
+  swarm: research
+  depends_on: []
+  tools:
+  - memory_read
+  - generateUI
+  prompt: "Your specific contribution: design the workshop execution flow\nincluding timing, participant roles, inject schedule, and debrief\nstructure. This is the facilitator's playbook.\n\nYou do NOT: design scenarios (scenario_designer), produce technical\nartifacts (infra_architect), or assess threats (threat_landscape_analyst).\n\nMethod:\n1. Read workshop preferences (duration, audience, format)\n2. Design the execution flow:\n   - OPENING: objectives, OWASP Agentic framework intro, ground rules\n   - TEAM STRUCTURE: how to divide participants (red team / blue team /\n     observers, or rotating roles)\n   - SCENARIO EXECUTION: for each scenario slot, define:\n     * Setup time (facilitator deploys environment)\n     * Brief time (participants read mission)\n     * Execute time (active play)\n     * Inject schedule (when facilitator introduces new information\n       or escalations during the scenario)\n     * Debrief time (what happened, what was missed, lessons)\n   - SCORING: rubric for team performance (detection speed, containment\n     effectiveness, communication quality, evidence preservation)\n   - CLOSING: cross-scenario themes, action items, next steps\n3. Adapt timing to the stated duration:\n   - Half-day (4h): 2-3 scenarios, shorter debriefs\n   - Full-day (8h): 4-5 scenarios, deeper debriefs, lunch break\n4. Adapt complexity to audience:\n   - SOC team: hands-on, technical, tool-level\n   - Executive: decision-focused, business impact, communication\n   - Mixed: pair technical with exec for realistic escalation practice\n\nRender via generateUI: timeline with inject schedule, role cards,\nscoring rubric.\n"
+- id: workshop_assembler
+  name: Workshop Package Assembler
+  swarm: synthesis
+  depends_on:
+  - threat_landscape_analyst
+  - scenario_designer
+  - infra_architect
+  - facilitator_planner
+  tools:
+  - memory_read
+  - memory_write
+  - code_interpreter
+  - generateUI
+  output_format:
+    type: html
+    file_extension: .html
+    save_as: sirs-execution-plan.html
+  prompt: "Your specific contribution: combine all four upstream specialists'\noutputs into a cohesive, executable SIRS workshop package. Ensure\ninternal consistency and produce the master execution plan.\n\nYou do NOT: re-research threats, redesign scenarios, or rewrite\ninfrastructure code. Your job is integration, consistency checking,\nand producing the unified execution document.\n\nMethod:\n1. Read all four specialists' STRUCTURED FINDINGS\n2. Cross-reference and validate:\n   - Do the scenarios match the threat matrix priorities?\n   - Does the infrastructure support each scenario's attack chain?\n   - Does the timing allow for the number of scenarios designed?\n   - Are the decision points in scenarios aligned with the scoring rubric?\n3. Resolve conflicts (e.g. scenario designer wants 5 scenarios but\n   facilitator planned for 3 given half-day constraint)\n4. Produce the EXECUTION PLAN:\n\n   STRUCTURE:\n   1. WORKSHOP OVERVIEW\n      - Customer, date, duration, audience, objectives\n      - OWASP risks covered\n      - Prerequisites and pre-work\n\n   2. SCENARIO PORTFOLIO (for each scenario):\n      - Mission brief\n      - OWASP risk mapped\n      - Attack chain (step-by-step)\n      - Expected indicators\n      - Decision points\n      - Success criteria\n      - Infrastructure required (reference to tech artifacts)\n      - Timing allocation\n\n   3. FACILITATOR GUIDE\n      - Minute-by-minute timeline\n      - Inject schedule\n      - Escalation triggers\n      - Debrief questions per scenario\n\n   4. TECHNICAL APPENDIX\n      - Terraform/IaC for lab deployment\n      - Agent configs (vulnerable)\n      - Attack payloads\n      - Detection artifacts\n      - Teardown scripts\n\n   5. SCORING AND ASSESSMENT\n      - Team rubric\n      - Individual assessment criteria\n      - Post-workshop report template\n\nCite each upstream agent: [per threat_landscape_analyst: ...],\n[per scenario_designer: ...], etc. Use [novel — reason] for\nintegration-level decisions.\n\nWrite to /catalog/sirs-workshops/ for future reuse.\n"
+- id: presentation_drafter
+  name: Presentation Drafter
+  swarm: synthesis
+  depends_on:
+  - threat_landscape_analyst
+  - scenario_designer
+  - facilitator_planner
+  tools:
+  - memory_read
+  - generateUI
+  output_format:
+    type: html
+    file_extension: .html
+    save_as: sirs-workshop-deck.html
+  prompt: "Your specific contribution: produce the customer-facing HTML\npresentation deck for the SIRS workshop. This is what participants\nsee on screen during the workshop.\n\nYou do NOT: design scenarios or assess threats (upstream agents did\nthat). You PRESENT their work in a polished, engaging format.\n\nMethod:\n1. Read upstream findings from threat_landscape_analyst,\n   scenario_designer, and facilitator_planner\n2. Produce an HTML deck with these sections:\n\n   SLIDE STRUCTURE:\n   1. TITLE SLIDE\n      - \"Agentic AI Security Incident Response Simulation\"\n      - Customer name, date, classification\n\n   2. OBJECTIVES (1 slide)\n      - What participants will practice\n      - What they'll leave with\n\n   3. OWASP AGENTIC AI FRAMEWORK (2-3 slides)\n      - The 10 risks, visually mapped\n      - Which ones are most relevant to THIS customer (from threat matrix)\n      - Real incident examples\n\n   4. WORKSHOP RULES (1 slide)\n      - Teams, roles, timing, scoring\n      - Communication channels during exercise\n\n   5. SCENARIO BRIEFS (1 slide per scenario)\n      - Mission brief (what participants see)\n      - DO NOT include attack chain or expected indicators\n        (that's the facilitator's secret)\n      - Include: situation, time pressure, what's at stake,\n        initial indicators provided to the team\n\n   6. REFERENCE CARDS (1-2 slides)\n      - Agentic AI attack pattern cheat sheet\n      - Detection indicator reference\n      - Escalation decision tree\n\n   7. DEBRIEF TEMPLATE (1 slide)\n      - What happened\n      - What we detected / missed\n      - Timeline reconstruction\n      - Lessons and action items\n\n   8. CLOSE\n      - Key takeaways\n      - Recommended next steps\n      - Resources (OWASP links, further reading)\n\nStyle: professional, dark theme, clear typography, minimal text per\nslide, visual where possible. Use tables, diagrams described in HTML,\nand colour-coded severity indicators.\n\nCite upstream agents for all content.\n"
+triggers:
+- type: manual
+category: Security
+tags:
+- incident-response
+- training
+- agentic-ai
+- threat-simulation
+domains:
+- cyber-security-risk

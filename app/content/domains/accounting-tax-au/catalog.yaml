@@ -1,0 +1,70 @@
+# Declarative, versioned ingest for the accounting-tax-au domain (Accounting & Tax NFR).
+# legal-instrument comes from the Federal Register of Legislation OData API (reliable);
+# accounting-standard from the AASB standards list (best-effort agentic extraction);
+# tax-guidance is declared and populated bottom-up (no reliable small ATO index wired).
+# An entity's accounting treatment, tax position, provision, or disclosure judgement for a
+# run are CONCLUSIONS — never cataloged (see accounting-tax-au.yaml).
+ingest:
+  sources:
+    # ── legal-instrument (governing Acts, via legislation OData API) ───────────────
+    - name: legislation-accounting-tax-acts
+      produces: [legal-instrument]
+      fetch: {transport: http_json, url: "https://api.prod.legislation.gov.au/v1/titles?$filter=id%20eq%20'C2004A05138'%20or%20id%20eq%20'C1936A00027'%20or%20id%20eq%20'C2004A00818'%20or%20id%20eq%20'C1953A00001'&$select=id,name,collection,isInForce,status,makingDate&$top=10", timeout: 120}  # pragma: allowlist secret — public AU legislation instrument IDs in a legislation.gov.au API URL, not a secret
+      normalize:
+        mode: map
+        entity_type: legal-instrument
+        key_field: instrument_id
+        select: "value"
+        fields:
+          instrument_id: "id"
+          title: "name"
+          collection: "collection"
+          in_force: "isInForce"
+          status: "status"
+          making_date: "makingDate"
+          register_url: "join('', ['https://www.legislation.gov.au/', id, '/latest/text'])"
+          references: "[join('', ['https://www.legislation.gov.au/', id, '/latest/text'])]"
+        provenance: {ingested_by: catalog-ingest, sources: [federal-register-of-legislation]}
+
+    # ── accounting-standard (AASB standards list) ──────────────────────────────────
+    - name: aasb-standards
+      produces: [accounting-standard]
+      fetch: {transport: http_html, url: https://standards.aasb.gov.au/accounting-standards, timeout: 90}
+      normalize:
+        mode: agent
+        entity_type: accounting-standard
+        key: "{standard_id}"
+        key_field: standard_id
+        guidance: >-
+          Emit one record per Australian Accounting Standard listed (e.g. AASB 9 Financial Instruments,
+          AASB 15 Revenue, AASB 16 Leases, AASB 112 Income Taxes, AASB 137 Provisions/Contingencies):
+          standard_id (kebab-case, e.g. aasb-9), title (the standard's name without the number),
+          objective (one line on what it prescribes, if given), administered_by (AASB), status.
+        ground: true
+        provenance: {ingested_by: catalog-ingest, sources: [aasb]}
+
+    # ── tax-guidance (ATO durable tax-risk concepts) ───────────────────────────────
+    # ATO rulings/guidance have no official bulk API and are per-document HTML/PDF, so —
+    # following the cyber nist-ai-rmf-playbook pattern — durable tax-risk concepts are
+    # pre-parsed into catalog-content/ato-tax-guidance.json and ingested via s3 + map.
+    - name: ato-tax-guidance
+      produces: [tax-guidance]
+      fetch: {transport: s3, key: catalog-content/ato-tax-guidance.json}
+      normalize:
+        mode: map
+        entity_type: tax-guidance
+        key_field: guidance_id
+        select: "guidance"
+        fields:
+          guidance_id: "guidance_id"
+          title: "title"
+          summary: "summary"
+          topic: "topic"
+          references: "references"
+        const: {administered_by: ATO, status: current}
+        provenance: {ingested_by: catalog-ingest, sources: [ato]}
+
+  refresh:
+    schedule: "rate(30 days)"
+    sanity_drop: 0.5
+  synthesis: none

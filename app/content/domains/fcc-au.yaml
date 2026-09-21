@@ -1,0 +1,136 @@
+domain: fcc-au
+name: Australian Financial Crime Compliance (AML/CTF & Sanctions)
+description: "Durable, cited AU financial-crime-compliance reference knowledge for reporting entities — AML/CTF Act obligations (enrolment, AML/CTF program, KYC/CDD, ongoing CDD, SMR/TTR/IFTI reporting, record-keeping) incl. the 2024/2026 reforms, money-laundering/terrorism-financing typologies + red-flag indicators, AUSTRAC guidance, DFAT sanctions regimes, and published AUSTRAC enforcement precedents. Composes with financial-regulatory-risk, cyber-security-risk and privacy-au for the FCC/Fraud slice of enterprise risk. A customer's ML/TF risk rating, an SMR decision for a transaction, a sanctions-hit disposition, or an AML-program assessment are CONCLUSIONS — never cataloged. Ingest is declarative + blue/green-versioned (domains/fcc-au/catalog.yaml)."
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: aml-obligation
+  key: '{obligation_id}'
+  description: "A statutory AML/CTF obligation under the AML/CTF Act 2006 — enrolment, program, KYC/CDD, ongoing CDD, SMR/TTR/IFTI reporting, record-keeping — incl. 2024/2026 reform changes."
+  status: active
+- type: financial-crime-typology
+  key: '{typology_id}'
+  description: "A money-laundering / terrorism-financing typology with observable red-flag indicators (structuring, mules, trade-based ML, cuckoo smurfing, shell-company layering, crypto laundering)."
+  status: active
+- type: austrac-guidance
+  key: '{guidance_id}'
+  description: "An AUSTRAC guidance topic — key expectations + the obligation it elaborates."
+  status: active
+- type: sanctions-regime
+  key: '{regime_id}'
+  description: "A DFAT-administered sanctions regime (Australian autonomous, UNSC, thematic) + its screening/no-dealing/reporting obligations."
+  status: active
+- type: enforcement-precedent
+  key: '{action_id}'
+  description: "A published AUSTRAC enforcement/civil-penalty outcome — a durable 'what AML/CTF non-compliance costs' lesson."
+  status: active
+- type: legal-instrument
+  key: '{instrument_id}'
+  description: "An authoritative governing Act from the Federal Register of Legislation (legislation.gov.au) — AML/CTF Act 2006, Autonomous Sanctions Act 2011, Charter of the UN Act 1945 — register id + current in-force status; anchors obligations to the source-of-truth law."
+  status: active
+conclusions_never_cataloged:
+- a customer's or transaction's ML/TF risk rating
+- a suspicious-matter-report (SMR) decision for a specific transaction
+- a sanctions-screening hit disposition for a specific party
+- a specific entity's AML/CTF program adequacy assessment for a run
+- board memo / recommendation for a specific matter
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: "declarative ingest domain (spec-declarative-ingest.md) — 5 types (aml-obligation, financial-crime-typology, austrac-guidance, sanctions-regime, enforcement-precedent). Sources LIVE Home Affairs (verified) + AUSTRAC/DFAT via the grounded agentic normalizer; subdir declarative descriptor (domains/fcc-au/catalog.yaml) using the same blue/green versioned engine as cyber-security-risk and au-financial-advice. synthesis: none."
+catalog:
+  view:
+    default:
+      title:
+      - title
+      - name
+      - entity
+      subtitle:
+      - obligation_id
+      - typology_id
+      - guidance_id
+      - regime_id
+      - action_id
+      summary:
+      - description
+      - summary
+      - issue
+    aml-obligation:
+      title: title
+      subtitle: obligation_id
+      summary: description
+      badge:
+        field: status
+        scale:
+          current: green
+          in-force: green
+          commenced: green
+          proposed: amber
+    financial-crime-typology:
+      title: name
+      subtitle: typology_id
+      summary: description
+    austrac-guidance:
+      title: title
+      subtitle: guidance_id
+      summary: summary
+    sanctions-regime:
+      title: name
+      subtitle: regime_id
+      summary: description
+    enforcement-precedent:
+      title: entity
+      subtitle: action_id
+      summary: issue
+    legal-instrument:
+      title: title
+      subtitle: instrument_id
+      summary: status
+  ingestion:
+    schedule: rate(30 days)
+    sources:
+    - id: legislation-fcc-acts
+      mode: agent
+      produces:
+      - legal-instrument
+      authoritative_url: https://api.prod.legislation.gov.au/v1/titles?$filter=name eq 'Anti-Money Laundering and Counter-Terrorism Financing Act 2006' or name eq 'Autonomous Sanctions Act 2011' or name eq 'Charter of the United Nations Act 1945'
+      status: active
+    - id: homeaffairs-amlctf-regime
+      mode: agent
+      produces:
+      - aml-obligation
+      authoritative_url: https://www.homeaffairs.gov.au/criminal-justice/Pages/what-it-means-to-be-regulated-under-the-amlctf-regime.aspx
+      status: active
+    - id: homeaffairs-amlctf-reforms
+      mode: agent
+      produces:
+      - aml-obligation
+      authoritative_url: https://www.homeaffairs.gov.au/criminal-justice/Pages/overview-of-the-amlctf-amendment-act.aspx
+      status: active
+    - id: austrac-typologies
+      mode: agent
+      produces:
+      - financial-crime-typology
+      authoritative_url: https://www.austrac.gov.au/industry-and-business/obligations-and-guidance/risks-and-indicators-suspicious-activity
+      status: active
+    - id: austrac-guidance
+      mode: agent
+      produces:
+      - austrac-guidance
+      authoritative_url: https://www.austrac.gov.au/industry-and-business/obligations-and-guidance
+      status: active
+    - id: dfat-sanctions
+      mode: agent
+      produces:
+      - sanctions-regime
+      authoritative_url: https://www.dfat.gov.au/international-relations/security/sanctions/about-sanctions
+      status: active
+    - id: austrac-enforcement
+      mode: agent
+      produces:
+      - enforcement-precedent
+      authoritative_url: https://www.austrac.gov.au/about-us/record-our-actions/enforcement-actions-taken
+      status: active

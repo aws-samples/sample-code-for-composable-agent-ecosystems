@@ -1,0 +1,66 @@
+ecosystem:
+  name: architecture-review-board
+  description: Convene a senior architecture review board that pressure-tests a proposed
+    AWS solution architecture (PDF) from security, reliability, cost, data/privacy,
+    operations, principal-architect, domain-SME, sponsor, and PM angles, allows the
+    submitter to defend points, preserves dissent, and returns a defensible go / go-with-conditions
+    / no-go verdict.
+  version: '1.0'
+  inputs:
+  - id: decision
+    type: text
+    label: The proposed AWS architecture under review (paste the design or attach
+      the PDF)
+    required: true
+  - id: context
+    type: text
+    label: "Context \u2014 business goal, stakeholders, constraints, budget/timeline,\
+      \ risk appetite, jurisdiction, and any domain specifics"
+    required: false
+  outcome:
+    kind: report
+name: architecture-review-board
+strategy: quorum
+tags:
+- architecture-review
+- aws
+- governance
+- risk
+quorum:
+  empanelment:
+    persona_source: /catalog/scrutineer/
+    select:
+      min: 5
+      max: 6
+      # The CHAIR is structural: a review with nobody running it produces no synthesis and no
+      # whiteboard map. The design owner (solutions_architect_owner) is deliberately NOT forced —
+      # in an interactive room the human IS the design owner, and Fix 2 unseats a second one because
+      # a measured run showed the in-room owner taking 36% of turns while the submitter was discussed
+      # in the third person and never addressed. It stays in the pool for headless/batch runs, where
+      # nobody is present to defend the design.
+      must_include: [arb_chair]
+      # Dimensions an architecture review must cover. empanelment records anything uncovered as
+      # missing_dimensions, so a thin panel is visible in the plan rather than silent.
+      diversity: [architecture, reliability, data, security, cost]
+    completeness_adversary: true
+    justify_exclusions: true
+  deliberation:
+    max_rounds: 2
+    escalation: true
+    preserve_dissent: true
+  verdict:
+    scale:
+    - defensible
+    - defensible_with_conditions
+    - indefensible
+    must_state:
+    - against_whom_it_fails
+    - indefensible_elements
+    - remediation
+  whiteboard:
+    enabled: true
+    infer_affinity: true      # architects/design personas draw; narrative personas don't (spec-quorum-whiteboard.md)
+quality:
+  gate:
+    block_below: defensible_with_conditions
+owner: 24f8c4c8-9041-7091-59a1-f88ff840b6f8

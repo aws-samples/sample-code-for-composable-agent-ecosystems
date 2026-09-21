@@ -1,0 +1,78 @@
+domain: tessera-self
+name: Tessera Self-Model
+description: >-
+  Tessera's model of itself — the reflexive application of its own catalog primitive.
+  Spans five layers (intentional, design, structural, narrative, operational), each
+  record provenance-tagged by layer + source. Powers the concierge front door, the
+  self-aware builder, the decision-desk, and the drift/coherence monitor.
+  See docs/spec-self-awareness.md.
+owner: platform
+owner_email: platform@tessera
+status: draft
+version: 1
+seeded_from:
+- tessera-self-coherence
+change_log:
+- v1: initial self-model taxonomy (spec-self-awareness v0.1/0.2)
+
+# Every record also carries a `provenance` object:
+#   { layer: intent-declared|design-asserted|code-grounded|runtime-observed|history-observed,
+#     source_ref: <file#symbol | git:sha | eco:id | run:id | ratified-by:user@date>,
+#     confidence: high|medium|low, captured_at: ISO-8601 }
+
+taxonomy:
+# ── Intentional layer (human-ratified) ──────────────────────────────────────
+- {type: goal,            key: '{goal_id}',        description: A stated objective with horizon, rationale, and status.}
+- {type: principle,       key: '{principle_id}',   description: A durable design/operating principle (e.g. ground-or-flag).}
+- {type: non-goal,        key: '{non_goal_id}',    description: Something Tessera deliberately is NOT / will not do.}
+- {type: value-prop,      key: '{vp_id}',          description: A promise to a specific audience, with supporting evidence.}
+- {type: roadmap-item,    key: '{item_id}',        description: A planned step with target and dependencies.}
+# ── Design layer ─────────────────────────────────────────────────────────────
+- {type: design-decision, key: '{decision_id}',    description: A design choice with rationale, alternatives, and status.}
+- {type: feature-spec,    key: '{spec_id}',        description: A specified feature/behaviour and its status.}
+- {type: invariant,       key: '{invariant_id}',   description: A platform invariant and how it is enforced.}
+# ── Structural layer (code-grounded) ─────────────────────────────────────────
+- {type: component,       key: '{component_id}',   description: A code/architecture component, its responsibility and dependencies.}
+- {type: data-flow,       key: '{flow_id}',        description: A payload path between components and its mechanism.}
+- {type: platform-tool,   key: '{tool_id}',        description: A tool available to agents and who invokes it.}
+- {type: integration,     key: '{integration_id}', description: An external service dependency and its purpose.}
+# ── Narrative layer ──────────────────────────────────────────────────────────
+- {type: evolution-event, key: '{event_id}',       description: A dated change with rationale and source.}
+# ── Operational layer (runtime-observed) ─────────────────────────────────────
+- {type: ecosystem,       key: '{eco_id}',         description: A deployed ecosystem — purpose, inputs, deliverable, agents, maturity.}
+- {type: capability,      key: '{capability_id}',  description: A reusable platform primitive and the ecos that use it.}
+- {type: domain-catalog,  key: '{domain_id}',      description: An authoritative knowledge catalog Tessera holds, with coverage/freshness.}
+- {type: run-evidence,    key: '{eco_id}',         description: Observed run outcomes for an eco — success, cost, ratings, failures.}
+- {type: exemplar-output, key: '{output_id}',      description: A REAL deliverable from an actual eco run — verbatim excerpt + run/S3 provenance (nothing synthesized).}
+# ── Cross-layer output ───────────────────────────────────────────────────────
+- {type: gap,             key: '{gap_id}',         description: A detected disagreement across layers (drift, unrealized intent, design gap).}
+
+# Catalog browser view (presence of catalog.view => domain shows in the UI picker).
+catalog:
+  view:
+    default:
+      title: [name, statement, summary, title]
+      subtitle: [eco_id, goal_id, component_id, gap_id]
+      summary: [purpose, rationale, statement, summary, responsibility]
+    ecosystem:
+      title: name
+      subtitle: eco_id
+      summary: purpose
+      badge: {field: maturity, scale: {product: green, "proof-only": accent, demo: amber, experimental: muted, cut: red}}
+    gap:
+      title: summary
+      subtitle: kind
+      badge: {field: severity, scale: {high: red, medium: amber, low: muted}}
+    capability:
+      title: name
+      subtitle: primitive
+      summary: description
+    domain-catalog:
+      title: name
+      subtitle: domain_id
+      summary: freshness
+    exemplar-output:
+      title: title
+      subtitle: eco_name
+      summary: excerpt
+      badge: {field: deliverable_format, scale: {html: green, pdf: accent, md: muted, txt: muted, zip: amber}}

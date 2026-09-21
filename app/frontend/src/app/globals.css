@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --tessera-gradient: linear-gradient(135deg, #0ea5e9, #8b5cf6, #ec4899);
+  --glow-blue: 0 0 20px rgba(14, 165, 233, 0.3);
+  --glow-red: 0 0 20px rgba(239, 68, 68, 0.3);
+  --glow-purple: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+body {
+  @apply bg-[#0a0e1a] text-gray-100;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+/* Tessera gradient text */
+.tessera-gradient {
+  background: var(--tessera-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glowing borders */
+.glow-border {
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  box-shadow: inset 0 0 30px rgba(139, 92, 246, 0.05);
+}
+
+.glow-border-red {
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  box-shadow: var(--glow-red);
+}
+
+.glow-border-blue {
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: var(--glow-blue);
+}
+
+/* Animated pulse for running agents */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(14, 165, 233, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(14, 165, 233, 0.8); }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: all 0.2s ease;
+}
+.card-hover:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.5);
+}
+
+/* Status dot animation */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.blink {
+  animation: blink 1.5s ease-in-out infinite;
+}

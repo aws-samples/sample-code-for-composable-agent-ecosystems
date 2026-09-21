@@ -1,0 +1,38 @@
+domain: travel-planning
+name: Travel Planning
+description: 'Durable travel knowledge reused across trip plans: destinations, accommodations, experiences, routes, and traveler requirement profiles.'
+version: 1
+owner: ''
+owner_email: ''
+status: active
+taxonomy:
+- type: destination
+  key: '{name}'
+  description: A destination — durable facts, seasons, logistics, highlights.
+  status: active
+- type: accommodation
+  key: '{name}-{location}'
+  description: An accommodation option — durable attributes, suitability.
+  status: active
+- type: experience
+  key: '{name}-{location}'
+  description: An attraction/experience — durable facts, booking, suitability.
+  status: active
+- type: route
+  key: '{origin}-{destination}'
+  description: A durable route/leg — modes, duration, considerations.
+  status: active
+- type: travel-requirement
+  key: '{destination}'
+  description: Durable entry/health/visa requirements for a destination.
+  status: active
+conclusions_never_cataloged:
+- the itinerary for a specific trip (run artifact)
+seeded_from: &id001
+- trip-planner
+ecosystems: *id001
+pending_changes: []
+change_log:
+- version: 1
+  action: created
+  detail: bottom-up validated across belonging ecosystems (2026-06-30)
