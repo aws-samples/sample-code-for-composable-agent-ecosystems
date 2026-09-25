@@ -1,0 +1,6 @@
+# pip --platform tag for this Lambda's dependency wheels (overrides the default
+# manylinux2014_x86_64 in scripts/package-lambdas.sh). quorum-run pins pillow==12.3.0,
+# which fixes 13 GHSA advisories but publishes ONLY a manylinux_2_28_x86_64 cp312 wheel.
+# The Lambda Python 3.12 runtime (Amazon Linux 2023, glibc 2.34) satisfies 2_28, and
+# quorum-run's other deps (boto3/pyyaml/jmespath) all ship 2_28 wheels too.
+manylinux_2_28_x86_64

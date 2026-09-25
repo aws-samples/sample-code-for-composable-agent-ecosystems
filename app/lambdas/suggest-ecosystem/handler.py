@@ -953,8 +953,13 @@ def _sanitize_svg(svg):
     """Strip anything executable/external from agent SVG (defense-in-depth; the report
     iframe is script-sandboxed anyway). Returns the <svg>…</svg> slice."""
     s = svg or ""
-    s = re.sub(r"<script[\s\S]*?</script>", "", s, flags=re.IGNORECASE)
-    s = re.sub(r"<foreignObject[\s\S]*?</foreignObject>", "", s, flags=re.IGNORECASE)
+    # Remove well-formed <script>…</script> / <foreignObject>…</foreignObject> blocks,
+    # then strip ANY remaining <script>/<foreignObject> opening OR closing tag so a
+    # malformed or unclosed tag (which the paired regex misses) can't survive. Matching a
+    # lone opening tag is what prevents the classic "bad HTML filtering" bypass.
+    s = re.sub(r"<script[\s\S]*?</script\s*>", "", s, flags=re.IGNORECASE)
+    s = re.sub(r"<foreignObject[\s\S]*?</foreignObject\s*>", "", s, flags=re.IGNORECASE)
+    s = re.sub(r"</?\s*(script|foreignObject)\b[^>]*>", "", s, flags=re.IGNORECASE)
     s = re.sub(r"\son\w+\s*=\s*(\"[^\"]*\"|'[^']*'|[^\s>]+)", "", s, flags=re.IGNORECASE)
     s = re.sub(r"(href|xlink:href)\s*=\s*(\"|')\s*javascript:[^\"']*\2", "", s, flags=re.IGNORECASE)
     m = re.search(r"<svg[\s\S]*</svg>", s, re.IGNORECASE)
@@ -965,8 +970,11 @@ def _sanitize_section_html(html):
     """Strip anything executable/risky from agent-authored section markup (the frontend
     sanitises again on insert; this is defence in depth)."""
     h = html or ""
-    h = re.sub(r"<(script|style|iframe|object|embed|svg)[\s\S]*?</\1>", "", h, flags=re.IGNORECASE)
+    h = re.sub(r"<(script|style|iframe|object|embed|svg)[\s\S]*?</\1\s*>", "", h, flags=re.IGNORECASE)
     h = re.sub(r"<(script|style|iframe|object|embed|img|input)\b[^>]*/?>", "", h, flags=re.IGNORECASE)
+    # Strip any leftover opening/closing tag of these elements that the paired-tag pass
+    # missed (malformed / unclosed), so a broken <script ...> can't slip through.
+    h = re.sub(r"</?\s*(script|style|iframe|object|embed|svg)\b[^>]*>", "", h, flags=re.IGNORECASE)
     h = re.sub(r"\son\w+\s*=\s*(\"[^\"]*\"|'[^']*'|[^\s>]+)", "", h, flags=re.IGNORECASE)
     h = re.sub(r"(href)\s*=\s*(\"|')\s*javascript:[^\"']*\2", "", h, flags=re.IGNORECASE)
     if h.strip().startswith("```"):

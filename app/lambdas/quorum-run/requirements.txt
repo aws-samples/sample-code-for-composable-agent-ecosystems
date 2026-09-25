@@ -1,4 +1,4 @@
 boto3
 pyyaml
 jmespath
-pillow==12.2.0
+pillow==12.3.0

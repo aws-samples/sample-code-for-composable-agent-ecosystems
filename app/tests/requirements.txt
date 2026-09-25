@@ -1,5 +1,5 @@
-pytest==8.3.5
-pytest-asyncio==0.24.0
+pytest==9.0.3
+pytest-asyncio==1.4.0
 moto==5.0.22
 boto3==1.35.86
 ruff==0.8.4

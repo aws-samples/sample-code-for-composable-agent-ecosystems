@@ -77,7 +77,8 @@ export function MissionConsole({
   const mScrollRef = useRef<HTMLDivElement>(null);
   const { clientId: mClientId, connected: mWsConnected, subscribe: mSubscribe } = useClientWebSocket(wsUrl);
   // Per-mount draft id so optional run uploads land in a run-scoped S3 prefix.
-  const [draftId] = useState(() => `draft-${Math.random().toString(36).slice(2, 10)}`);
+  // Use a crypto RNG (not Math.random) so the id is unpredictable.
+  const [draftId] = useState(() => `draft-${crypto.randomUUID().replace(/-/g, "").slice(0, 8)}`);
 
   useEffect(() => {
     return mSubscribe((event: any) => {

@@ -36,6 +36,31 @@ export interface A2UISurface {
 /** ChildList — either an array of component IDs or a template binding. */
 export type ChildList = string[] | { path: string; componentId: string };
 
+/**
+ * Safely test a value against an AGENT-SUPPLIED regex pattern.
+ *
+ * The pattern is untrusted, so feeding it straight into `new RegExp()` is a
+ * regex-injection / ReDoS risk. This validates and neutralises it before use:
+ *  - reject empty / over-long patterns and over-long inputs (bounds worst-case work),
+ *  - reject patterns containing nested quantifiers like `(a+)+` / `(a*)*` / `(a+)*`,
+ *    the classic catastrophic-backtracking constructs,
+ *  - construct without any flags so scope can't be widened,
+ *  - fail closed (return false) on any invalid pattern.
+ */
+function safeRegexTest(pattern: string, value: string): boolean {
+  if (!pattern || pattern.length > 200 || value.length > 2000) return false;
+  // Nested quantifier detection: a group that both contains a quantifier and is itself
+  // quantified is the hallmark of exponential backtracking.
+  if (/\([^)]*[+*][^)]*\)\s*[+*]/.test(pattern)) return false;
+  let re: RegExp;
+  try {
+    re = new RegExp(pattern);
+  } catch {
+    return false;
+  }
+  return re.test(value);
+}
+
 /** Resolve a JSON Pointer path (RFC 6901) against a data object. */
 export function resolvePath(data: unknown, path: string, scope?: unknown): unknown {
   if (!path) return undefined;
@@ -48,12 +73,17 @@ export function resolvePath(data: unknown, path: string, scope?: unknown): unkno
   let current: unknown = base;
   for (const seg of segments) {
     if (current == null) return undefined;
+    // The path is agent-supplied; refuse prototype-chain keys so traversal can never
+    // reach Object.prototype / a constructor (prototype pollution).
+    if (seg === "__proto__" || seg === "constructor" || seg === "prototype") return undefined;
     if (Array.isArray(current)) {
       const idx = parseInt(seg, 10);
       if (Number.isNaN(idx)) return undefined;
       current = current[idx];
     } else if (typeof current === "object") {
-      current = (current as Record<string, unknown>)[seg];
+      current = Object.prototype.hasOwnProperty.call(current, seg)
+        ? (current as Record<string, unknown>)[seg]
+        : undefined;
     } else {
       return undefined;
     }
@@ -146,11 +176,7 @@ export function runFunction(fn: FunctionCall, data: unknown, scope?: unknown): u
     case "regex": {
       const v = String(resolveArg(args.value) ?? "");
       const pattern = String(resolveArg(args.pattern) ?? "");
-      try {
-        return new RegExp(pattern).test(v);
-      } catch {
-        return false;
-      }
+      return safeRegexTest(pattern, v);
     }
     case "email": {
       const v = String(resolveArg(args.value) ?? "");

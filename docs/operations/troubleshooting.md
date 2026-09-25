@@ -16,15 +16,32 @@ pinned version therefore only works if PyPI publishes a **`manylinux2014_x86_64`
 wheel** for it — a version that is source-only, or has wheels only for other platforms,
 will fail here even though `pip install` works on your laptop.
 
-This bites when bumping a native/binary dependency to a very new release before its
-manylinux wheel is published. Example: `pillow==12.3.0` fails (only sdist / non-manylinux
-wheels at time of writing) while `pillow==12.2.0` installs fine. Fix: pin the highest
-version that has a `manylinux2014_x86_64` cp312 wheel. Check available wheels with:
+This bites when a dependency's wheel targets a manylinux baseline that differs from the
+build default (`manylinux2014_x86_64`, i.e. `manylinux_2_17`). Check available wheels for
+the default platform with:
 
 ```bash
 pip3 index versions <pkg> --platform manylinux2014_x86_64 --python-version 3.12 \
   --implementation cp --only-binary=:all:
 ```
+
+Two cases, two fixes:
+
+- **The version is source-only / has wheels only for other platforms** → pin the highest
+  version that has a `manylinux2014_x86_64` cp312 wheel.
+- **The version needs a NEWER baseline than 2014 (e.g. only `manylinux_2_28`)** → do NOT
+  switch the whole build to 2_28: some deps (e.g. `pydantic-core`, used by
+  `bedrock-agentcore`) ship only 2014 wheels and would then fail to resolve. Instead drop a
+  `.build-platform` file next to that one Lambda's `requirements.txt` naming the tag to use;
+  `scripts/package-lambdas.sh` applies it for that Lambda only. Example: `quorum-run` pins
+  `pillow==12.3.0` (a `manylinux_2_28_x86_64`-only wheel) and carries
+  `app/lambdas/quorum-run/.build-platform` = `manylinux_2_28_x86_64`. The Lambda Python 3.12
+  runtime (Amazon Linux 2023, glibc 2.34) satisfies 2_28. Verify with:
+
+  ```bash
+  pip3 index versions <pkg> --platform manylinux_2_28_x86_64 --python-version 3.12 \
+    --implementation cp --only-binary=:all:
+  ```
 
 ## `terraform init` fails asking for backend configuration
 

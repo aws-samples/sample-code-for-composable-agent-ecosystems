@@ -122,6 +122,32 @@ function dyn<T>(value: unknown, ctx: RenderContext): T | undefined {
   return resolveDynamic<T>(value as DynamicValue<T>, ctx.data, ctx.scope);
 }
 
+/**
+ * Allowlist a URL before it is placed in an href/src attribute. Surface content is
+ * agent-authored, so an unchecked URL could carry a `javascript:` (script execution on
+ * click) or hostile `data:` scheme. Only return the URL when it parses to an allowed
+ * scheme; otherwise return "" so the attribute is inert.
+ *
+ * `allowData` permits `data:image/...` for media <img>/<video>/<audio> src, where inline
+ * image data is legitimate; it is never allowed for anchor href.
+ */
+function safeUrl(raw: string | undefined | null, opts?: { allowData?: boolean }): string {
+  const u = (raw ?? "").trim();
+  if (!u) return "";
+  // Relative URLs (no scheme) are same-origin and safe.
+  if (/^(\/|\.\/|\.\.\/|#|\?)/.test(u)) return u;
+  let scheme: string;
+  try {
+    scheme = new URL(u, "http://_relative_base_/").protocol.toLowerCase();
+  } catch {
+    return "";
+  }
+  const allowed = new Set(["http:", "https:", "mailto:"]);
+  if (allowed.has(scheme)) return u;
+  if (opts?.allowData && scheme === "data:" && /^data:image\//i.test(u)) return u;
+  return "";
+}
+
 /** Dispatch the main render based on `component` type. */
 function renderComponent(c: A2UIComponent, ctx: RenderContext): React.ReactNode {
   switch (c.component) {
@@ -216,7 +242,7 @@ function TextWidget({ c, ctx }: { c: A2UIComponent; ctx: RenderContext }) {
 }
 
 function ImageWidget({ c, ctx }: { c: A2UIComponent; ctx: RenderContext }) {
-  const url = dyn<string>(c.url, ctx) ?? "";
+  const url = safeUrl(dyn<string>(c.url, ctx), { allowData: true });
   const alt = dyn<string>(c.alt, ctx) ?? "";
   return <img src={url} alt={alt} className="max-w-full rounded" />;
 }
@@ -232,12 +258,12 @@ function IconWidget({ c, ctx }: { c: A2UIComponent; ctx: RenderContext }) {
 }
 
 function VideoWidget({ c, ctx }: { c: A2UIComponent; ctx: RenderContext }) {
-  const url = dyn<string>(c.url, ctx) ?? "";
+  const url = safeUrl(dyn<string>(c.url, ctx), { allowData: true });
   return <video src={url} controls className="max-w-full rounded" />;
 }
 
 function AudioWidget({ c, ctx }: { c: A2UIComponent; ctx: RenderContext }) {
-  const url = dyn<string>(c.url, ctx) ?? "";
+  const url = safeUrl(dyn<string>(c.url, ctx), { allowData: true });
   return <audio src={url} controls className="w-full" />;
 }
 
@@ -859,7 +885,10 @@ function AlertBannerWidget({ c, ctx }: { c: A2UIComponent; ctx: RenderContext })
 function CitationCardWidget({ c, ctx }: { c: A2UIComponent; ctx: RenderContext }) {
   const title = toDisplayString(dyn<unknown>(c.title, ctx));
   const snippet = c.snippet ? toDisplayString(dyn<unknown>(c.snippet, ctx)) : undefined;
-  const url = c.url ? toDisplayString(dyn<unknown>(c.url, ctx)) : undefined;
+  const rawUrl = c.url ? toDisplayString(dyn<unknown>(c.url, ctx)) : undefined;
+  // Agent-supplied URL: allowlist the scheme before it reaches the href sink so a
+  // javascript:/data: URL can't execute or redirect on click.
+  const url = safeUrl(rawUrl) || undefined;
   const source = c.source ? toDisplayString(dyn<unknown>(c.source, ctx)) : undefined;
   const retrievedAt = c.retrievedAt ? toDisplayString(dyn<unknown>(c.retrievedAt, ctx)) : undefined;
 

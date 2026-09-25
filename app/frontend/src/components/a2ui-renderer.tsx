@@ -89,12 +89,15 @@ function isLegacyComponent(value: unknown): boolean {
  */
 function reduceEvents(events: AGUIEvent[]): RenderItem[] {
   const items: RenderItem[] = [];
-  const messageBuffers: Record<string, TextItem> = {};
-  const toolBuffers: Record<string, ToolCall> = {};
+  // These maps are keyed by agent-supplied ids (messageId / toolCallId). Using
+  // prototype-less objects (Object.create(null)) means a hostile key like "__proto__" or
+  // "constructor" becomes a harmless own property instead of polluting Object.prototype.
+  const messageBuffers: Record<string, TextItem> = Object.create(null);
+  const toolBuffers: Record<string, ToolCall> = Object.create(null);
   /** Map a toolCallId to the parent TextItem so we can attach result events later. */
-  const toolToParent: Record<string, TextItem | null> = {};
+  const toolToParent: Record<string, TextItem | null> = Object.create(null);
   /** Map a toolCallId to an OrphanToolItem index so we can update it as events stream in. */
-  const orphanToolByCallId: Record<string, OrphanToolItem> = {};
+  const orphanToolByCallId: Record<string, OrphanToolItem> = Object.create(null);
 
   for (let i = 0; i < events.length; i++) {
     const e = events[i] as any;

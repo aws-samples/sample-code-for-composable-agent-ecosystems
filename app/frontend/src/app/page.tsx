@@ -1123,7 +1123,8 @@ function EcosystemsView({ ecosystems, hideGrid, onIntakeClose, onLaunch, isRunni
   const mScrollRef = useRef<HTMLDivElement>(null);
   const { clientId: mClientId, connected: mWsConnected, subscribe: mSubscribe } = useClientWebSocket(WS_URL);
   // Per-mount draft id so optional run uploads land in a run-scoped S3 prefix.
-  const [draftId] = useState(() => `draft-${Math.random().toString(36).slice(2, 10)}`);
+  // Use a crypto RNG (not Math.random) so the id is unpredictable.
+  const [draftId] = useState(() => `draft-${crypto.randomUUID().replace(/-/g, "").slice(0, 8)}`);
   useEffect(() => {
     return mSubscribe((event: any) => {
       if (event.type === "CONVERSE_DELTA") {
@@ -3474,6 +3475,22 @@ function _parseQuality(config: any): { report: boolean; challenger: "off" | "fin
   };
 }
 
+/**
+ * Escape a value for embedding inside a YAML double-quoted scalar: `"${yamlDq(v)}"`.
+ * The backslash MUST be escaped FIRST, then the double quote, then control chars —
+ * escaping only `"` (the previous behaviour) left a literal `\` or `\"` in the value able
+ * to break out of the quoted scalar. `\n`/`\t`/`\r` are turned into their YAML escapes so
+ * a multi-line value stays a single valid scalar.
+ */
+function yamlDq(value: unknown): string {
+  return String(value ?? "")
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r")
+    .replace(/\t/g, "\\t");
+}
+
 function generateYaml(name: string, description: string, strategy: string, memoryStrategies: string[], agents: BuilderAgent[], namespaces: BuilderNamespace[], quality?: {report: boolean; challenger: "off" | "final" | "per_level" | boolean; grounding: boolean; block_below?: string; gates?: {citation: string; format: string; grounding: string; output_kind: string}}, inputs?: {id: string; type: string; label: string; required: boolean; accept: string[]}[], outcome?: { kind: string; audience?: string; artifacts: { id: string; agent: string; format: string; save_as: string; download_label: string }[] }, domain?: string, tags?: string[], quorum?: any): string {
   // Quorum archetype: a scrutiny/judgment PANEL. Emit the `quorum:` policy block
   // (empanelment / deliberation / verdict) instead of an agent DAG, and return
@@ -3486,14 +3503,14 @@ function generateYaml(name: string, description: string, strategy: string, memor
     const del = q.deliberation || {};
     const ver = q.verdict || {};
     const slug = (name || "defensibility-panel").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "defensibility-panel";
-    const list = (v: any, d: string[]) => (Array.isArray(v) && v.length ? v : d).map((x: any) => `"${String(x).replace(/"/g, '\\"')}"`).join(", ");
+    const list = (v: any, d: string[]) => (Array.isArray(v) && v.length ? v : d).map((x: any) => `"${yamlDq(x)}"`).join(", ");
     const ql: string[] = [`ecosystem:`, `  name: "${name}"`, `  description: "${description}"`, `  version: "1.0"`];
     if (inputs && inputs.length > 0) {
       ql.push(`  inputs:`);
       inputs.forEach(inp => {
         ql.push(`    - id: ${inp.id}`);
         ql.push(`      type: ${inp.type}`);
-        ql.push(`      label: "${(inp.label || "").replace(/"/g, '\\"')}"`);
+        ql.push(`      label: "${yamlDq(inp.label || "")}"`);
         ql.push(`      required: ${inp.required}`);
       });
     }
@@ -3503,7 +3520,7 @@ function generateYaml(name: string, description: string, strategy: string, memor
     ql.push(`name: ${slug}`);
     ql.push(`strategy: quorum`);
     const tg = (tags || []).map(t => String(t).trim().toLowerCase()).filter(Boolean).slice(0, 6);
-    if (tg.length) ql.push(`tags: [${tg.map(t => `"${t.replace(/"/g, '\\"')}"`).join(", ")}]`);
+    if (tg.length) ql.push(`tags: [${tg.map(t => `"${yamlDq(t)}"`).join(", ")}]`);
     ql.push(``);
     ql.push(`quorum:`);
     ql.push(`  empanelment:`);
@@ -3564,7 +3581,7 @@ function generateYaml(name: string, description: string, strategy: string, memor
   const domClean = (domain || "").trim();
   if (domClean) { lines.push(`domains:`); lines.push(`  - ${domClean}`); }
   const tagsClean = (tags || []).map(t => String(t).trim().toLowerCase()).filter(Boolean).slice(0, 6);
-  if (tagsClean.length) lines.push(`tags: [${tagsClean.map(t => `"${t.replace(/"/g, '\\"')}"`).join(", ")}]`);
+  if (tagsClean.length) lines.push(`tags: [${tagsClean.map(t => `"${yamlDq(t)}"`).join(", ")}]`);
   lines.push(``);
   lines.push(`quality:`);
   // challenger: off|final|per_level (legacy boolean tolerated). Emit the YAML
@@ -3595,14 +3612,14 @@ function generateYaml(name: string, description: string, strategy: string, memor
   if (outcome && outcome.kind === "file_artifact" && (outcome.artifacts || []).length) {
     lines.push(`outcome:`);
     lines.push(`  kind: file_artifact`);
-    if (outcome.audience) lines.push(`  audience: "${String(outcome.audience).replace(/"/g, '\\"')}"`);
+    if (outcome.audience) lines.push(`  audience: "${yamlDq(outcome.audience)}"`);
     lines.push(`  artifacts:`);
     outcome.artifacts.forEach(art => {
       lines.push(`    - id: ${art.id}`);
       lines.push(`      agent: ${art.agent}`);
       lines.push(`      format: ${art.format}`);
       if (art.save_as) lines.push(`      save_as: ${art.save_as}`);
-      lines.push(`      download_label: "${(art.download_label || "Download").replace(/"/g, '\\"')}"`);
+      lines.push(`      download_label: "${yamlDq(art.download_label || "Download")}"`);
     });
   } else {
     lines.push(`outcome:`);
@@ -3663,7 +3680,7 @@ function generateYaml(name: string, description: string, strategy: string, memor
         lines.push(`      validate: ${a.output_format.validate ?? true}`);
       }
     }
-    if (a.prompt) lines.push(`    prompt: "${a.prompt.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"`);
+    if (a.prompt) lines.push(`    prompt: "${yamlDq(a.prompt)}"`);
   });
 
   // Generate swarms section if agents have swarm assignments

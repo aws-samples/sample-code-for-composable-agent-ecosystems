@@ -151,16 +151,51 @@ function resolveSection(doc: Document, anchor: string): { heading: HTMLElement; 
 
 const sectionText = (sec: { range: Element[] }) => sec.range.map((e) => e.textContent || "").join(" ");
 
+/** Elements never allowed in agent-generated SVG (script execution / HTML smuggling). */
+const _SVG_FORBIDDEN_TAGS = new Set(["script", "foreignobject", "iframe", "object", "embed", "audio", "video"]);
+
 /** Strip anything executable/external from agent-generated SVG (defense-in-depth; the
- *  report iframe is already script-sandboxed). */
+ *  report iframe is already script-sandboxed).
+ *
+ *  Parse the markup into a real DOM and walk the tree removing forbidden elements,
+ *  every `on*` event-handler attribute, and any href/xlink:href whose scheme isn't
+ *  http/https. A DOM walk (rather than regex tag-stripping) can't be defeated by
+ *  malformed, nested, or overlapping tags like `<scr<script>ipt>`, which is exactly the
+ *  weakness in the previous regex approach. */
 export function sanitizeSvg(svg: string): string {
-  let s = svg || "";
-  s = s.replace(/<script[\s\S]*?<\/script>/gi, "");
-  s = s.replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi, "");
-  s = s.replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "");   // on* handlers
-  s = s.replace(/(href|xlink:href)\s*=\s*("|')\s*javascript:[^"']*\2/gi, "");
-  const m = s.match(/<svg[\s\S]*<\/svg>/i);
-  return m ? m[0] : s;
+  const input = svg || "";
+  // DOMParser isn't available during SSR; this runs client-side (called from DOM
+  // transforms), but guard so a non-browser context fails closed (empty string).
+  if (typeof DOMParser === "undefined") return "";
+
+  const doc = new DOMParser().parseFromString(input, "image/svg+xml");
+  const root = doc.querySelector("svg");
+  if (!root || doc.querySelector("parsererror")) return "";
+
+  const walk = (el: Element) => {
+    // Depth-first over a static copy, since we mutate the tree as we go.
+    for (const child of Array.from(el.children)) {
+      if (_SVG_FORBIDDEN_TAGS.has(child.tagName.toLowerCase())) {
+        child.remove();
+        continue;
+      }
+      for (const attr of Array.from(child.attributes)) {
+        const name = attr.name.toLowerCase();
+        if (name.startsWith("on")) {
+          child.removeAttribute(attr.name);
+          continue;
+        }
+        if (name === "href" || name === "xlink:href") {
+          const scheme = attr.value.trim().toLowerCase();
+          if (!/^(https?:|#|\/|mailto:)/.test(scheme)) child.removeAttribute(attr.name);
+        }
+      }
+      walk(child);
+    }
+  };
+  walk(root);
+
+  return new XMLSerializer().serializeToString(root);
 }
 
 function applyDiagram(doc: Document, p: DiagramParams) {

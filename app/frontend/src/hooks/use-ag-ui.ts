@@ -130,7 +130,7 @@ export function useAGUI({ url, onEvent }: UseAGUIOptions) {
         const { fetchAuthSession } = await import("aws-amplify/auth");
         let _tok = "";
         try { _tok = (await fetchAuthSession({ forceRefresh: false })).tokens?.idToken?.toString() || ""; } catch {}
-        const r = await fetch(`${apiBase}/api/ecosystems/${trackedExec.ecosystemId}/runs/${trackedExec.execName}`,
+        const r = await fetch(`${apiBase}/api/ecosystems/${encodeURIComponent(trackedExec.ecosystemId)}/runs/${encodeURIComponent(trackedExec.execName)}`,
           _tok ? { headers: { Authorization: `Bearer ${_tok}` } } : undefined);
         if (!r.ok) return;
         const data = await r.json();

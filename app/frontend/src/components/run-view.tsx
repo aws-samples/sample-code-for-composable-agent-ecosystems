@@ -71,7 +71,7 @@ export function RunView({ ecosystem, events, sharedState, isRunning, runStatus, 
     // fetch can fail/time out; without a retry the DAG stays empty ("No agents") forever.
     const load = async (attempt = 0) => {
       try {
-        const r = await apiFetch(`${API_URL}/api/ecosystems/${ecosystem}`);
+        const r = await apiFetch(`${API_URL}/api/ecosystems/${encodeURIComponent(ecosystem)}`);
         const cfg = await r.json();
         if (!cancelled && cfg && !cfg.error) { setEcoConfig(cfg); return; }
         throw new Error("empty/err config");
@@ -91,7 +91,7 @@ export function RunView({ ecosystem, events, sharedState, isRunning, runStatus, 
   const [scoreGate, setScoreGate] = useState<GateOutcome | null>(null);
   useEffect(() => {
     if (!ecosystem || !showPlatformPanels) return;
-    apiFetch(`${API_URL}/api/ecosystems/${ecosystem}?artifact=scorecard`)
+    apiFetch(`${API_URL}/api/ecosystems/${encodeURIComponent(ecosystem)}?artifact=scorecard`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (!d) return;
@@ -233,7 +233,7 @@ export function RunView({ ecosystem, events, sharedState, isRunning, runStatus, 
           <button
             onClick={async () => {
               try {
-                const res = await apiFetch(`${API_URL}/api/ecosystems/${ecosystem}/runs/${sessionId}/redrive`, { method: "POST" });
+                const res = await apiFetch(`${API_URL}/api/ecosystems/${encodeURIComponent(ecosystem)}/runs/${encodeURIComponent(sessionId)}/redrive`, { method: "POST" });
                 if (res.ok) {
                   // The SFN polling will pick up the redriven execution automatically
                   window.location.reload();

@@ -131,14 +131,14 @@ export function PastRunsModal({
 
   // Load ecosystem config (for DAG topology)
   useEffect(() => {
-    apiFetch(`${API_URL}/api/ecosystems/${ecosystemId}`).then(r => r.json()).then(setEcoConfig).catch(() => setEcoConfig(null));
+    apiFetch(`${API_URL}/api/ecosystems/${encodeURIComponent(ecosystemId)}`).then(r => r.json()).then(setEcoConfig).catch(() => setEcoConfig(null));
   }, [ecosystemId]);
 
   // Load run list once; auto-pick most recent
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    apiFetch(`${API_URL}/api/ecosystems/${ecosystemId}/runs`)
+    apiFetch(`${API_URL}/api/ecosystems/${encodeURIComponent(ecosystemId)}/runs`)
       .then((r) => r.json())
       .then((data) => {
         if (cancelled) return;
@@ -165,7 +165,7 @@ export function PastRunsModal({
     let cancelled = false;
     setDetailLoading(true);
     setRedriveMsg(null);
-    apiFetch(`${API_URL}/api/ecosystems/${ecosystemId}/runs/${selected}`)
+    apiFetch(`${API_URL}/api/ecosystems/${encodeURIComponent(ecosystemId)}/runs/${encodeURIComponent(selected)}`)
       .then((r) => r.json())
       .then((data) => {
         if (cancelled) return;
@@ -233,7 +233,7 @@ export function PastRunsModal({
   // In-place redrive (native SFN): re-runs the failed task + downstream in the SAME execution.
   const doRedrive = async (): Promise<boolean> => {
     const res = await apiFetch(
-      `${API_URL}/api/ecosystems/${ecosystemId}/runs/${selected}/redrive`,
+      `${API_URL}/api/ecosystems/${encodeURIComponent(ecosystemId)}/runs/${encodeURIComponent(selected ?? "")}/redrive`,
       { method: "POST" },
     );
     const data = await res.json().catch(() => ({}));
@@ -252,7 +252,7 @@ export function PastRunsModal({
   // failed agent onward. Used when SFN redrive isn't available (old run, redrive limit, etc.).
   const doResumeFromFailure = async (failedAgentId: string): Promise<boolean> => {
     const res = await apiFetch(
-      `${API_URL}/api/ecosystems/${ecosystemId}/runs/${selected}/resume`,
+      `${API_URL}/api/ecosystems/${encodeURIComponent(ecosystemId)}/runs/${encodeURIComponent(selected ?? "")}/resume`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -350,7 +350,7 @@ export function PastRunsModal({
     const tags = metaTags.split(",").map((t) => t.trim().toLowerCase()).filter(Boolean);
     try {
       const r = await apiFetch(
-        `${API_URL}/api/ecosystems/${ecosystemId}/runs/${encodeURIComponent(selected)}/meta`,
+        `${API_URL}/api/ecosystems/${encodeURIComponent(ecosystemId)}/runs/${encodeURIComponent(selected)}/meta`,
         { method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: metaName, tags }) });
       const d = await r.json().catch(() => ({}));
@@ -564,7 +564,7 @@ export function PastRunsModal({
                 if (!a) return <div className="text-xs text-gray-500">Agent not found in this run (it may not have run, or it failed). Pick another from the graph.</div>;
                 return <AgentDetail agent={a} mission={detail.execution.input?.mission_display || detail.execution.input?.mission} attachments={detail.execution.input?.attachments} description={agentBlurb((ecoConfig?.agents || []).find((x: any) => x.id === a.agent_id))} onOpenFile={async (name) => {
                   try {
-                    const r = await apiFetch(`${API_URL}/api/ecosystems/${ecosystemId}/runs/${selected}/attachment?name=${encodeURIComponent(name)}`);
+                    const r = await apiFetch(`${API_URL}/api/ecosystems/${encodeURIComponent(ecosystemId)}/runs/${encodeURIComponent(selected)}/attachment?name=${encodeURIComponent(name)}`);
                     const d = await r.json().catch(() => ({}));
                     if (d.url) window.open(d.url, "_blank", "noopener"); else alert("Couldn't open that file.");
                   } catch { alert("Couldn't open that file."); }

@@ -60,7 +60,8 @@ def handler(event, context):
     # works; we still NEVER link without an email.
     _from_trusted = incoming_username.startswith(PROVIDER_NAME + "_")
     email_verified = str(attrs.get("email_verified", "")).lower() == "true" or _from_trusted
-    print(f"[presignup] user={incoming_username} trusted={_from_trusted} email={email!r} "
+    # Do NOT log the email address (PII / sensitive). Log only non-identifying signals.
+    print(f"[presignup] trusted={_from_trusted} has_email={bool(email)} "
           f"email_verified_claim={attrs.get('email_verified')!r} attr_keys={sorted(attrs.keys())}")
 
     # GUARDRAIL: never link on a missing / unverified email. Still auto-confirm so the

@@ -61,6 +61,9 @@ while IFS= read -r line; do
   fi
 done < "$MANIFEST"
 
+# Remove any prior artifact first: `zip` ADDS to an existing archive, so without this a
+# rebuild accretes stale files (e.g. an old pillow-*.dist-info alongside the new one).
+rm -f "$BUILD_DIR/shared_layer.zip"
 ( cd "$LAYER_STAGE" && zip -qr "$BUILD_DIR/shared_layer.zip" python )
 rm -rf "$LAYER_STAGE"
 ok "shared_layer.zip built"
@@ -96,9 +99,20 @@ for dir in "$LAMBDAS_DIR"/*/; do
 
   # Dependencies (Linux x86_64 wheels) if the Lambda declares any.
   if [ "$has_deps" = "yes" ]; then
+    # Per-Lambda platform override: a Lambda whose deps need a newer manylinux baseline
+    # than the default (manylinux2014 / _2_17) can drop a `.build-platform` file next to
+    # its requirements.txt naming the tag to use (e.g. manylinux_2_28_x86_64). This keeps
+    # the override in-source and scoped to the one package that needs it, instead of
+    # switching the whole build (which would drop packages that only ship 2014 wheels,
+    # e.g. pydantic-core). quorum-run uses this for pillow==12.3.0 (2_28-only wheel).
+    lambda_platform="$LAMBDA_PLATFORM"
+    if [ -f "$dir/.build-platform" ]; then
+      lambda_platform="$(sed 's/#.*//' "$dir/.build-platform" | tr -d '[:space:]')"
+      log "    platform override for $name: $lambda_platform"
+    fi
     # Build the pip command once so we can print it verbatim on failure.
     pip_cmd=(pip3 install -r "$dir/requirements.txt" -t "$stage"
-             --platform "$LAMBDA_PLATFORM" --python-version "$LAMBDA_PY_VERSION"
+             --platform "$lambda_platform" --python-version "$LAMBDA_PY_VERSION"
              --implementation cp --only-binary=:all: --upgrade)
     [ "$VERBOSE" = "1" ] || pip_cmd+=(-q)
 
@@ -126,6 +140,9 @@ for dir in "$LAMBDAS_DIR"/*/; do
     fi
   fi
 
+  # Remove any prior artifact first: `zip` ADDS to an existing archive, so without this a
+  # rebuild accretes stale files (e.g. an old pillow-*.dist-info alongside the new one).
+  rm -f "$BUILD_DIR/$name.zip"
   ( cd "$stage" && zip -qr "$BUILD_DIR/$name.zip" . )
   rm -rf "$stage"
   ok "  [$idx/$total] $name.zip"

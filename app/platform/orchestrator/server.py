@@ -8,6 +8,7 @@ calls each agent via A2A (POST /a2a), streams their AG-UI events to the frontend
 import asyncio
 import json
 import os
+import re
 import time
 from pathlib import Path
 from typing import AsyncIterator
@@ -19,6 +20,29 @@ from fastapi.middleware.cors import CORSMiddleware
 
 REGISTRY_URL = os.environ.get("TESSERA_REGISTRY_URL", "http://localhost:8003")
 ECOSYSTEMS_DIR = Path(__file__).parent.parent.parent / "ecosystems"
+
+# Ecosystem ids are used to build filesystem paths, so they must be a strict, safe
+# token — no path separators, no traversal, no absolute paths. Anything else is rejected
+# before it can reach the filesystem.
+_ECOSYSTEM_ID_RE = re.compile(r"^[A-Za-z0-9._-]+$")
+
+
+def _resolve_ecosystem_path(ecosystem_id: str) -> Path | None:
+    """Resolve ``<ECOSYSTEMS_DIR>/<ecosystem_id>.yaml`` safely.
+
+    Returns the resolved path only when ``ecosystem_id`` is a plain token AND the
+    resolved path stays inside ``ECOSYSTEMS_DIR``; otherwise returns ``None`` so callers
+    can respond with a not-found/invalid error. This blocks path traversal
+    (e.g. ``../../etc/passwd``) and absolute-path injection via the URL path parameter.
+    """
+    if not ecosystem_id or not _ECOSYSTEM_ID_RE.match(ecosystem_id):
+        return None
+    base = ECOSYSTEMS_DIR.resolve()
+    candidate = (base / f"{ecosystem_id}.yaml").resolve()
+    # Confirm the resolved file is directly within the ecosystems directory.
+    if candidate.parent != base:
+        return None
+    return candidate
 
 
 async def check_grounding(response: str, sources: dict[str, str]) -> dict | None:
@@ -313,8 +337,8 @@ async def list_ecosystems():
 @app.get("/api/ecosystems/{ecosystem_id}")
 async def get_ecosystem(ecosystem_id: str):
     """Get full ecosystem config."""
-    path = ECOSYSTEMS_DIR / f"{ecosystem_id}.yaml"
-    if not path.exists():
+    path = _resolve_ecosystem_path(ecosystem_id)
+    if path is None or not path.exists():
         return {"error": "Not found"}
     with open(path) as f:
         config = yaml.safe_load(f)
@@ -458,7 +482,9 @@ async def save_ecosystem(ecosystem_id: str, request: Request):
     """Save ecosystem YAML."""
     body = await request.json()
     yaml_content = body.get("yaml", "")
-    path = ECOSYSTEMS_DIR / f"{ecosystem_id}.yaml"
+    path = _resolve_ecosystem_path(ecosystem_id)
+    if path is None:
+        return {"error": "Invalid ecosystem id"}
     with open(path, "w") as f:
         f.write(yaml_content)
     return {"saved": True, "id": ecosystem_id}
@@ -467,8 +493,8 @@ async def save_ecosystem(ecosystem_id: str, request: Request):
 @app.post("/api/runs/{ecosystem_id}")
 async def start_run(ecosystem_id: str, request: Request):
     """Start an ecosystem run — spawns agents dynamically, streams AG-UI events via SSE."""
-    path = ECOSYSTEMS_DIR / f"{ecosystem_id}.yaml"
-    if not path.exists():
+    path = _resolve_ecosystem_path(ecosystem_id)
+    if path is None or not path.exists():
         return {"error": "Ecosystem not found"}
 
     body = await request.json() if await request.body() else {}
@@ -504,8 +530,8 @@ async def ws_run(websocket: FastAPIWebSocket, ecosystem_id: str):
     """WebSocket run — parallel agent execution with interleaved events."""
     await websocket.accept()
 
-    path = ECOSYSTEMS_DIR / f"{ecosystem_id}.yaml"
-    if not path.exists():
+    path = _resolve_ecosystem_path(ecosystem_id)
+    if path is None or not path.exists():
         await websocket.send_json({"error": "Ecosystem not found"})
         await websocket.close()
         return
