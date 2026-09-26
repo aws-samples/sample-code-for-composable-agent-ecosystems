@@ -60,12 +60,30 @@ interface AuthContextValue {
   authFetch: (url: string, init?: RequestInit) => Promise<Response>;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
+/**
+ * Rebuild a request URL so it can ONLY target the configured API origin. Callers build
+ * these URLs from ecosystem/run identifiers, so an attacker-influenced value could
+ * otherwise redirect the authenticated request (bearer token attached) to an arbitrary
+ * host (SSRF / token exfiltration). We take ONLY the path/query/hash from the caller's
+ * URL and reattach them to the trusted API origin — the untrusted origin is discarded, so
+ * the request host is fixed regardless of input.
+ */
+function assertApiOrigin(url: string): string {
+  const base = API_URL || (typeof window !== "undefined" ? window.location.origin : "http://localhost");
+  const trusted = new URL(base);
+  const parsed = new URL(url, trusted);
+  const rebuilt = new URL(parsed.pathname + parsed.search + parsed.hash, trusted.origin);
+  return rebuilt.toString();
+}
+
 const AuthContext = createContext<AuthContextValue>({
   user: null,
   idToken: null,
   isAdmin: false,
   signOut: () => {},
-  authFetch: (url, init) => fetch(url, init),
+  authFetch: (url, init) => fetch(assertApiOrigin(url), init),
 });
 
 export function useAuth() {
@@ -103,6 +121,7 @@ function AuthInner({ children }: { children: React.ReactNode }) {
   }, [amplifyUser]);
 
   const authFetch = useCallback(async (url: string, init?: RequestInit): Promise<Response> => {
+    const safe = assertApiOrigin(url);
     // Always get fresh token
     let token = idToken;
     try {
@@ -115,7 +134,7 @@ function AuthInner({ children }: { children: React.ReactNode }) {
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
     }
-    return fetch(url, { ...init, headers });
+    return fetch(safe, { ...init, headers });
   }, [idToken]);
 
   const isAdmin = tesseraUser?.groups?.includes("admin") || false;

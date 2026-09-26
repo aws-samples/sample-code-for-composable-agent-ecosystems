@@ -60,14 +60,14 @@ def handler(event, context):
     # works; we still NEVER link without an email.
     _from_trusted = incoming_username.startswith(PROVIDER_NAME + "_")
     email_verified = str(attrs.get("email_verified", "")).lower() == "true" or _from_trusted
-    # Do NOT log the email address (PII / sensitive). Log only non-identifying signals.
-    print(f"[presignup] trusted={_from_trusted} has_email={bool(email)} "
-          f"email_verified_claim={attrs.get('email_verified')!r} attr_keys={sorted(attrs.keys())}")
+    # Do NOT log anything derived from the event/user attributes (username, email and
+    # claims are sensitive PII). Emit only a static marker.
+    print("[presignup] processing external-provider sign-up")
 
     # GUARDRAIL: never link on a missing / unverified email. Still auto-confirm so the
     # login succeeds under AllowAdminCreateUserOnly.
     if not email or not email_verified:
-        print(f"[presignup] not linking (has_email={bool(email)}, verified={email_verified}) — provisioning standalone")
+        print("[presignup] not linking (missing or unverified email) — provisioning standalone")
         _auto_confirm(event)
         return event
 

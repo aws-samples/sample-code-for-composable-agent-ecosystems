@@ -957,8 +957,10 @@ def _sanitize_svg(svg):
     # then strip ANY remaining <script>/<foreignObject> opening OR closing tag so a
     # malformed or unclosed tag (which the paired regex misses) can't survive. Matching a
     # lone opening tag is what prevents the classic "bad HTML filtering" bypass.
-    s = re.sub(r"<script[\s\S]*?</script\s*>", "", s, flags=re.IGNORECASE)
-    s = re.sub(r"<foreignObject[\s\S]*?</foreignObject\s*>", "", s, flags=re.IGNORECASE)
+    # End tags may carry whitespace/attributes before '>' (e.g. `</script foo >`), so match
+    # `</tag ... >` fully — not just `</tag>` — otherwise the filter is bypassable.
+    s = re.sub(r"<script\b[\s\S]*?</script[^>]*>", "", s, flags=re.IGNORECASE)
+    s = re.sub(r"<foreignObject\b[\s\S]*?</foreignObject[^>]*>", "", s, flags=re.IGNORECASE)
     s = re.sub(r"</?\s*(script|foreignObject)\b[^>]*>", "", s, flags=re.IGNORECASE)
     s = re.sub(r"\son\w+\s*=\s*(\"[^\"]*\"|'[^']*'|[^\s>]+)", "", s, flags=re.IGNORECASE)
     s = re.sub(r"(href|xlink:href)\s*=\s*(\"|')\s*javascript:[^\"']*\2", "", s, flags=re.IGNORECASE)

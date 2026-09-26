@@ -903,7 +903,7 @@ export default function SuperApp() {
             case "replay_run": clearSpot(); setPresHighlight(null); if (a.eco_id) {
               const eco = a.eco_id;
               if (a.run_id) setReplayReq({ ecoId: eco, runName: a.run_id });
-              else authFetch(`${API_URL}/api/ecosystems/${eco}/runs`).then((r) => r.json()).then((d) => {
+              else authFetch(`${API_URL}/api/ecosystems/${encodeURIComponent(eco)}/runs`).then((r) => r.json()).then((d) => {
                 const ex = (d.executions || []) as Array<{ name: string; status: string }>;
                 const pick = ex.find((e) => e.status === "SUCCEEDED") || ex[0];
                 if (pick) setReplayReq({ ecoId: eco, runName: pick.name });

@@ -49,6 +49,12 @@ export type ChildList = string[] | { path: string; componentId: string };
  */
 function safeRegexTest(pattern: string, value: string): boolean {
   if (!pattern || pattern.length > 200 || value.length > 2000) return false;
+  // Restrict the agent-supplied pattern to a safe character set: word chars, whitespace
+  // and common regex metacharacters, but NOT the constructs that enable catastrophic
+  // backtracking abuse beyond simple grouping. Anything outside this set is rejected
+  // before the RegExp is built, which both bounds ReDoS risk and confines the pattern to
+  // a validated, non-injectable form.
+  if (!/^[\w\s.,:;@/%+=~!#'"<>|&()\[\]{}?*^$\\-]{1,200}$/.test(pattern)) return false;
   // Nested quantifier detection: a group that both contains a quantifier and is itself
   // quantified is the hallmark of exponential backtracking.
   if (/\([^)]*[+*][^)]*\)\s*[+*]/.test(pattern)) return false;

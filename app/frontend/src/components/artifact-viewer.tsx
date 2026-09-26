@@ -4,13 +4,31 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
+/**
+ * Rebuild a request URL so it can ONLY target the configured API origin. Callers build
+ * these URLs from run/artifact identifiers, so an attacker-influenced value could
+ * otherwise redirect the authenticated request (bearer token attached) to an arbitrary
+ * host (SSRF / token exfiltration). We take ONLY the path/query/hash from the caller's
+ * URL and reattach them to the trusted API origin — the untrusted origin is discarded, so
+ * the request host is fixed regardless of input.
+ */
+function assertApiOrigin(url: string): string {
+  const base = API_URL || (typeof window !== "undefined" ? window.location.origin : "http://localhost");
+  const trusted = new URL(base);
+  const parsed = new URL(url, trusted);
+  // Reconstruct from the trusted origin; discard any host the input tried to supply.
+  const rebuilt = new URL(parsed.pathname + parsed.search + parsed.hash, trusted.origin);
+  return rebuilt.toString();
+}
+
 async function apiFetch(url: string, init?: RequestInit): Promise<Response> {
+  const safe = assertApiOrigin(url);
   const { fetchAuthSession } = await import("aws-amplify/auth");
   let token = "";
   try { token = (await fetchAuthSession({ forceRefresh: false })).tokens?.idToken?.toString() || ""; } catch {}
   const headers = new Headers(init?.headers);
   if (token) headers.set("Authorization", `Bearer ${token}`);
-  return fetch(url, { ...init, headers });
+  return fetch(safe, { ...init, headers });
 }
 
 export interface ArtifactReq { ecoId: string; runId: string; artifactKey?: string; label?: string; }
@@ -93,7 +111,7 @@ export function ArtifactViewer({ req, onClose }: { req: ArtifactReq | null; onCl
         }
         if (!key) { if (!cancelled) setErr("No deliverable found for this run."); return; }
         if (!cancelled) setArtifactKey(key);
-        const r = await apiFetch(`${API_URL}/api/runs/${encodeURIComponent(req.runId)}/artifacts/${key}?inline=true`);
+        const r = await apiFetch(`${API_URL}/api/runs/${encodeURIComponent(req.runId)}/artifacts/${encodeURIComponent(key)}?inline=true`);
         const j = await r.json();
         if (cancelled) return;
         if (j?.content) { setHtml(j.content); setTitle(req.label || (key.split("/").pop() || "Deliverable")); }

@@ -124,7 +124,7 @@ export function CatalogBrowser({ domainId, onBack, pipelineOnly }: { domainId: s
 
   useEffect(() => {
     setCatalog(null); setActive(""); setRecords([]); setSelected(null); setErr("");
-    authFetch(`${API_URL}/api/domains/${domainId}`).then((r) => r.json()).then((d) => { setCatalog(d.catalog || {}); setTaxonomy(d.taxonomy || []); setDomainName(d.name || domainId); setDomainDesc(d.description || ""); }).catch((e) => setErr("descriptor: " + String(e)));
+    authFetch(`${API_URL}/api/domains/${encodeURIComponent(domainId)}`).then((r) => r.json()).then((d) => { setCatalog(d.catalog || {}); setTaxonomy(d.taxonomy || []); setDomainName(d.name || domainId); setDomainDesc(d.description || ""); }).catch((e) => setErr("descriptor: " + String(e)));
   }, [authFetch, domainId]);
   useEffect(() => { get(`catalog/types?domain=${domainId}`).then((d) => { setTypes(d.types || []); setActive(d.types?.find((t: TypeCount) => t.type === "risk") ? "risk" : (d.types?.[0]?.type || "")); }).catch((e) => setErr(String(e)));
     // Depend only on domainId: `get` (and authFetch) change identity when the id token

@@ -28,21 +28,48 @@ _ECOSYSTEM_ID_RE = re.compile(r"^[A-Za-z0-9._-]+$")
 
 
 def _resolve_ecosystem_path(ecosystem_id: str) -> Path | None:
-    """Resolve ``<ECOSYSTEMS_DIR>/<ecosystem_id>.yaml`` safely.
+    """Resolve an ecosystem id to its YAML path WITHOUT letting the untrusted id reach
+    the filesystem join.
 
-    Returns the resolved path only when ``ecosystem_id`` is a plain token AND the
-    resolved path stays inside ``ECOSYSTEMS_DIR``; otherwise returns ``None`` so callers
-    can respond with a not-found/invalid error. This blocks path traversal
-    (e.g. ``../../etc/passwd``) and absolute-path injection via the URL path parameter.
+    Path traversal is prevented by never constructing a path from ``ecosystem_id``.
+    Instead we (1) reject anything that isn't a plain token, then (2) look the id up
+    against the real directory listing and return the ``Path`` that the directory scan
+    itself produced. The returned path is therefore derived from trusted directory
+    entries, not from the caller-supplied string, so ``../../etc/passwd`` and absolute
+    paths simply won't match any entry. Returns ``None`` when there's no such ecosystem.
     """
     if not ecosystem_id or not _ECOSYSTEM_ID_RE.match(ecosystem_id):
         return None
-    base = ECOSYSTEMS_DIR.resolve()
-    candidate = (base / f"{ecosystem_id}.yaml").resolve()
-    # Confirm the resolved file is directly within the ecosystems directory.
-    if candidate.parent != base:
+    try:
+        for entry in ECOSYSTEMS_DIR.iterdir():
+            if entry.is_file() and entry.suffix == ".yaml" and entry.stem == ecosystem_id:
+                return entry
+    except OSError:
         return None
-    return candidate
+    return None
+
+
+def _write_ecosystem_yaml(ecosystem_id: str, yaml_content: str) -> bool:
+    """Safely write ``<ECOSYSTEMS_DIR>/<ecosystem_id>.yaml`` (create or overwrite).
+
+    Path traversal is prevented by (1) rejecting anything that isn't a plain token, and
+    (2) normalising the joined path and confirming it stays directly under the ecosystems
+    directory before opening it (so ``../`` or absolute names are refused). Returns
+    ``True`` on success, ``False`` if the id is invalid or escapes the directory.
+    """
+    if not ecosystem_id or not _ECOSYSTEM_ID_RE.fullmatch(ecosystem_id):
+        return False
+    if ecosystem_id in (".", ".."):
+        return False
+    base = os.path.normpath(str(ECOSYSTEMS_DIR))
+    target = os.path.normpath(os.path.join(base, f"{ecosystem_id}.yaml"))
+    # Containment barrier: the normalised target must stay directly under the base dir,
+    # otherwise any traversal (e.g. ../) is rejected before the file is opened.
+    if not target.startswith(base + os.sep):
+        return False
+    with open(target, "w") as f:
+        f.write(yaml_content)
+    return True
 
 
 async def check_grounding(response: str, sources: dict[str, str]) -> dict | None:
@@ -482,11 +509,8 @@ async def save_ecosystem(ecosystem_id: str, request: Request):
     """Save ecosystem YAML."""
     body = await request.json()
     yaml_content = body.get("yaml", "")
-    path = _resolve_ecosystem_path(ecosystem_id)
-    if path is None:
+    if not _write_ecosystem_yaml(ecosystem_id, yaml_content):
         return {"error": "Invalid ecosystem id"}
-    with open(path, "w") as f:
-        f.write(yaml_content)
     return {"saved": True, "id": ecosystem_id}
 
 

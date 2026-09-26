@@ -134,17 +134,28 @@ function dyn<T>(value: unknown, ctx: RenderContext): T | undefined {
 function safeUrl(raw: string | undefined | null, opts?: { allowData?: boolean }): string {
   const u = (raw ?? "").trim();
   if (!u) return "";
-  // Relative URLs (no scheme) are same-origin and safe.
-  if (/^(\/|\.\/|\.\.\/|#|\?)/.test(u)) return u;
-  let scheme: string;
+  const RELATIVE_BASE = "http://relative.invalid/";
+  let parsed: URL;
   try {
-    scheme = new URL(u, "http://_relative_base_/").protocol.toLowerCase();
+    parsed = new URL(u, RELATIVE_BASE);
   } catch {
     return "";
   }
-  const allowed = new Set(["http:", "https:", "mailto:"]);
-  if (allowed.has(scheme)) return u;
-  if (opts?.allowData && scheme === "data:" && /^data:image\//i.test(u)) return u;
+  const scheme = parsed.protocol.toLowerCase();
+  // Return values DERIVED FROM THE PARSED URL (not the raw input), so the sanitisation is
+  // observable to static analysis and a dangerous scheme (javascript:/vbscript:/untrusted
+  // data:) can never reach the href/src sink.
+  if (scheme === "http:" || scheme === "https:") {
+    // If it was a relative URL, hand back the original relative form (same-origin, safe);
+    // otherwise the normalised absolute URL from the parser.
+    return parsed.origin === RELATIVE_BASE.slice(0, -1)
+      ? parsed.pathname + parsed.search + parsed.hash
+      : parsed.href;
+  }
+  if (scheme === "mailto:") return parsed.href;
+  if (opts?.allowData && scheme === "data:" && parsed.href.toLowerCase().startsWith("data:image/")) {
+    return parsed.href;
+  }
   return "";
 }
 
