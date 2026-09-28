@@ -99,9 +99,9 @@ function Features(): ReactNode {
           Everything you need to build, ground, and run multi-agent workflows on AWS.
         </p>
         <div className="row">
-          {FEATURES.map((f) => (
+          {FEATURES.map((f, i) => (
             <div className="col col--4" key={f.title} style={{marginBottom: '1.5rem'}}>
-              <div className={styles.featureCard}>
+              <div className={clsx(styles.featureCard, styles[`tint${i % 6}`])}>
                 <div className={styles.featureIcon}>{f.icon}</div>
                 <div className={styles.featureTitle}>{f.title}</div>
                 <p className={styles.featureBody}>{f.body}</p>

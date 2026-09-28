@@ -76,12 +76,29 @@
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: 12px;
   background: var(--ifm-background-surface-color);
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .featureCard:hover {
   transform: translateY(-3px);
-  border-color: var(--ifm-color-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
+
+/* Light background tints per card. Each tint sets a soft background + a matching
+   border; the hover border color is inherited from the tint. Dark-mode overrides
+   below keep the tints subtle and text readable. */
+.tint0 { background: #ecfdf5; border-color: #a7f3d0; }  /* teal   */
+.tint1 { background: #eef2ff; border-color: #c7d2fe; }  /* indigo */
+.tint2 { background: #fef3c7; border-color: #fde68a; }  /* amber  */
+.tint3 { background: #fdf2f8; border-color: #fbcfe8; }  /* pink   */
+.tint4 { background: #eff6ff; border-color: #bfdbfe; }  /* blue   */
+.tint5 { background: #f5f3ff; border-color: #ddd6fe; }  /* violet */
+
+[data-theme='dark'] .tint0 { background: rgba(45, 212, 191, 0.10); border-color: rgba(45, 212, 191, 0.30); }
+[data-theme='dark'] .tint1 { background: rgba(99, 102, 241, 0.12); border-color: rgba(99, 102, 241, 0.32); }
+[data-theme='dark'] .tint2 { background: rgba(251, 191, 36, 0.10); border-color: rgba(251, 191, 36, 0.28); }
+[data-theme='dark'] .tint3 { background: rgba(236, 72, 153, 0.10); border-color: rgba(236, 72, 153, 0.28); }
+[data-theme='dark'] .tint4 { background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.30); }
+[data-theme='dark'] .tint5 { background: rgba(139, 92, 246, 0.12); border-color: rgba(139, 92, 246, 0.30); }
 
 .featureIcon {
   font-size: 1.7rem;
