@@ -2,15 +2,24 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
-// The GitHub Pages URL for this repo. baseUrl matches the repo name so assets
-// resolve under https://aws-samples.github.io/sample-code-for-composable-agent-ecosystems/.
+// GitHub Pages serves this site from two different hosts depending on visibility:
+//   - PRIVATE (during review): a bare host like https://<random>.pages.github.io/ ,
+//     which serves at the ROOT, so baseUrl must be '/'.
+//   - PUBLIC (once shipped): https://aws-samples.github.io/<repo>/ , so baseUrl must be
+//     the repo path.
+// To work in both phases without editing code, DOCS_URL / DOCS_BASE_URL can be set at
+// build time. The defaults below are the PRIVATE-review values (root); the workflow sets
+// the public values when the site goes public.
+const url = process.env.DOCS_URL || 'https://aws-samples.github.io';
+const baseUrl = process.env.DOCS_BASE_URL || '/';
+
 const config: Config = {
   title: 'Tessera',
   tagline: 'Composable agentic security platform — orchestrate multi-agent workflows through configuration, not code',
   favicon: 'img/favicon.svg',
 
-  url: 'https://aws-samples.github.io',
-  baseUrl: '/sample-code-for-composable-agent-ecosystems/',
+  url,
+  baseUrl,
 
   organizationName: 'aws-samples',
   projectName: 'sample-code-for-composable-agent-ecosystems',
