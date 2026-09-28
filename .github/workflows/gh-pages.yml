@@ -1,0 +1,75 @@
+name: Docs site
+
+# Builds the Docusaurus site on every pull request that touches it (so reviewers get a
+# build signal) and deploys to GitHub Pages when the change lands on main.
+#
+# The deploy job is gated so it never publishes from a fork by default: forks don't have
+# GitHub Pages enabled and would 404. It runs when either this is the upstream repo, or the
+# repository variable DEPLOY_DOCS_PAGES is set to "true" (opt-in for a fork maintainer who
+# has enabled Pages in their own fork's Settings > Pages).
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docusaurus/**'
+      - '.github/workflows/gh-pages.yml'
+  pull_request:
+    paths:
+      - 'docusaurus/**'
+      - '.github/workflows/gh-pages.yml'
+  workflow_dispatch:
+
+permissions: {}
+
+# Never cancel an in-flight production deployment; queue behind it instead.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: docusaurus/package-lock.json
+
+      - name: Install dependencies
+        run: cd docusaurus && npm ci
+
+      - name: Build website
+        run: cd docusaurus && npm run build
+
+      # Only needed by the deploy job, which does not run on pull requests or (by default)
+      # on forks. Keep this condition in sync with the deploy job's `if:` below.
+      - name: Upload artifact
+        if: |
+          github.event_name == 'push' &&
+          (github.repository == 'aws-samples/sample-code-for-composable-agent-ecosystems' || vars.DEPLOY_DOCS_PAGES == 'true')
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docusaurus/build
+
+  deploy:
+    needs: build
+    if: |
+      github.event_name == 'push' &&
+      (github.repository == 'aws-samples/sample-code-for-composable-agent-ecosystems' || vars.DEPLOY_DOCS_PAGES == 'true')
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

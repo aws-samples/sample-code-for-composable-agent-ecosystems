@@ -1,0 +1,117 @@
+.hero {
+  padding: 5rem 0 4rem;
+  text-align: center;
+  background: radial-gradient(1200px 400px at 50% -10%, rgba(45, 212, 191, 0.12), transparent 70%);
+}
+
+.heroTitle {
+  font-size: 3.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.heroTagline {
+  font-size: 1.35rem;
+  max-width: 720px;
+  margin: 0 auto 2rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.terminal {
+  max-width: 760px;
+  margin: 3rem auto 0;
+  text-align: left;
+  background: #0d1117;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.terminalBar {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.7rem 0.9rem;
+  background: #161b22;
+  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dotRed { background: #ff5f56; }
+.dotYellow { background: #ffbd2e; }
+.dotGreen { background: #27c93f; }
+
+.terminalBody {
+  margin: 0;
+  padding: 1.1rem 1.2rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: #d1d5db;
+  overflow-x: auto;
+}
+.prompt { color: #2dd4bf; }
+.comment { color: #6b7280; }
+
+.features {
+  padding: 4rem 0 5rem;
+}
+
+.featureCard {
+  height: 100%;
+  padding: 1.6rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 12px;
+  background: var(--ifm-background-surface-color);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.featureCard:hover {
+  transform: translateY(-3px);
+  border-color: var(--ifm-color-primary);
+}
+
+.featureIcon {
+  font-size: 1.7rem;
+  margin-bottom: 0.6rem;
+}
+
+.featureTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.featureBody {
+  color: var(--ifm-color-emphasis-700);
+  margin: 0;
+}
+
+.sectionHeading {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+.sectionSub {
+  text-align: center;
+  color: var(--ifm-color-emphasis-700);
+  margin-bottom: 2.5rem;
+}
+
+@media (max-width: 768px) {
+  .heroTitle { font-size: 2.4rem; }
+  .heroTagline { font-size: 1.1rem; }
+}
