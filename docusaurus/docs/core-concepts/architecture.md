@@ -71,5 +71,3 @@ flowchart TB
   progress live.
 - Agents share context through **memory namespaces**, not by passing giant prompts around.
 - Quality is **built in**, not bolted on — every run is checked before you see the report.
-
-Next: [Ecosystems](ecosystems.md) — the YAML you actually author.

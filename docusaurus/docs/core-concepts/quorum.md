@@ -73,5 +73,3 @@ Quorum is a **deliberation model**, complementary to the standard quality gates.
 still enable `report: true` (to assemble the verdict into a report) and grounding checks.
 The challenger agent plays a similar "stress the conclusion" role in orchestrated
 ecosystems that the deliberation phase plays here.
-
-Next: [Domains](domains.md).

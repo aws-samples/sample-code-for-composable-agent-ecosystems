@@ -104,5 +104,3 @@ Bundled ecosystems ship under `app/content/ecosystems/`. `make seed` publishes a
 compiles them so they appear in the UI. You can also create and edit ecosystems directly
 in the UI (including with the AI-assisted builder) — see
 [Build an ecosystem](../guides/build-an-ecosystem.md).
-
-Next: [Agents & orchestration](agents-and-orchestration.md).

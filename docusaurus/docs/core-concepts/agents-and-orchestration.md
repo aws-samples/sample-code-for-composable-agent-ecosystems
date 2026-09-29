@@ -113,5 +113,3 @@ standalone synthesis is rejected by the output contract.
 These quality gates check *this run's* output. To verify an ecosystem stays correct across
 a prompt/model/tool change over time, see [Evaluation](evaluation.md).
 :::
-
-Next: [Quorum](quorum.md).
