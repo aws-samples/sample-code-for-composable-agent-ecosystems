@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/aws-samples/sample-code-for-composable-agent-ecosystems/main/docusaurus/static/img/tessera-mark.svg"
+  <img src="docusaurus/static/img/tessera-mark.svg"
        alt="Tessera" width="96">
 </p>
 
