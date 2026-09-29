@@ -56,4 +56,4 @@ ecosystem's prompts.
 
 Run artifacts (reports, uploaded files, generated outputs) are stored in S3 and listed in
 the run history, along with cost and status. See
-[Architecture](../core-concepts/architecture.md) for the full state picture.
+[Architecture](../core-concepts/aws-architecture.md) for the full data and state picture.

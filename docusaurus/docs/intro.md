@@ -35,6 +35,7 @@ generative UI back to a web frontend.
 | **Domain** | A knowledge scope (e.g. a regulatory area) that ingests curated sources into the catalog. |
 | **Catalog** | The versioned, grounded knowledge store agents read from and cite. |
 | **Quorum** | A deliberation model where a panel of scrutineer personas reach a verdict. |
+| **Evaluation** | Offline capability eval + regression deploy-gate + online monitoring for an ecosystem. |
 | **Mission** | The operator's request for a given run, supplied through the ecosystem's inputs. |
 | **Report** | The final, structured deliverable produced by a run. |
 
@@ -52,8 +53,8 @@ generative UI back to a web frontend.
 ## Quick links
 
 - [Installation](getting-started/installation.md) · [Quick Start](getting-started/quick-start.md)
-- [Architecture](core-concepts/architecture.md) · [Ecosystems](core-concepts/ecosystems.md)
-- [Build an ecosystem](guides/build-an-ecosystem.md)
+- [How it works](core-concepts/architecture.md) · [Architecture](core-concepts/aws-architecture.md) · [Ecosystems](core-concepts/ecosystems.md)
+- [Build an ecosystem](guides/build-an-ecosystem.md) · [Evaluate an ecosystem](guides/evaluate-an-ecosystem.md)
 - [Ecosystem YAML reference](reference/ecosystem-yaml.md)
 - [GitHub repository](https://github.com/aws-samples/sample-code-for-composable-agent-ecosystems)
 

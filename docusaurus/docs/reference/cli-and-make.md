@@ -42,6 +42,19 @@ Print the frontend URL:
 terraform -chdir=infra output -raw frontend_url
 ```
 
+## Evaluation endpoints
+
+The evaluation harness rides the existing `/api/ecosystems/...` proxy (no new API
+resources). See [Evaluate an ecosystem](../guides/evaluate-an-ecosystem.md).
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET`  | `/api/ecosystems/{id}?artifact=scorecard` | Latest `{scorecard, gate}`. |
+| `GET`  | `/api/ecosystems/{id}?artifact=golden_set` | The curated golden set. |
+| `POST` | `/api/ecosystems/{id}/runs/_eval/launch` | Start the Eval State Machine (optional `{replicates, max_cases}`). |
+| `GET`  | `/api/ecosystems/{id}/runs/_eval/status` | Eval-run status + scorecard presence. |
+| `POST` | `/api/ecosystems/suggest` `{mode: "eval_proposal" \| "eval_approve"}` | Builder-assisted eval authoring. |
+
 ## Environment variables
 
 | Variable | Purpose |

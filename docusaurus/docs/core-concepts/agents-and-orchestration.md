@@ -109,4 +109,9 @@ With `quality.grounding: true`, agent output is checked against:
 Synthesizers are expected to cite upstream agents (`[per <agent_id>: ...]`); uncited
 standalone synthesis is rejected by the output contract.
 
+:::tip
+These quality gates check *this run's* output. To verify an ecosystem stays correct across
+a prompt/model/tool change over time, see [Evaluation](evaluation.md).
+:::
+
 Next: [Quorum](quorum.md).

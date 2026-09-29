@@ -80,6 +80,49 @@ swarms:
 parallel_swarms: [research, synthesis]
 ```
 
+## `evaluation` (optional)
+
+An opt-in block that adds offline capability evaluation, a regression deploy-gate, and
+online monitoring. Omit it entirely and the ecosystem is unaffected. See
+[Evaluation](../core-concepts/evaluation.md) and
+[Evaluate an ecosystem](../guides/evaluate-an-ecosystem.md).
+
+```yaml
+evaluation:
+  golden_set: s3://<runs-bucket>/evaluations/<eco>/<version>/cases.jsonl
+  replicates: 3
+  run_mode: headless
+  trajectory: false
+  metrics:
+    - id: decision_acc
+      field: decision
+      scorer: categorical
+      cost_weights: { false_approve: 5, false_decline: 1 }
+  thresholds:
+    decision_acc: 0.9
+  gate: warn
+  online:
+    enabled: true
+    baseline_sample_rate: 0.1
+    always_eval_when: [gate_fired, human_override, { faithfulness_below: 0.8 }]
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `golden_set` | string | S3 path to the versioned `cases.jsonl` golden set. |
+| `replicates` | int | Runs per case, to form noise bands. |
+| `run_mode` | enum | `headless` — gates warn (never pause) so unattended runs complete. |
+| `trajectory` | bool | Enable AgentCore trajectory evaluation. |
+| `metrics[].id` | string | Metric name. |
+| `metrics[].field` | string | Output field to score (`"*"` = all cited claims). |
+| `metrics[].scorer` | enum | `categorical`, `exact_match`, `numeric_tolerance`, `set_recall`, `coverage`, `citation_resolves`, `abstention`, `bedrock_judge`. |
+| `metrics[].cost_weights` | map | Optional asymmetric error weights. |
+| `thresholds` | map | Per-metric pass threshold. |
+| `gate` | enum | `block`, `warn`, or `off`. |
+| `online.enabled` | bool | Turn on async production-run monitoring. |
+| `online.baseline_sample_rate` | number | Fraction of runs sampled for baseline drift. |
+| `online.always_eval_when` | list | Conditions that force an online eval. |
+
 ## Auto-injected agents
 
 When `report: true` and `quality.challenger: true`, the compiler adds `report_agent`

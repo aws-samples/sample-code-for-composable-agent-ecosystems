@@ -40,6 +40,6 @@ individual users, so membership changes don't require re-sharing each ecosystem.
 
 - Sharing controls **access to the ecosystem**, not to the underlying AWS resources —
   those remain governed by IAM and the platform's security model (see
-  [Architecture](../core-concepts/architecture.md)).
+  [Architecture](../core-concepts/aws-architecture.md)).
 - Federated SSO is off by default; when enabled, shared principals can be your IdP
   identities. See the repository's `docs/operations/federated-login.md`.

@@ -44,7 +44,7 @@ As the run executes you'll see the **agent map** update in real time:
 
 Behind the scenes, the WebSocket API started the ecosystem's Step Functions state machine,
 and each agent ran on the Bedrock AgentCore Runtime. See
-[Architecture](../core-concepts/architecture.md) for the full path.
+[How it works](../core-concepts/architecture.md) for the full path.
 
 ## 5. Review the report
 
@@ -56,6 +56,6 @@ When the run finishes, the **report agent** assembles the final deliverable. You
 
 ## Next steps
 
-- Understand the pieces: [Core Concepts → Architecture](../core-concepts/architecture.md)
+- Understand the pieces: [Core Concepts → How it works](../core-concepts/architecture.md)
 - Author your own workflow: [Guides → Build an ecosystem](../guides/build-an-ecosystem.md)
 - Ground agents in curated knowledge: [Core Concepts → Catalog](../core-concepts/catalog.md)

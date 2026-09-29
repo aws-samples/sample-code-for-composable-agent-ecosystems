@@ -1,35 +1,37 @@
 ---
 sidebar_position: 1
+sidebar_label: How it works
 ---
 
-# Architecture
+# How it works
 
 Tessera turns a YAML ecosystem into a running multi-agent workflow on AWS. This page
-describes the pieces you interact with when using the platform. (For the Terraform module
-layout and deployment internals, see the repository's `docs/architecture/`.)
+describes the pieces you interact with when using the platform and how a run flows through
+them. (For the AWS services behind each feature, see [Architecture](aws-architecture.md);
+for the Terraform module layout and deployment internals, see the repository's
+`docs/architecture/`.)
 
 ## The run path
 
-```
-┌─────────────┐     WebSocket    ┌────────────────┐
-│  Frontend   │ ◀───────────────▶│  WebSocket API │
-│ (CloudFront)│                  │   handler      │
-└─────────────┘                  │  (launches SFN)│
-                                 └────────┬───────┘
-                                          │ start run
-                                 ┌────────▼───────┐
-                                 │ Step Functions │  one state machine per ecosystem
-                                 │  (agent DAG)   │  (compiled at save time)
-                                 └────────┬───────┘
-                                          │ invoke per agent
-                                 ┌────────▼───────┐
-                                 │ agent-invoker  │
-                                 └────────┬───────┘
-                                          │ invoke_agent_runtime
-                                 ┌────────▼───────┐
-                                 │  AgentCore     │  single container, invoked per agent
-                                 │  Runtime       │  + Gateway (MCP tools) + Memory
-                                 └────────────────┘
+```mermaid
+flowchart TB
+  FE["Frontend<br/>(CloudFront + S3)"]
+  WS["WebSocket API handler<br/>(launches the state machine)"]
+  SFN["Step Functions<br/>one state machine per ecosystem<br/>(compiled from the agent DAG at save time)"]
+  INV["agent-invoker Lambda"]
+
+  subgraph AC["Amazon Bedrock AgentCore"]
+    RT["Runtime<br/>(single container, invoked per agent)"]
+    GW["Gateway<br/>(MCP tools)"]
+    MEM["Memory<br/>(shared, namespace-isolated)"]
+  end
+
+  FE <-->|WebSocket| WS
+  WS -->|start run| SFN
+  SFN -->|invoke per agent| INV
+  INV -->|invoke_agent_runtime| RT
+  RT --- GW
+  RT --- MEM
 ```
 
 ## Components
