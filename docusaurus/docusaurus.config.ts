@@ -15,7 +15,7 @@ const baseUrl = process.env.DOCS_BASE_URL || '/';
 
 const config: Config = {
   title: 'Tessera',
-  tagline: 'Composable agentic security platform — orchestrate multi-agent workflows through configuration, not code',
+  tagline: 'A composable platform for building multi-agent workflows through configuration, not code',
   favicon: 'img/favicon.svg',
 
   url,

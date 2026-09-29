@@ -5,7 +5,7 @@ import { ViewModeProvider } from "@/components/view-mode";
 
 export const metadata: Metadata = {
   title: "Tessera",
-  description: "Composable agentic security platform",
+  description: "Composable platform for building multi-agent workflows",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

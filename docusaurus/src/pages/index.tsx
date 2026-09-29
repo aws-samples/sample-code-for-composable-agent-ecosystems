@@ -117,8 +117,8 @@ function Features(): ReactNode {
 export default function Home(): ReactNode {
   return (
     <Layout
-      title="Tessera — Composable agentic security platform"
-      description="Orchestrate multi-agent workflows on AWS through configuration, not code.">
+      title="Tessera — Composable multi-agent workflows"
+      description="Build and run multi-agent workflows on AWS through configuration, not code.">
       <Hero />
       <main>
         <Features />

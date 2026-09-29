@@ -5,11 +5,19 @@ slug: /intro
 
 # Introduction
 
-**Tessera** is a composable agentic security platform. Security and risk teams
-orchestrate multi-agent workflows — called **ecosystems** — through configuration rather
-than code. You describe *what* agents should do and how their work fits together in YAML;
-Tessera compiles that into a runnable pipeline, executes it on AWS, and streams a
-generative UI back to a web frontend.
+**Tessera** is a composable platform for building **multi-agent workflows** — called
+**ecosystems** — through configuration rather than code. You describe *what* agents should
+do and how their work fits together in YAML; Tessera compiles that into a runnable
+pipeline, executes it on AWS, and streams a generative UI back to a web frontend.
+
+Ecosystems are **domain-agnostic** — the same engine powers a personal-finance advisor, a
+commodity-trading desk, an enterprise risk board, an AI-governance conformity assessment, a
+security incident war-room, a consultant's meeting prep, and even a trip planner. What ties
+them together is *how* they run: agents grounded in a curated catalog, coordinated as a
+dependency graph, checked by built-in quality gates, and optionally measured by an
+evaluation harness. That machinery makes Tessera especially strong for **regulated,
+high-stakes decision work where the reasoning has to hold up** — while staying general
+enough for anything you can express as collaborating agents.
 
 ## Why Tessera?
 
@@ -21,7 +29,8 @@ generative UI back to a web frontend.
   into a versioned catalog that agents cite, backed by internal and external grounding
   checks.
 - **Defensible by design** — built-in quality gates (output/format/citation checks, a
-  challenger agent, and a quorum deliberation model) make outputs reviewable.
+  challenger agent, and a quorum deliberation model), plus an opt-in **evaluation harness**
+  for regression and model-risk sign-off, make outputs reviewable.
 - **Runs on AWS** — Amazon Bedrock AgentCore for the agent runtime, Step Functions for
   orchestration, and a static web UI behind CloudFront.
 

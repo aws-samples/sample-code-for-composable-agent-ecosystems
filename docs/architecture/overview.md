@@ -1,8 +1,9 @@
 # Platform overview
 
-Tessera is a composable agentic security platform. Security teams orchestrate
-multi-agent workflows ("ecosystems") through configuration rather than code: ecosystems
-are declared as YAML, and agents emit generative UI events consumed by a web frontend.
+Tessera is a composable platform for building multi-agent workflows through
+configuration rather than code. Teams orchestrate multi-agent workflows
+("ecosystems") declaratively: ecosystems are declared as YAML, and agents emit
+generative UI events consumed by a web frontend.
 
 ## High-level architecture
 
