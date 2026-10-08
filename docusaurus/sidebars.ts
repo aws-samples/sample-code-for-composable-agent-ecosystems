@@ -39,11 +39,9 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
-      label: 'Ecosystem Examples',
+      label: 'Demos',
       items: [
-        'examples/example-1',
-        'examples/example-2',
-        'examples/example-3',
+        'examples/buyer-side-property-report',
       ],
     },
     {

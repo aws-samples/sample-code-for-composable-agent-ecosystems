@@ -100,7 +100,7 @@ const config: Config = {
         {
           title: 'More',
           items: [
-            {label: 'Ecosystem Examples', to: '/docs/examples/example-1'},
+            {label: 'Demos', to: '/docs/examples/buyer-side-property-report'},
             {label: 'Reference', to: '/docs/reference/ecosystem-yaml'},
             {
               label: 'GitHub',
