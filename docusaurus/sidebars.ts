@@ -41,7 +41,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Demos',
       items: [
-        'examples/buyer-side-property-report',
+        'demos/buyer-side-property-report',
       ],
     },
     {

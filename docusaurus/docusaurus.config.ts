@@ -93,14 +93,14 @@ const config: Config = {
           items: [
             {label: 'Introduction', to: '/docs/intro'},
             {label: 'Getting Started', to: '/docs/getting-started/installation'},
-            {label: 'Core Concepts', to: '/docs/core-concepts/architecture'},
+            {label: 'Core Concepts', to: '/docs/core-concepts/how-it-works'},
             {label: 'Guides', to: '/docs/guides/build-an-ecosystem'},
           ],
         },
         {
           title: 'More',
           items: [
-            {label: 'Demos', to: '/docs/examples/buyer-side-property-report'},
+            {label: 'Demos', to: '/docs/demos/buyer-side-property-report'},
             {label: 'Reference', to: '/docs/reference/ecosystem-yaml'},
             {
               label: 'GitHub',

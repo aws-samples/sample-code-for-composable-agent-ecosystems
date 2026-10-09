@@ -1,6 +1,7 @@
 ---
 sidebar_position: 1
 sidebar_label: How it works
+slug: how-it-works
 ---
 
 # How it works
