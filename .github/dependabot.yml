@@ -1,0 +1,66 @@
+# Dependabot configuration.
+#
+# Scope + hygiene for automated dependency-update PRs. Note: this file configures Dependabot
+# *version-update PRs* and the `ignore` rules below apply to those PRs. It does NOT dismiss
+# existing Dependabot *security alerts* in the Security tab — those are dismissed per-advisory
+# in the GitHub UI/API. The `ignore` entries here are documented so that both the update PRs
+# and any alert triage share one rationale.
+#
+# Two npm projects are tracked separately: the deployed product frontend (app/frontend) and
+# the documentation site (docusaurus). The Python Lambdas each ship their own requirements.txt;
+# they are grouped under one pip entry rooted at the repo so Dependabot discovers all of them.
+version: 2
+
+updates:
+  # ── Product frontend (Next.js static export) ──────────────────────────────
+  - package-ecosystem: npm
+    directory: /app/frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      frontend-minor-patch:
+        update-types: [minor, patch]
+    ignore:
+      # braces <=3.0.3 (GHSA stack-exhaustion DoS): 3.0.3 is the latest published release;
+      # there is NO fixed version to upgrade to. Pulled transitively via chokidar + micromatch
+      # (from tailwindcss). Re-check when braces publishes >3.0.3, or when the tailwindcss 4.x
+      # upgrade (which drops this chain) is done. Tracked as a separate major-upgrade decision.
+      - dependency-name: braces
+      # tailwindcss / excalidraw advisories are only resolved by major upgrades (tailwind 4.x,
+      # excalidraw downgrade) handled deliberately, not by automated PRs.
+      - dependency-name: tailwindcss
+        update-types: [version-update:semver-major]
+      - dependency-name: "@excalidraw/excalidraw"
+        update-types: [version-update:semver-major]
+
+  # ── Documentation site (Docusaurus, deployed to GitHub Pages — build-time tooling,
+  #    not part of the product runtime) ───────────────────────────────────────
+  - package-ecosystem: npm
+    directory: /docusaurus
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      docusaurus-minor-patch:
+        update-types: [minor, patch]
+    ignore:
+      # Same unfixable braces advisory as above (via @docusaurus/core -> chokidar/micromatch).
+      - dependency-name: braces
+      # @docusaurus/* core/preset/theme majors (Docusaurus 4.x) are a deliberate migration,
+      # not an automated bump.
+      - dependency-name: "@docusaurus/*"
+        update-types: [version-update:semver-major]
+
+  # ── Python Lambdas (each app/lambdas/*/requirements.txt) + agent container ─
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  # ── GitHub Actions workflows ──────────────────────────────────────────────
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

@@ -99,3 +99,64 @@ honor inline `#checkov:skip` comments or any ASH config. A clean ASH report is t
 **not** automatically a clean Slingshot report — Slingshot findings must be fixed in code
 or accepted through Slingshot's own exception workflow. The inline skip reasons make good
 source material for those exception justifications.
+
+## npm dependency advisories (frontend + docs site)
+
+Two npm projects are scanned: the product frontend (`app/frontend`, a Next.js **static
+export** — no Node server at runtime) and the documentation site (`docusaurus`, built and
+published to GitHub Pages). Both are build-time toolchains; neither ships a running Node
+process. Transitive advisories are pinned to patched versions with npm
+[`overrides`](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#overrides) in each
+project's `package.json`, which the committed `package-lock.json` then resolves. CI installs
+with `npm ci`, so the lockfile is authoritative.
+
+### Resolved via overrides
+
+| Package | Pinned to | Why | Project |
+|---|---|---|---|
+| `fastify` | `^5.12.5` | request/auth/validation bypass + DoS advisories | frontend |
+| `dompurify` | `^3.4.16` | in-place DOM XSS | frontend |
+| `sharp` | `^0.35.5` | librsvg CVE | frontend |
+| `source-map-js` | `^1.2.2` | event-loop DoS | both |
+| `katex` | `^0.18.2` | prototype-pollution trust bypass | both |
+| `postcss-selector-parser` | `^7.1.6` | quadratic-complexity CPU exhaustion | both |
+| `next` | `^15.5.27` (direct dep) | SSG/ISR cache poisoning | frontend |
+| `shell-quote` | `^1.12.0` | `quote()` command injection | docusaurus |
+| `http-cache-semantics` | `^4.3.0` | cross-user cached-response disclosure | docusaurus |
+| `tinypool` | `^2.2.0` | prototype-pollution → RCE in `run()` options | docusaurus |
+
+`tinypool` is a major bump (1.x → 2.x) of a dep that `@docusaurus/core` pins at `^1.0.2`;
+the Docusaurus static build was verified to succeed with 2.2.0 (the SSG `run()` usage is
+compatible), so it is treated as safe here. Re-verify the docs build if `@docusaurus/core`
+is upgraded.
+
+### Known-unfixable: `braces` (GHSA-vfj7-8cjw-p6xm / CVE-2026-93687)
+
+`braces` has a stack-exhaustion DoS advisory covering **`<=3.0.3`**, and **3.0.3 is the
+latest published release** — there is no version to upgrade to. It is pulled transitively
+via `chokidar` + `micromatch` (from `tailwindcss` in the frontend, and `@docusaurus/core`
+in the docs site), both **build-time only**. After the overrides above, this is the sole
+remaining root-cause advisory in either project; every other npm-audit entry is a
+"depends-on-`braces`" wrapper that clears automatically once `braces` publishes a fix.
+
+- Suppressed in `.grype.yaml` by id with a re-check note.
+- Ignored for update PRs in `.github/dependabot.yml`.
+- **Re-check** when `braces` publishes `>3.0.3`, or when the tailwindcss / Docusaurus major
+  upgrades below drop the chain.
+
+### Deferred: major-version upgrades (separate, tested migrations)
+
+These advisories are only resolved by major upgrades that carry real breakage risk and
+should be done as deliberate, tested migrations — **not** folded into a security patch pass.
+They are build-time toolchains and the shipped static output is unaffected by the advisories.
+
+| Upgrade | Clears | Breakage risk |
+|---|---|---|
+| **tailwindcss 3.4 → 4.x** (frontend) | `chokidar`, `micromatch`, `postcss-selector-parser` (6.x paths), and the `braces` chain | **High.** Tailwind 4 changes the config format and PostCSS plugin wiring; needs CSS regression testing across the UI. |
+| **@excalidraw/excalidraw** (frontend) | `sass`, `katex`/`mermaid` (editor copies) | **Medium.** npm proposes a *downgrade* to 0.17.6; the diagram editor needs manual verification. |
+| **Docusaurus 3.10 → 4.x** (docs site) | the `@docusaurus/*` wrapper advisories + `braces` chain | **High.** Major framework upgrade; theme/config/plugin changes, needs a full docs build + visual review. Docs-site only — cannot affect the product deployment. |
+
+Until these are scheduled, the residual advisories are build-time, non-runtime, and tracked
+above. GitHub Dependabot **alerts** (the Security tab) are not silenced by `.github/dependabot.yml`
+(that file governs update PRs); genuinely-unfixable alerts like `braces` are dismissed
+per-advisory in the Security tab with the rationale from this page.

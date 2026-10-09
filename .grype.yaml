@@ -1,0 +1,26 @@
+# Grype dependency-vulnerability scan configuration.
+#
+# The frontend (app/frontend) and the documentation site (docusaurus) are static builds with
+# no Node server / SSR at runtime, and local virtual environments are never deployed, so their
+# build-time node_modules and venvs are excluded from scanning — deployed dependencies come
+# from each Lambda's requirements.txt and the agent container's pyproject.toml, installed fresh
+# at build time.
+#
+# NOTE: this file configures the grype scanner (used in CI). It does not affect GitHub
+# Dependabot alerts, which are managed separately (see .github/dependabot.yml and per-advisory
+# dismissal in the Security tab).
+exclude:
+  - './**/.venv/**'
+  - './**/node_modules/**'
+  - './**/site-packages/**'
+  - './**/.build/**'
+  - './**/build/**'
+  - './docusaurus/.docusaurus/**'
+
+ignore:
+  # braces <=3.0.3 (stack-exhaustion DoS): 3.0.3 is the latest published release — there is no
+  # fixed version to upgrade to. Pulled transitively via chokidar + micromatch (tailwindcss in
+  # the frontend; @docusaurus/core in the docs site), both build-time only. Re-check when
+  # braces publishes >3.0.3, or when the tailwindcss / Docusaurus major upgrades drop the chain.
+  - vulnerability: GHSA-vfj7-8cjw-p6xm
+    reason: "braces: no fixed version exists (<=3.0.3 vulnerable, 3.0.3 is latest). Build-time only via chokidar/micromatch. Re-check when braces >3.0.3 ships."
