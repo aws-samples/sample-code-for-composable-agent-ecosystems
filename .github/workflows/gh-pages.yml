@@ -1,7 +1,9 @@
 name: Docs site
 
 # Builds the Docusaurus site on every pull request that touches it (so reviewers get a
-# build signal) and deploys to GitHub Pages when the change lands on main.
+# build signal) and deploys to GitHub Pages when the change lands on main or when the
+# workflow is run manually (workflow_dispatch) — the latter is useful to re-deploy after
+# changing the DOCS_URL / DOCS_BASE_URL repository variables without a content change.
 #
 # The deploy job is gated so it never publishes from a fork by default: forks don't have
 # GitHub Pages enabled and would 404. It runs when either this is the upstream repo, or the
@@ -60,7 +62,7 @@ jobs:
       # on forks. Keep this condition in sync with the deploy job's `if:` below.
       - name: Upload artifact
         if: |
-          github.event_name == 'push' &&
+          (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
           (github.repository == 'aws-samples/sample-code-for-composable-agent-ecosystems' || vars.DEPLOY_DOCS_PAGES == 'true')
         uses: actions/upload-pages-artifact@v3
         with:
@@ -69,7 +71,7 @@ jobs:
   deploy:
     needs: build
     if: |
-      github.event_name == 'push' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
       (github.repository == 'aws-samples/sample-code-for-composable-agent-ecosystems' || vars.DEPLOY_DOCS_PAGES == 'true')
     runs-on: ubuntu-latest
     permissions:
