@@ -1,0 +1,176 @@
+ecosystem:
+  name: property-buyer-report
+  description: Take a property address and produce a comprehensive due-diligence report
+    for a prospective residential buyer.
+  version: '1.0'
+strategy: orchestrated
+report: true
+tags:
+- property
+- due-diligence
+- buyer-report
+- australia
+quality:
+  challenger: true
+  grounding: true
+  gates:
+    citation: ask
+    format: ask
+    grounding: ask
+    output_kind: ask
+outcome:
+  kind: file_artifact
+  artifacts:
+  - id: buyer_report
+    agent: drafter
+    format: html
+    save_as: property_buyer_report.html
+    download_label: Download Property Buyer Report (HTML)
+entry_point: property_facts
+memory:
+  strategies:
+  - semantic
+  shared_namespaces:
+  - name: property-buyer-report_findings
+    write:
+    - all
+    read:
+    - all
+agents:
+- id: property_facts
+  name: Property Facts Researcher
+  registry_id: tessera/property_facts
+  swarm: research
+  tools:
+  - web_search
+  - memory_write
+  prompt: 'You gather physical and administrative facts about an Australian residential
+    property given its address. Collect: lot size, land/building area, year built,
+    beds/baths/car spaces, construction type, zoning (from the relevant council/state
+    planning portal, e.g. NSW ePlanning, VIC VicPlan, QLD DA Tracker), council rates/valuation
+    if public, recorded building/development approvals, and any heritage overlay.
+    Prefer official state/council sources; cite every claim with a URL. If a fact
+    is not publicly available, say so explicitly rather than guessing. Publish a structured
+    findings note (facts + sources + gaps) to shared memory.'
+- id: neighborhood
+  name: Neighborhood Analyst
+  registry_id: tessera/neighborhood
+  swarm: research
+  tools:
+  - web_search
+  - memory_write
+  prompt: 'Profile the suburb/neighborhood around the given Australian address. Cover:
+    nearby schools and their catchments/ratings (e.g. MySchool, state education dept
+    catchment maps), walkability and public transport (train/tram/bus proximity),
+    amenities (shops, parks, healthcare), typical commute to the nearest CBD, and
+    ABS suburb demographics (population, median age, household income, SEIFA index).
+    Cite sources with URLs. Publish findings to shared memory.'
+- id: market_comps
+  name: Market & Comps Analyst
+  registry_id: tessera/market_comps
+  swarm: research
+  tools:
+  - web_search
+  - memory_write
+  prompt: 'Analyse the local residential market and recent comparable sales for the
+    subject property. Use realestate.com.au, Domain, and any public CoreLogic/state
+    valuer-general data. Report: suburb median price (house/unit as applicable), 12-month
+    and 5-year growth, days-on-market, auction clearance rate, rental yield, and 3-6
+    genuine recent comparable sales (address, date, price, beds/baths/car, land area,
+    distance). Frame an indicative value range with reasoning. Cite every data point.
+    Publish to shared memory.'
+- id: risk
+  name: Risk Scanner
+  registry_id: tessera/risk
+  swarm: research
+  tools:
+  - web_search
+  - memory_write
+  prompt: 'Surface location-based risks for the Australian address. Check: flood risk
+    (state flood portals, council flood maps), bushfire-prone land designation (state
+    RFS/CFA maps, BAL overlays if available), coastal erosion/sea-level exposure where
+    relevant, seismic/landslide where relevant, contamination (state EPA contaminated
+    land registers), and local crime statistics (state police/BOCSAR equivalents).
+    For each risk give severity, source URL, and date. Say ''no public evidence found''
+    rather than inferring. Publish to shared memory.'
+- id: title_legal
+  name: Title & Legal Flags
+  registry_id: tessera/title_legal
+  swarm: research
+  tools:
+  - web_search
+  - memory_write
+  prompt: Identify title and legal considerations for the address. Note the relevant
+    state Land Titles authority (e.g. NSW LRS, VIC Landata, QLD Titles Registry) and
+    what a title search would reveal; flag publicly known encumbrances, easements,
+    covenants, strata/community title indicators, heritage listings, zoning restrictions,
+    and overlays from the council planning portal. If the property is strata, note
+    what a strata report typically covers. Be clear what is publicly visible vs what
+    requires a paid search; recommend the official searches a buyer's conveyancer
+    should order. Cite sources. Publish to shared memory.
+- id: synthesizer
+  name: Buyer Report Synthesizer
+  registry_id: tessera/synthesizer
+  swarm: reasoning
+  depends_on:
+  - property_facts
+  - neighborhood
+  - market_comps
+  - risk
+  - title_legal
+  tools:
+  - memory_read
+  prompt: 'Read all agent findings from shared memory and synthesize a buyer-oriented
+    narrative. Produce a structured JSON-like outline with: executive summary (3-5
+    sentences), property snapshot, neighborhood profile, market & valuation view with
+    comps table, risk register (ranked), title/legal flags & recommended searches,
+    pros, cons, open questions the buyer should ask, and a ''what to do next'' checklist
+    (building & pest inspection, conveyancer searches, strata report, etc.). Preserve
+    citations from the source agents. Flag any conflicts between agents and resolve
+    or note them.'
+- id: drafter
+  name: HTML Report Drafter
+  registry_id: tessera/drafter
+  swarm: drafting
+  depends_on:
+  - synthesizer
+  tools:
+  - memory_read
+  - code_interpreter
+  output_kind: drafter
+  output_format:
+    type: html
+    save_as: property_buyer_report.html
+    validate: true
+  prompt: 'Render the synthesizer''s outline into a single self-contained HTML file
+    (inline CSS, no external assets). Use a clean, modern residential-buyer tone:
+    cover header with the address, a snapshot bar (beds/baths/car/land/indicative
+    value range), then sections for Property, Neighborhood, Market & Comps (with a
+    comps table), Risks (ranked badges), Title & Legal, Pros, Cons, Open Questions,
+    and Next Steps. Include a sources/footnotes section listing every citation. Use
+    code_interpreter to write the file to property_buyer_report.html. Include a prominent
+    disclaimer that this is an informational summary, not legal, financial or valuation
+    advice, and that formal searches and inspections are required before purchase.'
+swarms:
+  research:
+    agents:
+    - property_facts
+    - neighborhood
+    - market_comps
+    - risk
+    - title_legal
+    strategy: graph
+  reasoning:
+    agents:
+    - synthesizer
+    strategy: graph
+  drafting:
+    agents:
+    - drafter
+    strategy: graph
+parallel_swarms:
+- research
+- reasoning
+- drafting
+triggers:
+- type: manual

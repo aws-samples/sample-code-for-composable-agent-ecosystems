@@ -92,14 +92,6 @@ Prefer **fixing** a dependency CVE with a version bump; only ignore when the fix
 genuinely unavailable (see the `make package` manylinux-wheel note in
 [troubleshooting](troubleshooting.md)).
 
-## A note on Slingshot
-
-Slingshot (the internal scanner) post-processes **raw** checkov output and does **not**
-honor inline `#checkov:skip` comments or any ASH config. A clean ASH report is therefore
-**not** automatically a clean Slingshot report — Slingshot findings must be fixed in code
-or accepted through Slingshot's own exception workflow. The inline skip reasons make good
-source material for those exception justifications.
-
 ## npm dependency advisories (frontend + docs site)
 
 Two npm projects are scanned: the product frontend (`app/frontend`, a Next.js **static
