@@ -387,10 +387,17 @@ def _list_attention(owner_id: str) -> dict:
 def _list(eco_id: str) -> dict:
     """List recent executions for tessera-{env}-{eco_id} state machine."""
     sm_arn = _state_machine_arn(eco_id)
-    resp = sfn.list_executions(
-        stateMachineArn=sm_arn,
-        maxResults=20,
-    )
+    try:
+        resp = sfn.list_executions(
+            stateMachineArn=sm_arn,
+            maxResults=20,
+        )
+    except sfn.exceptions.StateMachineDoesNotExist:
+        # Quorum-archetype ecosystems never compile a Step Functions state machine (spec §5) —
+        # they run on the quorum runtime and persist their artifacts to the runs bucket instead.
+        # So there is no SM to ListExecutions against; History must come from S3. Without this,
+        # the History tab surfaced a raw 'StateMachineDoesNotExist' error for every quorum eco.
+        return _list_quorum_runs_from_s3(eco_id)
     executions = []
     for ex in resp.get("executions", []) or []:
         start = ex.get("startDate")
@@ -412,13 +419,127 @@ def _list(eco_id: str) -> dict:
     return _resp(200, {"executions": executions, "ecosystemId": eco_id})
 
 
+def _list_quorum_runs_from_s3(eco_id: str) -> dict:
+    """History for a quorum ecosystem, which has no Step Functions state machine.
+
+    Quorum runs persist to runs/<eco_id>-<id>/ in the runs bucket. We enumerate those folders,
+    derive each run's timing from its persisted artifacts (_run_config.json = start, _verdict.json
+    = finish), and mark status SUCCEEDED when a verdict exists, else RUNNING. Shape matches _list()
+    so the History UI renders quorum runs identically to DAG runs."""
+    if not RUNS_BUCKET:
+        return _resp(200, {"executions": [], "ecosystemId": eco_id})
+    prefix = f"runs/{eco_id}-"
+    try:
+        pages = s3.get_paginator("list_objects_v2").paginate(
+            Bucket=RUNS_BUCKET, Prefix=prefix, Delimiter="/")
+        folders = []
+        for pg in pages:
+            folders.extend(cp["Prefix"] for cp in (pg.get("CommonPrefixes") or []))
+    except Exception as e:
+        print(f"[runs-api] quorum S3 history list failed for {eco_id}: {type(e).__name__}: {e}")
+        return _resp(200, {"executions": [], "ecosystemId": eco_id})
+
+    runs = []
+    for folder in folders:
+        exec_name = folder[len("runs/"):].rstrip("/")
+        if not exec_name:
+            continue
+        start = _s3_obj_time(f"{folder}_run_config.json") or _s3_obj_time(f"{folder}_attachments.json")
+        verdict_t = _s3_obj_time(f"{folder}_verdict.json")
+        done = verdict_t is not None
+        duration_s = (verdict_t - start).total_seconds() if (start and verdict_t) else None
+        meta = _run_meta(exec_name)
+        runs.append({
+            "name": exec_name,
+            "status": "SUCCEEDED" if done else "RUNNING",
+            "startDate": start.isoformat() if isinstance(start, datetime) else None,
+            "stopDate": verdict_t.isoformat() if isinstance(verdict_t, datetime) else None,
+            "duration_s": duration_s,
+            "executionArn": "",   # no Step Functions execution for a quorum run
+            "displayName": meta.get("name") or "",
+            "tags": meta.get("tags") or [],
+        })
+    # Most recent first (unstarted/undated runs sort last).
+    runs.sort(key=lambda r: r.get("startDate") or "", reverse=True)
+    return _resp(200, {"executions": runs[:20], "ecosystemId": eco_id})
+
+
+def _s3_obj_time(key: str):
+    """LastModified of a runs-bucket object, or None if absent/unreadable."""
+    try:
+        return s3.head_object(Bucket=RUNS_BUCKET, Key=key).get("LastModified")
+    except Exception:
+        return None
+
+
+def _quorum_detail_from_s3(eco_id: str, exec_name: str) -> dict:
+    """Run detail for a quorum run (no Step Functions execution). Sourced from the runs bucket.
+
+    Returns the quorum plan/transcript/verdict for the Deliberation Room + replay, plus
+    empty DAG fields (agents/failed_agents/skipped_agents) so DAG-oriented UI never errors.
+    Clears the 'execution not found' banner that describe_execution produced for quorum runs."""
+    seg = _safe_seg(exec_name)
+    result = _read_json_key(f"runs/{seg}/_quorum_result.json") or {}
+    verdict = result.get("verdict") or _read_json_key(f"runs/{seg}/_verdict.json") or {}
+    plan = result.get("plan") or _read_json_key(f"runs/{seg}/_quorum_plan.json") or {}
+    transcript = result.get("transcript") or _read_json_key(f"runs/{seg}/_deliberation.json") or {}
+    session = _read_json_key(f"runs/{seg}/_session.json") or {}
+
+    start = _s3_obj_time(f"runs/{seg}/_run_config.json") or _s3_obj_time(f"runs/{seg}/_attachments.json")
+    stop = _s3_obj_time(f"runs/{seg}/_verdict.json")
+    status = "SUCCEEDED" if verdict else "RUNNING"
+
+    # Mission transcript sidecar (same convention as the DAG path).
+    mission_transcript = None
+    _side = _read_json_key(f"runs/{seg}/_mission_transcript.json")
+    if _side and _side.get("messages"):
+        mission_transcript = {"messages": _side["messages"],
+                              "reconstructed": bool(_side.get("reconstructed", True))}
+
+    meta = _run_meta(exec_name)
+    start_iso = start.isoformat() if isinstance(start, datetime) else None
+    stop_iso = stop.isoformat() if isinstance(stop, datetime) else None
+    return _resp(200, {
+        "ecosystemId": eco_id,
+        "name": exec_name,
+        "archetype": "quorum",
+        "status": status,
+        "startDate": start_iso,
+        "stopDate": stop_iso,
+        # `execution` mirrors the DAG-path shape so the History UI's detail.execution.* reads
+        # (status, dates, input) never throw for a quorum run.
+        "execution": {"name": exec_name, "status": status,
+                      "startDate": start_iso, "stopDate": stop_iso, "input": {}},
+        # Quorum payload for the Deliberation Room / replay / verdict panel.
+        "quorum": {"plan": plan, "transcript": transcript, "verdict": verdict,
+                   "state": session.get("state") if isinstance(session, dict) else None},
+        "verdict": verdict,
+        "mission_transcript": mission_transcript,
+        # DAG-shaped fields kept empty so DAG UI components degrade gracefully, never throw.
+        "agents": [],
+        "failed_agents": [],
+        "skipped_agents": [],
+        "running_agents": [],
+        "displayName": meta.get("name") or "",
+        "tags": meta.get("tags") or [],
+    })
+
+
 def _detail(eco_id: str, exec_name: str) -> dict:
     """Reconstruct per-agent run data from SFN history + S3 outputs."""
     sm_arn = _state_machine_arn(eco_id)
     account = sm_arn.split(":")[4]
     exec_arn = f"arn:aws:states:{REGION}:{account}:execution:{PROJECT}-{ENVIRONMENT}-{eco_id}:{exec_name}"
 
-    desc = sfn.describe_execution(executionArn=exec_arn)
+    try:
+        desc = sfn.describe_execution(executionArn=exec_arn)
+    except (sfn.exceptions.ExecutionDoesNotExist, sfn.exceptions.StateMachineDoesNotExist,
+            sfn.exceptions.InvalidArn):
+        # Quorum-archetype runs have no Step Functions execution — their state lives in the runs
+        # bucket (_quorum_result/_deliberation/_verdict/_session). describe_execution 404s, which
+        # surfaced as the "execution not found" banner. Reconstruct the detail from S3 instead.
+        return _quorum_detail_from_s3(eco_id, exec_name)
+
     history_pages = sfn.get_paginator("get_execution_history").paginate(
         executionArn=exec_arn,
     )

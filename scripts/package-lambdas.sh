@@ -92,8 +92,14 @@ for dir in "$LAMBDAS_DIR"/*/; do
   log "  [$idx/$total] $name (deps=$has_deps)"
 
   stage="$(mktemp -d)"
-  # The Lambda's own source files (top-level .py + any nested package dirs it owns).
-  ( cd "$dir" && find . -name '*.py' -print0 | while IFS= read -r -d '' f; do
+  # The Lambda's own source files (top-level .py + any nested package dirs it owns), PLUS
+  # any bundled data files it reads at runtime (e.g. quorum-run/scrutineers.json, used as the
+  # offline persona-pool fallback). Previously only *.py was copied, so a handler that reads a
+  # sibling data file worked locally but FileNotFound'd in Lambda. We copy .py and common data
+  # extensions (.json/.yaml/.yml/.txt/.csv), but EXCLUDE build-only control files that must
+  # never ship in the zip (requirements.txt, .build-platform).
+  ( cd "$dir" && find . \( -name '*.py' -o -name '*.json' -o -name '*.yaml' -o -name '*.yml' -o -name '*.txt' -o -name '*.csv' \) \
+      ! -name 'requirements.txt' ! -name '.build-platform' -print0 | while IFS= read -r -d '' f; do
       mkdir -p "$stage/$(dirname "$f")"; cp "$f" "$stage/$f"
     done )
 

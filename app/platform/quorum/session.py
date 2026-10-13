@@ -959,6 +959,31 @@ def _sketch_ops(st: "SessionState", pid: str, purpose: str, speaker) -> list:
     rep = list(getattr(st.personas.get(pid), "draw_repertoire", []) or [])
     ops = _wb_render(spec, st.whiteboard, rep)
     if not ops:
+        # Newer models (claude-sonnet-5) often return an underspecified first spec (<2 concrete
+        # nodes or a truncated JSON), which render refuses — measured as the dominant cause of an
+        # empty board. Reask ONCE with an explicit minimum before giving up; the retry is bounded
+        # (one extra call) and only happens when the first attempt drew nothing, so a healthy sketch
+        # never pays for it. Failure stays non-fatal: a board that won't draw must not break the room.
+        try:
+            retry_purpose = (purpose + " — your previous attempt was not drawable. Return a spec with "
+                             "AT LEAST 2 concrete nodes (real services/stores/controls/actors in THIS "
+                             "system) and a one-line point, using a shape from your repertoire.")
+            _route(speaker, st, pid)
+            st._sketch_calls_total = int(getattr(st, "_sketch_calls_total", 0)) + 1
+            st._model_calls = int(getattr(st, "_model_calls", 0)) + 1
+            try:
+                spec2 = speaker.sketch(st.personas.get(pid), retry_purpose, st.decision,
+                                       board_digest=st.whiteboard.digest(), agenda=_agenda_view(st),
+                                       inventory=st.whiteboard.inventory(), repertoire=rep)
+            except TypeError:
+                spec2 = speaker.sketch(st.personas.get(pid), retry_purpose, st.decision,
+                                       board_digest=st.whiteboard.digest(), agenda=_agenda_view(st))
+            ops = _wb_render(spec2 if isinstance(spec2, dict) else {}, st.whiteboard, rep)
+            if ops:
+                spec = spec2
+        except Exception as e:  # noqa: BLE001 - the board is optional
+            print(f"[quorum.sketch] {pid} sketch retry failed: {type(e).__name__}: {e}")
+    if not ops:
         # No substitution: an out-of-repertoire or absent shape is refused, and recorded as refused.
         st._draw_refusals = int(getattr(st, "_draw_refusals", 0)) + 1
         print(f"[quorum.sketch] {pid} produced no drawable point — nothing added to the board")

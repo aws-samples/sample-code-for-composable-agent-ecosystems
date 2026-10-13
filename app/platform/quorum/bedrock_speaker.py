@@ -539,7 +539,10 @@ class BedrockSpeaker:
                    + "\n".join(f"  {e['id']}: {e['label']!r} (by {e['author']})"
                                for e in (inventory or [])[:16]) + "\n") if inventory else "")
                + f"You are {persona.name}. Reply JSON only.")
-        out = _extract_json(self._ask(sys, usr, max_tokens=700))
+        # 700 tokens truncated the strict-JSON spec mid-node-list on newer models (claude-sonnet-5),
+        # so _extract_json recovered a partial object with <2 nodes and render refused it — a measured
+        # cause of empty boards. 1100 gives the full 2-7 node spec + edges + annotations room to close.
+        out = _extract_json(self._ask(sys, usr, max_tokens=1100))
         return out if isinstance(out, dict) else {}
 
     def critique_sketch(self, persona: Persona, spec: dict, audit: dict, description: str,

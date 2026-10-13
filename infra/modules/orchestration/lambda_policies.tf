@@ -144,6 +144,9 @@ resource "aws_iam_role_policy" "quorum_run" {
       { Effect = "Allow", Action = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"], Resource = [var.runs_bucket_arn, "${var.runs_bucket_arn}/*"] },
       { Effect = "Allow", Action = ["s3:GetObject"], Resource = ["${var.ecosystems_bucket_arn}/*"] },
       { Effect = "Allow", Action = ["dynamodb:Scan", "dynamodb:GetItem", "dynamodb:Query"], Resource = [var.connections_table_arn] },
+      # Read the catalog refresh table to resolve the active scrutineer catalog version
+      # (pk=DOMAIN#scrutineer sk=ACTIVE) so the live persona pool loads from the promoted version.
+      { Effect = "Allow", Action = ["dynamodb:GetItem", "dynamodb:Query"], Resource = [var.catalog_refresh_table_arn] },
       ],
       var.websocket_api_id != "" ? [
         { Effect = "Allow", Action = ["execute-api:ManageConnections"], Resource = "arn:${var.partition}:execute-api:${var.region}:${var.account_id}:${var.websocket_api_id}/*" },

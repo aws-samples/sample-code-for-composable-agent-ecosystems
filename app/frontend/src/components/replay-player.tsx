@@ -25,8 +25,9 @@ async function apiFetch(url: string): Promise<Response> {
   return fetch(url, { headers });
 }
 
-type SceneKey = "builder" | "mission" | "execution" | "deliverable";
+type SceneKey = "builder" | "mission" | "execution" | "deliberation" | "verdict" | "deliverable";
 type Msg = { role: string; content: string };
+type QuorumTurn = { member?: string; type?: string; text?: string };
 
 // Topological order of agents (mirrors DagMap's layering) so the replay lights up
 // nodes in a valid execution order.
@@ -73,32 +74,48 @@ export function ReplayPlayer({ ecosystemId, runName, onClose, autoClose }: { eco
   const missionRecon = !!detail?.mission_transcript?.reconstructed;
   const execOrder = useMemo(() => topoOrder(config?.agents || []), [config]);
 
+  // Quorum runs have no agent DAG — they replay as a deliberation (turn-by-turn) + a verdict
+  // reveal. Detected from the archetype the runs-api detail carries (or the eco's strategy).
+  const isQuorum = detail?.archetype === "quorum" || config?.strategy === "quorum";
+  const quorumTurns: QuorumTurn[] = useMemo(
+    () => (detail?.quorum?.transcript?.entries || []) as QuorumTurn[], [detail]);
+  const quorumVerdict = detail?.verdict || detail?.quorum?.verdict || null;
+  const quorumSeated: string[] = detail?.quorum?.plan?.seated || [];
+
   const failedIds = useMemo(() => new Set((detail?.failed_agents || []).map((f: any) => f.agent_id)), [detail]);
   const skippedIds = useMemo(() => new Set(detail?.skipped_agents || []), [detail]);
   const previewFor = (id: string) => (detail?.agents || []).find((a: any) => a.agent_id === id)?.output_preview || "";
 
-  // Assemble the active scenes (skip empty transcripts; execution + deliverable always).
+  // Assemble the active scenes (skip empty transcripts). Quorum replaces the DAG
+  // execution + deliverable scenes with a deliberation (turn-by-turn) + verdict reveal.
   const scenes = useMemo(() => {
     const s: SceneKey[] = [];
     if (builderMsgs.length) s.push("builder");
     if (missionMsgs.length) s.push("mission");
-    if (execOrder.length) s.push("execution");
-    s.push("deliverable");
+    if (isQuorum) {
+      if (quorumTurns.length) s.push("deliberation");
+      s.push("verdict");
+    } else {
+      if (execOrder.length) s.push("execution");
+      s.push("deliverable");
+    }
     return s;
-  }, [builderMsgs.length, missionMsgs.length, execOrder.length]);
+  }, [builderMsgs.length, missionMsgs.length, execOrder.length, isQuorum, quorumTurns.length]);
 
   const scene: SceneKey | undefined = scenes[sceneI];
   const total =
     scene === "builder" ? builderMsgs.length :
     scene === "mission" ? missionMsgs.length :
-    scene === "execution" ? execOrder.length : 0;
-  const sceneDone = scene === "deliverable" || step >= total;
+    scene === "execution" ? execOrder.length :
+    scene === "deliberation" ? quorumTurns.length : 0;
+  // "verdict" and "deliverable" are terminal reveal scenes (no stepping).
+  const sceneDone = scene === "deliverable" || scene === "verdict" || step >= total;
 
-  // Auto-advance: step within a scene, then to the next scene. Deliverable is terminal.
+  // Auto-advance: step within a scene, then to the next scene. Terminal scenes don't step.
   useEffect(() => {
     if (loading || !playing || !scene) return;
     if (!sceneDone) {
-      const base = scene === "execution" ? 1000 : 2000;
+      const base = scene === "execution" ? 1000 : scene === "deliberation" ? 1600 : 2000;
       const t = setTimeout(() => setStep((s) => s + 1), base / speed);
       return () => clearTimeout(t);
     }
@@ -136,8 +153,15 @@ export function ReplayPlayer({ ecosystemId, runName, onClose, autoClose }: { eco
     builder: { n: "①", title: "Building the ecosystem" },
     mission: { n: "②", title: "Shaping the mission" },
     execution: { n: "③", title: "Running the mission" },
+    deliberation: { n: "③", title: "The board deliberates" },
+    verdict: { n: "④", title: "The ruling" },
     deliverable: { n: "④", title: "The deliverable" },
   };
+
+  const gradeColor = (g: string) =>
+    g === "defensible" ? "bg-green-500/20 text-green-300 border-green-500/40" :
+    g === "indefensible" ? "bg-red-500/20 text-red-300 border-red-500/40" :
+    "bg-amber-500/20 text-amber-300 border-amber-500/40";
 
   const restart = () => { setSceneI(0); setStep(0); setPlaying(true); };
 
@@ -200,6 +224,71 @@ export function ReplayPlayer({ ecosystemId, runName, onClose, autoClose }: { eco
                       <div className="text-xs text-blue-300 font-medium mb-1">▶ {execOrder[step]?.name || execOrder[step]?.id}</div>
                       <p className="text-[11px] text-gray-400 line-clamp-3">{previewFor(execOrder[step]?.id) || "…"}</p>
                     </div>
+                  )}
+                </div>
+              )}
+
+              {/* Deliberation scene (quorum) — the panel speaks turn-by-turn */}
+              {scene === "deliberation" && (
+                <div className="space-y-3">
+                  {quorumSeated.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pb-2 border-b border-tessera-border">
+                      {quorumSeated.map((pid) => (
+                        <span key={pid} className="text-[10px] font-mono bg-tessera-accent/10 text-tessera-accent border border-tessera-accent/20 px-2 py-0.5 rounded-full">{pid}</span>
+                      ))}
+                    </div>
+                  )}
+                  {quorumTurns.slice(0, Math.max(step, 1)).map((t, i) => (
+                    <div key={i} className="border-l-2 border-tessera-accent/40 pl-3 py-0.5 animate-[fadeIn_0.3s_ease]">
+                      <div className="text-[11px] font-semibold text-gray-200">
+                        {t.member || "panel"}
+                        {t.type && <span className="ml-2 text-[9px] uppercase tracking-wide text-gray-600">{t.type}</span>}
+                      </div>
+                      {t.text && <div className="text-xs text-gray-400 whitespace-pre-wrap">{t.text}</div>}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Verdict scene (quorum) — the ruling reveal */}
+              {scene === "verdict" && (
+                <div className="space-y-4">
+                  {quorumVerdict ? (
+                    <>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-bold text-gray-200">The ruling</span>
+                        <span className={`px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide rounded border ${gradeColor((quorumVerdict.grade || "").trim())}`}>
+                          {(quorumVerdict.grade || "—").replace(/_/g, " ")}
+                        </span>
+                      </div>
+                      {quorumVerdict.summary && (
+                        <div className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{quorumVerdict.summary}</div>
+                      )}
+                      {Array.isArray(quorumVerdict.against_whom) && quorumVerdict.against_whom.length > 0 && (
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Fails against</div>
+                          <ul className="list-disc list-inside text-xs text-gray-300 space-y-0.5">
+                            {quorumVerdict.against_whom.map((w: string, i: number) => <li key={i}>{w}</li>)}
+                          </ul>
+                        </div>
+                      )}
+                      {Array.isArray(quorumVerdict.indefensible_elements) && quorumVerdict.indefensible_elements.length > 0 && (
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Indefensible / contested</div>
+                          <div className="space-y-2">
+                            {quorumVerdict.indefensible_elements.map((el: any, i: number) => (
+                              <div key={i} className="bg-gray-950 border border-red-500/20 rounded p-2.5">
+                                <div className="text-xs font-semibold text-red-200">{el.element || "(element)"}</div>
+                                {el.argument && <div className="text-[11px] text-gray-400 mt-0.5">{el.argument}</div>}
+                                {el.by && <div className="text-[10px] text-gray-600 mt-0.5">— {el.by}</div>}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="text-xs text-gray-500">No verdict was recorded for this run.</div>
                   )}
                 </div>
               )}

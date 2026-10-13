@@ -96,13 +96,17 @@ locals {
     "quorum-run" = {
       memory = 512, timeout = 900
       env = {
-        RUNS_BUCKET        = var.runs_bucket_name
-        ECOSYSTEMS_BUCKET  = var.ecosystems_bucket_name
-        CONNECTIONS_TABLE  = var.connections_table_name
-        WS_ENDPOINT        = var.websocket_callback_url
-        QUORUM_ENABLED     = "true"
-        WHITEBOARD_ENABLED = "true"
-        QUORUM_MODEL_ID    = var.models["quorum"]
+        RUNS_BUCKET           = var.runs_bucket_name
+        ECOSYSTEMS_BUCKET     = var.ecosystems_bucket_name
+        CONNECTIONS_TABLE     = var.connections_table_name
+        WS_ENDPOINT           = var.websocket_callback_url
+        QUORUM_ENABLED        = "true"
+        WHITEBOARD_ENABLED    = "true"
+        QUORUM_MODEL_ID       = var.models["quorum"]
+        # Needed so from_catalog() can resolve the active scrutineer catalog version
+        # (pk=DOMAIN#scrutineer sk=ACTIVE) and read the promoted versioned namespace;
+        # without it the live persona pool reads empty and the panel can't be convened.
+        CATALOG_REFRESH_TABLE = var.catalog_refresh_table_name
       }
     }
   }

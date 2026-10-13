@@ -111,7 +111,7 @@ step-by-step, first-run defaults, and troubleshooting.
 3. Launch, and watch the agent map stream in real time.
 4. Review the generated report and (optionally) give inline feedback.
 
-Optionally, populate the **catalog** so grounded lookups have data (separate, long-running):
+Populate the **catalog** so grounded lookups have data. This step is **required** (separate, long-running):
 
 ```bash
 make ingest                             # or: make ingest DOMAINS="cyber-security-risk"

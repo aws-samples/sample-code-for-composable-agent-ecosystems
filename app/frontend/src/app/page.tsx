@@ -635,7 +635,15 @@ export default function SuperApp() {
                   onStatusChange={(status) => updateTabStatus(tab.id, status)}
                 >
                   {(runProps) => {
-                    const isQuorum = runProps.events.some((e: any) => e?.type === "RUN_STARTED" && (e.archetype === "quorum" || e.interactive));
+                    // Prefer the live RUN_STARTED archetype flag, but FALL BACK to the ecosystem's
+                    // declared strategy. The archetype event is pushed once over the WebSocket at
+                    // launch; a reconnect or connection churn around launch can drop it, leaving a
+                    // quorum run rendered as an empty DAG "Flow" view ("No agents / waiting"). The
+                    // ecosystem's strategy is already loaded and is authoritative, so a quorum eco
+                    // always opens the Deliberation Room regardless of whether the event arrived.
+                    const ecoStrategy = ecosystems.find((e) => e.id === tab.ecosystemId)?.strategy;
+                    const isQuorum = ecoStrategy === "quorum" ||
+                      runProps.events.some((e: any) => e?.type === "RUN_STARTED" && (e.archetype === "quorum" || e.interactive));
                     if (isQuorum) return (
                       <>
                         <DeliberationRoom sessionId={runProps.sessionId} events={runProps.events} send={ws.send} />

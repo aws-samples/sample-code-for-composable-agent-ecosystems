@@ -427,7 +427,16 @@ def handler(event, context=None):
 
     try:
         pool = _load_personas()
-        result = run_quorum(config, decision, ctx, pool, BedrockSpeaker(), emit)
+        speaker = BedrockSpeaker()
+        # Probe the model BEFORE convening (mirrors the interactive launch seam). Newest models
+        # (e.g. claude-sonnet-5) reject the `temperature` field; probing records that in the
+        # speaker so every subsequent call omits it. Without this, the batch path sends temperature
+        # and dies with ValidationException on the first empanelment call.
+        try:
+            speaker.probe(speaker.model_id)
+        except Exception as pe:  # noqa: BLE001 - a real invoke failure (dead model) surfaces below
+            print(f"[quorum-run] model probe warning: {type(pe).__name__}: {pe}")
+        result = run_quorum(config, decision, ctx, pool, speaker, emit)
         _persist(session_id, "_quorum_plan.json", result.plan.to_dict())
         _persist(session_id, "_deliberation.json", result.transcript.to_dict())
         _persist(session_id, "_verdict.json", result.verdict.to_dict())

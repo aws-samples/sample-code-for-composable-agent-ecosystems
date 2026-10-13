@@ -77,6 +77,26 @@ interface RunDetail {
   skipped_agents?: string[];
   outcome?: import("./outcome-panel").Outcome;
   mission_transcript?: { messages: { role: string; content: string }[]; reconstructed: boolean } | null;
+  // Quorum-archetype runs carry no agent DAG; their result is a verdict + deliberation
+  // transcript (reconstructed from S3 by runs-api _quorum_detail_from_s3).
+  archetype?: string;
+  verdict?: QuorumVerdict | null;
+  quorum?: {
+    plan?: { seated?: string[]; excluded?: { persona_id: string; reason: string }[]; meeting_frame?: string } | null;
+    transcript?: { entries?: { member?: string; type?: string; text?: string }[] } | null;
+    verdict?: QuorumVerdict | null;
+    state?: any;
+  } | null;
+}
+
+interface QuorumVerdict {
+  grade?: string;
+  summary?: string;
+  against_whom?: string[];
+  indefensible_elements?: { element?: string; argument?: string; by?: string }[];
+  remediation?: string[] | string;
+  dissent_preserved?: any;
+  composition_summary?: string;
 }
 
 export function PastRunsModal({
@@ -521,13 +541,18 @@ export function PastRunsModal({
       )}
 
       {/* Telemetry (cost / time / per-agent models) — above the main split. */}
-      {selected && detail && (
+      {selected && detail && detail.archetype !== "quorum" && (
         <RunTuningPanel ecosystemId={ecosystemId} execName={selected} inline />
       )}
 
       {/* Outcome now lives as a button in the header row (opens a modal). */}
 
-      {/* Main — resizable: execution graph (left) | agent detail (right, bigger by default). */}
+      {/* Quorum runs have no agent DAG — render the verdict + deliberation transcript instead
+          of the (empty) execution graph. Keeps History usable for scrutiny/panel ecosystems. */}
+      {selected && detail && detail.archetype === "quorum" ? (
+        <QuorumRunDetail detail={detail} loading={detailLoading} />
+      ) : (
+      /* Main — resizable: execution graph (left) | agent detail (right, bigger by default). */
       <ResizableSplit
         className="flex-1"
         storageKey="tessera.historySplit"
@@ -589,6 +614,7 @@ export function PastRunsModal({
           />
         }
       />
+      )}
 
       {resumeOpen && selected && selectedAgent && (
         <ResumeDialog
@@ -630,6 +656,126 @@ export function PastRunsModal({
           ((a.format || "").toLowerCase() === "html" || a.save_as.toLowerCase().endsWith(".html")));
         return <RunChat sessionId={selected} events={viewerEvents} hideChat={hasStudio} />;
       })()}
+    </div>
+  );
+}
+
+function QuorumRunDetail({ detail, loading }: { detail: RunDetail; loading: boolean }) {
+  if (loading) {
+    return (
+      <div className="flex-1 flex items-center gap-2 text-xs text-gray-500 p-6">
+        <TesseraSpinner size={16} /> Loading run…
+      </div>
+    );
+  }
+  const verdict: QuorumVerdict = detail.verdict || detail.quorum?.verdict || {};
+  const plan = detail.quorum?.plan || {};
+  const entries = detail.quorum?.transcript?.entries || [];
+  const seated: string[] = Array.isArray(plan.seated) ? plan.seated : [];
+  const grade = (verdict.grade || "").trim();
+  const gradeColor =
+    grade === "defensible" ? "bg-green-500/20 text-green-300 border-green-500/40" :
+    grade === "indefensible" ? "bg-red-500/20 text-red-300 border-red-500/40" :
+    "bg-amber-500/20 text-amber-300 border-amber-500/40"; // defensible_with_conditions / unknown
+  const remediation = Array.isArray(verdict.remediation)
+    ? verdict.remediation
+    : (verdict.remediation ? [verdict.remediation] : []);
+
+  return (
+    <div className="flex-1 bg-tessera-card border border-tessera-border rounded-xl overflow-hidden flex flex-col min-h-0">
+      <div className="flex-1 overflow-y-auto p-5 min-h-0 space-y-5">
+        {!grade && entries.length === 0 && (
+          <div className="text-xs text-gray-500">
+            This run has no persisted verdict or transcript yet{detail.execution?.status === "RUNNING" ? " — it may still be in progress." : "."}
+          </div>
+        )}
+
+        {/* Verdict ruling */}
+        {grade && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-bold text-gray-200">The ruling</span>
+              <span className={`px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide rounded border ${gradeColor}`}>
+                {grade.replace(/_/g, " ")}
+              </span>
+            </div>
+            {verdict.summary && (
+              <div className="text-sm text-gray-300 leading-relaxed prose prose-invert prose-sm max-w-none">
+                <ReactMarkdown>{verdict.summary}</ReactMarkdown>
+              </div>
+            )}
+            {verdict.composition_summary && (
+              <div className="text-[11px] text-gray-500 italic">{verdict.composition_summary}</div>
+            )}
+          </div>
+        )}
+
+        {/* Against whom it fails */}
+        {Array.isArray(verdict.against_whom) && verdict.against_whom.length > 0 && (
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Fails against</div>
+            <ul className="list-disc list-inside text-xs text-gray-300 space-y-0.5">
+              {verdict.against_whom.map((w, i) => <li key={i}>{w}</li>)}
+            </ul>
+          </div>
+        )}
+
+        {/* Indefensible elements */}
+        {Array.isArray(verdict.indefensible_elements) && verdict.indefensible_elements.length > 0 && (
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Indefensible / contested elements</div>
+            <div className="space-y-2">
+              {verdict.indefensible_elements.map((el, i) => (
+                <div key={i} className="bg-gray-950 border border-red-500/20 rounded p-2.5">
+                  <div className="text-xs font-semibold text-red-200">{el.element || "(element)"}</div>
+                  {el.argument && <div className="text-[11px] text-gray-400 mt-0.5">{el.argument}</div>}
+                  {el.by && <div className="text-[10px] text-gray-600 mt-0.5">— {el.by}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Remediation */}
+        {remediation.length > 0 && (
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Required remediation</div>
+            <ul className="list-disc list-inside text-xs text-gray-300 space-y-0.5">
+              {remediation.map((r, i) => <li key={i}>{r}</li>)}
+            </ul>
+          </div>
+        )}
+
+        {/* Panel composition */}
+        {seated.length > 0 && (
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Panel ({seated.length})</div>
+            <div className="flex flex-wrap gap-1.5">
+              {seated.map((pid) => (
+                <span key={pid} className="text-[11px] font-mono bg-tessera-accent/10 text-tessera-accent border border-tessera-accent/20 px-2 py-0.5 rounded-full">{pid}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Deliberation transcript */}
+        {entries.length > 0 && (
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Deliberation ({entries.length} turns)</div>
+            <div className="space-y-2">
+              {entries.map((e, i) => (
+                <div key={i} className="border-l-2 border-tessera-border pl-3 py-0.5">
+                  <div className="text-[11px] font-semibold text-gray-300">
+                    {e.member || "panel"}
+                    {e.type && <span className="ml-2 text-[9px] uppercase tracking-wide text-gray-600">{e.type}</span>}
+                  </div>
+                  {e.text && <div className="text-xs text-gray-400 whitespace-pre-wrap">{e.text}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

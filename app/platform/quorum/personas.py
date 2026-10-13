@@ -32,8 +32,19 @@ def from_seed_file(path: str | None = None) -> list[Persona]:
 
 
 def from_catalog(version: str | None = None) -> list[Persona]:
-    """Load personas from the live scrutineer catalog (AgentCore Memory)."""
+    """Load personas from the live scrutineer catalog (AgentCore Memory).
+
+    The scrutineer catalog is published under the blue/green versioned namespace
+    `/tessera/catalog/<version>/scrutineer` and the active version is tracked in the
+    refresh store (DynamoDB, pk=DOMAIN#scrutineer sk=ACTIVE). A reader MUST resolve that
+    active version before loading, otherwise `CatalogStore(version=None)` reads the empty
+    legacy namespace `/tessera/catalog/scrutineer` and returns nothing. Mirrors the reader
+    pattern in tessera_platform.catalog.orchestrate (resolve_active -> CatalogStore)."""
     from tessera_platform.catalog.engine import CatalogStore  # lazy — avoids AWS import offline
+    if version is None:
+        # Resolve the promoted/active scrutineer catalog version (None => legacy namespace).
+        from tessera_platform.catalog import store as refresh_store  # lazy — avoids AWS import offline
+        version = refresh_store.get_active_version("scrutineer")
     store = CatalogStore(version=version)
     recs = store.load_type("scrutineer", resolve=True)
     return [Persona.from_record(r) for r in recs]
