@@ -12,15 +12,15 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "^6.15.4",
-    "@babel/runtime": "^8.0.0",
-    "@cloudscape-design/components": "^3.0.1323",
-    "@cloudscape-design/design-tokens": "^3.0.101",
-    "@cloudscape-design/global-styles": "^1.0.62",
+    "@aws-amplify/ui-react": "^6.15.7",
+    "@babel/runtime": "^8.0.7",
+    "@cloudscape-design/components": "^3.0.1396",
+    "@cloudscape-design/design-tokens": "^3.0.114",
+    "@cloudscape-design/global-styles": "^1.0.71",
     "@excalidraw/excalidraw": "0.18.1",
     "@tailwindcss/typography": "^0.5.15",
-    "aws-amplify": "^6.17.0",
-    "bedrock-agentcore": "^0.4.0",
+    "aws-amplify": "^6.22.1",
+    "bedrock-agentcore": "^0.4.5",
     "lucide-react": "0.460.0",
     "next": "^15.5.27",
     "prop-types": "^15.8.1",
@@ -32,17 +32,17 @@
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.1.0",
+    "@testing-library/react": "^16.3.3",
     "@types/node": "22.10.2",
     "@types/react": "18.3.14",
     "@vitejs/plugin-react": "^5.2.0",
-    "autoprefixer": "10.4.20",
+    "autoprefixer": "10.6.1",
     "jsdom": "^25.0.1",
-    "postcss": "^8.5.15",
-    "tailwindcss": "3.4.16",
+    "postcss": "^8.5.29",
+    "tailwindcss": "3.4.19",
     "typescript": "5.7.2",
     "vite": "^6.4.3",
-    "vitest": "^5.0.2"
+    "vitest": "^5.0.3"
   },
   "overrides": {
     "next": {
