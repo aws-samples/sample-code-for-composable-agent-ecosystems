@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1340 892" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" role="img" aria-label="Tessera agent archetypes and the anatomy of a single agent">
+  <defs>
+    <style>
+      .h1{font-size:26px;font-weight:800;fill:#0F1B2D}
+      .sb{font-size:13px;fill:#64748B}
+      .kic{font-size:11px;font-weight:700;letter-spacing:.4px}
+      .code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+      .key{fill:#6366F1;font-weight:600}
+      .val{fill:#334155}
+      .cmt{fill:#94A3B8}
+      .an{font-size:11px;font-weight:700;fill:#15232F}
+      .as{font-size:10.5px;fill:#5B6B7A}
+      .cn{font-size:15px;font-weight:700;fill:#15232F}
+      .ck{font-family:ui-monospace,monospace;font-size:10.5px;font-weight:600}
+      .cr{font-size:11.5px;fill:#334155}
+      .ce{font-size:10.5px;fill:#64748B}
+      .foot{font-size:11px;fill:#8A99A8}
+    </style>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.5" stdDeviation="2.2" flood-color="#1B2733" flood-opacity="0.14"/></filter>
+    <symbol id="i-search" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="14" cy="14" r="7"/><path d="M19 19l6 6"/></g></symbol>
+    <symbol id="i-merge" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7v4c0 3 3 5 7 5s7 2 7 5v4"/><path d="M9 7l-3 3M9 7l3 3"/><path d="M23 7v4c0 3-3 5-7 5"/><path d="M23 25l-3-3M23 25l3-3"/></g></symbol>
+    <symbol id="i-challenge" viewBox="0 0 32 32"><path d="M16 5l9 4v6c0 6-4 9.3-9 11-5-1.7-9-5-9-11V9Z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M16 11v6M16 20.5v.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M9 5h10l5 5v17H9Z"/><path d="M19 5v5h5"/><path d="M12 15h8M12 19h8M12 23h5" stroke-linecap="round"/></g></symbol>
+    <symbol id="i-chat" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M7 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H13l-5 5v-5H9a2 2 0 0 1-2-2Z"/></g></symbol>
+    <symbol id="i-pen" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M21 6l5 5L12 25l-6 1 1-6Z"/><path d="M18 9l5 5"/></g></symbol>
+    <symbol id="i-spark" viewBox="0 0 32 32"><path d="M16 5l2.6 7.4L26 15l-7.4 2.6L16 25l-2.6-7.4L6 15l7.4-2.6Z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 32 32"><path d="M17 5L8 18h6l-1 9 10-14h-7Z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-agent" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><rect x="8" y="11" width="16" height="12" rx="3"/><path d="M16 11V7M16 7a2 2 0 1 0 0-.1" stroke-linecap="round"/><circle cx="13" cy="17" r="1.4" fill="#fff" stroke="none"/><circle cx="19" cy="17" r="1.4" fill="#fff" stroke="none"/></g></symbol>
+  </defs>
+
+  <rect x="8" y="8" width="1324" height="876" rx="18" fill="#FBFCFD" stroke="#E6EBF0"/>
+  <text x="40" y="46" class="h1">Agents &#38; their archetypes</text>
+  <text x="40" y="70" class="sb">Every agent is one container configured by YAML. Its <tspan font-family="ui-monospace,monospace" font-weight="700">output_kind</tspan> selects the <tspan font-weight="700">contract</tspan> the runtime enforces on what it must produce.</text>
+
+  <!-- ============ TOP: anatomy ============ -->
+  <text x="40" y="104" class="kic" fill="#4A4FCF">ANATOMY OF A SINGLE AGENT</text>
+  <g filter="url(#sh)">
+    <rect x="40" y="116" width="452" height="214" rx="13" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="40" y="116" width="452" height="30" rx="13" fill="#EEF0FB"/><rect x="40" y="132" width="452" height="14" fill="#EEF0FB"/>
+    <text x="56" y="135" class="code" font-weight="700" fill="#5A5FCF"># one entry in agents[]</text>
+  </g>
+  <g class="code">
+    <text x="56" y="170"><tspan class="val">- id: </tspan><tspan class="val">reliability</tspan></text>
+    <text x="56" y="190"><tspan class="val">  swarm: </tspan><tspan class="val">research</tspan></text>
+    <text x="56" y="210"><tspan class="val">  depends_on: </tspan><tspan class="val">[]</tspan>  <tspan class="cmt"># synthesizers wait</tspan></text>
+    <text x="56" y="230"><tspan class="val">  tools: </tspan><tspan class="val">[web_search, memory_*,</tspan></text>
+    <text x="56" y="250"><tspan class="val">          code_interpreter, generateUI]</tspan></text>
+    <text x="56" y="270"><tspan class="val">  tool_budget: </tspan><tspan class="val">{ web_search: 12 }</tspan></text>
+    <text x="56" y="290"><tspan class="key">  output_kind: </tspan><tspan class="val" font-weight="700">analyst</tspan>  <tspan class="cmt"># the contract</tspan></text>
+    <text x="56" y="310"><tspan class="val">  prompt: </tspan><tspan class="cmt">| your specific contribution&#8230;</tspan></text>
+  </g>
+
+  <!-- field explainer chips -->
+  <g>
+    <g transform="translate(520,116)" filter="url(#sh)"><rect width="390" height="48" rx="10" fill="#fff" stroke="#E2E8F0"/><rect x="0" y="0" width="5" height="48" rx="2.5" fill="#E8820C"/><text class="ck" x="18" y="22" fill="#B5700A">swarm</text><text class="as" x="18" y="38">the parallel execution group the agent belongs to</text></g>
+    <g transform="translate(520,172)" filter="url(#sh)"><rect width="390" height="48" rx="10" fill="#fff" stroke="#E2E8F0"/><rect x="0" y="0" width="5" height="48" rx="2.5" fill="#E7157B"/><text class="ck" x="18" y="22" fill="#C01574">depends_on</text><text class="as" x="18" y="38">ordering &#8212; a synthesizer waits for its leaf agents</text></g>
+    <g transform="translate(520,228)" filter="url(#sh)"><rect width="390" height="48" rx="10" fill="#fff" stroke="#E2E8F0"/><rect x="0" y="0" width="5" height="48" rx="2.5" fill="#01A88D"/><text class="ck" x="18" y="22" fill="#018069">tools</text><text class="as" x="18" y="38">capabilities: web_search, memory, code_interpreter, UI</text></g>
+    <g transform="translate(520,284)" filter="url(#sh)"><rect width="390" height="48" rx="10" fill="#fff" stroke="#E2E8F0"/><rect x="0" y="0" width="5" height="48" rx="2.5" fill="#DD344C"/><text class="ck" x="18" y="22" fill="#C0304A">tool_budget</text><text class="as" x="18" y="38">hard per-tool call cap &#8212; bounds cost &#38; runtime</text></g>
+
+    <g transform="translate(926,116)" filter="url(#sh)"><rect width="372" height="48" rx="10" fill="#fff" stroke="#E2E8F0"/><rect x="0" y="0" width="5" height="48" rx="2.5" fill="#6366F1"/><text class="ck" x="18" y="22" fill="#4A4FCF">output_kind</text><text class="as" x="18" y="38">selects the output CONTRACT enforced at runtime</text></g>
+    <g transform="translate(926,172)" filter="url(#sh)"><rect width="372" height="48" rx="10" fill="#fff" stroke="#E2E8F0"/><rect x="0" y="0" width="5" height="48" rx="2.5" fill="#8C4FFF"/><text class="ck" x="18" y="22" fill="#7A3FD0">memory</text><text class="as" x="18" y="38">per-namespace read / write ACLs on shared memory</text></g>
+    <g transform="translate(926,228)" filter="url(#sh)"><rect width="372" height="48" rx="10" fill="#fff" stroke="#E2E8F0"/><rect x="0" y="0" width="5" height="48" rx="2.5" fill="#475569"/><text class="ck" x="18" y="22" fill="#334155">prompt</text><text class="as" x="18" y="38">the agent's unique, concrete contribution</text></g>
+    <g transform="translate(926,284)" filter="url(#sh)"><rect width="372" height="48" rx="10" fill="#fff" stroke="#E2E8F0"/><rect x="0" y="0" width="5" height="48" rx="2.5" fill="#15232F"/><text class="ck" x="18" y="22" fill="#15232F">registry_id</text><text class="as" x="18" y="38">stable identity for reuse across ecosystems</text></g>
+  </g>
+
+  <!-- ============ GRID: 9 archetypes ============ -->
+  <text x="40" y="372" class="kic" fill="#018069">THE NINE OUTPUT_KIND CONTRACTS</text>
+
+  <!-- Row 1 -->
+  <g transform="translate(40,388)" filter="url(#sh)">
+    <rect width="400" height="138" rx="13" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="18" y="18" width="40" height="40" rx="9" fill="#E8820C"/><use href="#i-search" x="22" y="22" width="32" height="32"/>
+    <text class="cn" x="70" y="36">Analyst</text><text class="ck" x="70" y="54" fill="#B5700A">output_kind: analyst</text>
+    <text class="cr" x="20" y="86">A specialist that researches one angle.</text>
+    <text class="ce" x="20" y="108">emits: STRUCTURED FINDINGS + OPEN</text>
+    <text class="ce" x="20" y="123">QUESTIONS &#183; every claim cited inline</text>
+  </g>
+  <g transform="translate(470,388)" filter="url(#sh)">
+    <rect width="400" height="138" rx="13" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="18" y="18" width="40" height="40" rx="9" fill="#C2680A"/><use href="#i-search" x="22" y="22" width="32" height="32"/>
+    <text class="cn" x="70" y="36">Researcher</text><text class="ck" x="70" y="54" fill="#A35A09">output_kind: researcher</text>
+    <text class="cr" x="20" y="86">An analyst with a tool budget for deep</text>
+    <text class="cr" x="20" y="102">external research.</text>
+    <text class="ce" x="20" y="123">emits: cited findings &#183; gets tool_budget</text>
+  </g>
+  <g transform="translate(900,388)" filter="url(#sh)">
+    <rect width="400" height="138" rx="13" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="18" y="18" width="40" height="40" rx="9" fill="#01A88D"/><use href="#i-merge" x="22" y="22" width="32" height="32"/>
+    <text class="cn" x="70" y="36">Synthesizer</text><text class="ck" x="70" y="54" fill="#018069">output_kind: synthesizer</text>
+    <text class="cr" x="20" y="86">Reconciles upstream specialists into one</text>
+    <text class="cr" x="20" y="102">canonical record (no re-research).</text>
+    <text class="ce" x="20" y="123">emits: record citing [per &#60;agent&#62;]</text>
+  </g>
+
+  <!-- Row 2 -->
+  <g transform="translate(40,540)" filter="url(#sh)">
+    <rect width="400" height="138" rx="13" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="18" y="18" width="40" height="40" rx="9" fill="#DD344C"/><use href="#i-challenge" x="22" y="22" width="32" height="32"/>
+    <text class="cn" x="70" y="36">Challenger</text><text class="ck" x="70" y="54" fill="#C0304A">output_kind: challenger</text>
+    <text class="cr" x="20" y="86">Independent adversarial review of the</text>
+    <text class="cr" x="20" y="102">work &#38; its premises.</text>
+    <text class="ce" x="20" y="123">emits: WEAKNESSES &#183; CONTRADICTIONS &#183; VERDICT</text>
+  </g>
+  <g transform="translate(470,540)" filter="url(#sh)">
+    <rect width="400" height="138" rx="13" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="18" y="18" width="40" height="40" rx="9" fill="#475569"/><use href="#i-doc" x="22" y="22" width="32" height="32"/>
+    <text class="cn" x="70" y="36">Reporter</text><text class="ck" x="70" y="54" fill="#334155">output_kind: reporter</text>
+    <text class="cr" x="20" y="86">Composes the final human-facing</text>
+    <text class="cr" x="20" y="102">narrative from everything upstream.</text>
+    <text class="ce" x="20" y="123">emits: summary &#183; findings &#183; risks &#183; next steps</text>
+  </g>
+  <g transform="translate(900,540)" filter="url(#sh)">
+    <rect width="400" height="138" rx="13" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="18" y="18" width="40" height="40" rx="9" fill="#0EA5A3"/><use href="#i-chat" x="22" y="22" width="32" height="32"/>
+    <text class="cn" x="70" y="36">Chat</text><text class="ck" x="70" y="54" fill="#0B827F">output_kind: chat</text>
+    <text class="cr" x="20" y="86">Answers operator follow-up questions</text>
+    <text class="cr" x="20" y="102">about a completed run.</text>
+    <text class="ce" x="20" y="123">emits: concise, citation-bearing prose</text>
+  </g>
+
+  <!-- Row 3 -->
+  <g transform="translate(40,692)" filter="url(#sh)">
+    <rect width="400" height="138" rx="13" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="18" y="18" width="40" height="40" rx="9" fill="#6366F1"/><use href="#i-pen" x="22" y="22" width="32" height="32"/>
+    <text class="cn" x="70" y="36">Drafter</text><text class="ck" x="70" y="54" fill="#4A4FCF">output_kind: drafter</text>
+    <text class="cr" x="20" y="86">Builds the document / artifact itself</text>
+    <text class="cr" x="20" y="102">via code_interpreter.</text>
+    <text class="ce" x="20" y="123">emits: typed file (html/json/yaml/pdf) + SUMMARY</text>
+  </g>
+  <g transform="translate(470,692)" filter="url(#sh)">
+    <rect width="400" height="138" rx="13" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="18" y="18" width="40" height="40" rx="9" fill="#8C4FFF"/><use href="#i-spark" x="22" y="22" width="32" height="32"/>
+    <text class="cn" x="70" y="36">Creative</text><text class="ck" x="70" y="54" fill="#7A3FD0">output_kind: creative</text>
+    <text class="cr" x="20" y="86">Produces a creative artifact directly,</text>
+    <text class="cr" x="20" y="102">free-form.</text>
+    <text class="ce" x="20" y="123">emits: the artifact &#183; no fixed structure</text>
+  </g>
+  <g transform="translate(900,692)" filter="url(#sh)">
+    <rect width="400" height="138" rx="13" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="18" y="18" width="40" height="40" rx="9" fill="#E7157B"/><use href="#i-bolt" x="22" y="22" width="32" height="32"/>
+    <text class="cn" x="70" y="36">Operator</text><text class="ck" x="70" y="54" fill="#C01574">output_kind: operator</text>
+    <text class="cr" x="20" y="86">Executes a side-effect &#8212; API call,</text>
+    <text class="cr" x="20" y="102">file write, system action.</text>
+    <text class="ce" x="20" y="123">emits: RESULT (SUCCESS|DRY_RUN|&#8230;) &#183; DIFF</text>
+  </g>
+
+  <text x="40" y="862" class="foot">Default is <tspan font-weight="700">analyst</tspan>. The platform auto-injects a <tspan font-weight="700" fill="#DD344C">challenger</tspan> and a <tspan font-weight="700" fill="#475569">reporter</tspan>; analyst / researcher / synthesizer carry mandatory citation rules.</text>
+</svg>

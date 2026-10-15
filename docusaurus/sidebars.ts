@@ -42,6 +42,7 @@ const sidebars: SidebarsConfig = {
       label: 'Demos',
       items: [
         'demos/buyer-side-property-report',
+        'demos/architecture-review-board',
       ],
     },
     {

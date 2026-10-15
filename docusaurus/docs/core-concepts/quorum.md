@@ -57,8 +57,10 @@ than free-associating.
 
 ### 3. Verdict
 
-The deliberation is reconciled into a single verdict — the run's defensible outcome —
-which the report agent presents to the operator.
+The deliberation is reconciled into a **scaled verdict** — the run's outcome on the
+ecosystem's declared scale — which the report agent presents to the operator. **Dissent is
+preserved, not averaged away**: where panellists disagree, the minority position is carried
+through to the verdict rather than smoothed over.
 
 ## Scrutineers
 

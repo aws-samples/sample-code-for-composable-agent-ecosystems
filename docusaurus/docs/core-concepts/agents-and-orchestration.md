@@ -12,21 +12,21 @@ YAML definition. What makes each agent distinct is its **prompt**, its **tools**
 ## Anatomy of an agent
 
 ```yaml
-- id: advisory_synth            # snake_case, starts with a letter
-  name: Advisory Synthesizer    # display name in the UI
-  registry_id: tessera/advisory_synth
+- id: report_synth             # snake_case, starts with a letter
+  name: Report Synthesizer      # display name in the UI
+  registry_id: tessera/report_synth
   swarm: synthesis              # grouping for parallel execution
-  depends_on: [intake_agent]    # upstream agents that must finish first
+  depends_on: [research_agent]  # upstream agents that must finish first
   tools: [memory_read, code_interpreter, generateUI]
   tool_budget:
     web_search: 12              # cap tool calls
   output_kind: synthesizer      # the contract the runtime applies
   output_format:                # optional typed artifact
     type: markdown              # markdown | json | yaml | html
-    save_as: advisory_report.md
+    save_as: buyer_report.md
   prompt: |
     Your specific contribution: reconcile the upstream findings into a single
-    advisory report. Cite each upstream agent as [per <agent_id>: ...].
+    buyer report. Cite each upstream agent as [per <agent_id>: ...].
 ```
 
 ## output_kind
@@ -73,8 +73,8 @@ A **swarm** is a named group of agents that can run together:
 
 ```yaml
 swarms:
-  research:  { agents: [intake_agent, market_agent], strategy: graph }
-  synthesis: { agents: [advisory_synth], strategy: graph }
+  research:  { agents: [research_agent, market_agent], strategy: graph }
+  synthesis: { agents: [report_synth], strategy: graph }
 parallel_swarms: [research, synthesis]
 ```
 

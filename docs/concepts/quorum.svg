@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1340 724" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" role="img" aria-label="Tessera quorum: empanelment, deliberation, verdict, whiteboard, and the quality gate">
+  <defs>
+    <style>
+      .h1{font-size:26px;font-weight:800;fill:#0F1B2D}
+      .sb{font-size:13px;fill:#64748B}
+      .kic{font-size:11px;font-weight:700;letter-spacing:.4px}
+      .ct{font-size:15px;font-weight:700;fill:#15232F}
+      .cs{font-size:10.5px;fill:#5B6B7A}
+      .q{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}
+      .qk{fill:#334155;font-weight:600}
+      .qv{fill:#1F6F3F;font-weight:600}
+      .vlab{font-size:10.5px;font-weight:700;fill:#64748B}
+      .foot{font-size:11px;fill:#8A99A8}
+      .step{font-size:11px;font-weight:800;fill:#fff}
+    </style>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.5" stdDeviation="2.2" flood-color="#1B2733" flood-opacity="0.14"/></filter>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#5A6B7B"/></marker>
+    <marker id="arg" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1F8E4A"/></marker>
+    <marker id="arx" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#DD344C"/></marker>
+    <symbol id="i-pool" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><circle cx="11" cy="12" r="3.5"/><circle cx="21" cy="12" r="3.5"/><path d="M5 24c0-3.5 3-5 6-5s6 1.5 6 5M15 24c0-3.5 3-5 6-5s6 1.5 6 5" stroke-linecap="round"/></g></symbol>
+    <symbol id="i-panel" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><circle cx="16" cy="11" r="4"/><circle cx="8" cy="13" r="3"/><circle cx="24" cy="13" r="3"/><path d="M10 25c0-4 3-6 6-6s6 2 6 6" stroke-linecap="round"/></g></symbol>
+    <symbol id="i-talk" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M6 8h13a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-6l-4 4v-4H6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z"/><path d="M24 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2v3l-3-3h-4" /></g></symbol>
+    <symbol id="i-gavel" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 25h12"/><path d="M9 20l8-8"/><rect x="14" y="5" width="9" height="6" rx="1.5" transform="rotate(45 18.5 8)"/></g></symbol>
+    <symbol id="i-board" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><rect x="6" y="7" width="20" height="14" rx="2"/><path d="M16 21v4M12 25h8" stroke-linecap="round"/><path d="M10 12l3 3 4-5 5 4" /></g></symbol>
+    <symbol id="i-gate" viewBox="0 0 32 32"><path d="M16 5l9 4v6c0 6-4 9.3-9 11-5-1.7-9-5-9-11V9Z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M12 15.5l3 3 5.5-5.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+
+  <rect x="8" y="8" width="1324" height="708" rx="18" fill="#FBFCFD" stroke="#E6EBF0"/>
+  <text x="40" y="46" class="h1">Quorum &#8212; a deliberating panel</text>
+  <text x="40" y="70" class="sb">A <tspan class="q" font-weight="700">strategy: quorum</tspan> ecosystem convenes a diverse panel of personas, has them deliberate, and returns a scaled verdict with preserved dissent &#8212; gated on quality.</text>
+
+  <!-- persona pool -->
+  <g filter="url(#sh)">
+    <rect x="40" y="118" width="300" height="86" rx="13" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="58" y="136" width="40" height="40" rx="9" fill="#4C9A2A"/><use href="#i-pool" x="62" y="140" width="32" height="32"/>
+    <text class="ct" x="110" y="150">Persona pool</text>
+    <text class="cs q" x="110" y="168" fill="#3C7A1E">/catalog/scrutineer/</text>
+    <text class="cs" x="58" y="196">each: stance &#183; dimensions &#183; key questions &#183; voice</text>
+  </g>
+  <path d="M190 204 V250" fill="none" stroke="#5A6B7B" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="202" y="232" class="vlab">draw from</text>
+
+  <!-- ======= 4 STAGE CARDS ======= -->
+  <!-- 1 Empanelment -->
+  <g filter="url(#sh)">
+    <rect x="40" y="250" width="300" height="300" rx="14" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="40" y="250" width="300" height="52" rx="14" fill="#FCE8F0"/><rect x="40" y="286" width="300" height="16" fill="#FCE8F0"/>
+    <circle cx="68" cy="276" r="13" fill="#D6336C"/><text x="68" y="280" text-anchor="middle" class="step">1</text>
+    <rect x="90" y="262" width="28" height="28" rx="7" fill="#D6336C"/><use href="#i-panel" x="92" y="264" width="24" height="24"/>
+    <text class="ct" x="126" y="282">Empanelment</text>
+    <g class="q">
+      <text x="62" y="330"><tspan class="qk">select.min / max:</tspan> <tspan class="qv">5 / 6</tspan></text>
+      <text x="62" y="356"><tspan class="qk">must_include:</tspan> <tspan class="qv">[arb_chair]</tspan></text>
+      <text x="62" y="382"><tspan class="qk">diversity:</tspan></text>
+      <text x="78" y="402" fill="#334155">architecture, reliability,</text>
+      <text x="78" y="420" fill="#334155">data, security, cost</text>
+      <text x="62" y="446"><tspan class="qk">completeness_adversary:</tspan></text>
+      <text x="78" y="464"><tspan class="qv">true</tspan>  <tspan fill="#94A3B8"># flags gaps</tspan></text>
+      <text x="62" y="490"><tspan class="qk">justify_exclusions:</tspan> <tspan class="qv">true</tspan></text>
+    </g>
+    <text class="cs" x="62" y="522">who sits on the panel &#8212; and</text>
+    <text class="cs" x="62" y="538">why anyone was left off</text>
+  </g>
+  <path d="M340 400 H376" fill="none" stroke="#5A6B7B" stroke-width="2.2" marker-end="url(#ar)"/>
+
+  <!-- 2 Deliberation -->
+  <g filter="url(#sh)">
+    <rect x="376" y="250" width="300" height="300" rx="14" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="376" y="250" width="300" height="52" rx="14" fill="#EAEBFB"/><rect x="376" y="286" width="300" height="16" fill="#EAEBFB"/>
+    <circle cx="404" cy="276" r="13" fill="#6366F1"/><text x="404" y="280" text-anchor="middle" class="step">2</text>
+    <rect x="426" y="262" width="28" height="28" rx="7" fill="#6366F1"/><use href="#i-talk" x="428" y="264" width="24" height="24"/>
+    <text class="ct" x="462" y="282">Deliberation</text>
+    <g class="q">
+      <text x="398" y="330"><tspan class="qk">max_rounds:</tspan> <tspan class="qv">2</tspan></text>
+      <text x="398" y="356"><tspan class="qk">escalation:</tspan> <tspan class="qv">true</tspan></text>
+      <text x="398" y="382"><tspan class="qk">preserve_dissent:</tspan> <tspan class="qv">true</tspan></text>
+    </g>
+    <text class="cs" x="398" y="416">personas argue in structured</text>
+    <text class="cs" x="398" y="432">rounds, challenge each other,</text>
+    <text class="cs" x="398" y="448">and escalate where they</text>
+    <text class="cs" x="398" y="464">disagree.</text>
+    <text class="cs" x="398" y="500" fill="#4A4FCF">minority views are kept &#8212;</text>
+    <text class="cs" x="398" y="516" fill="#4A4FCF">never averaged away into a</text>
+    <text class="cs" x="398" y="532" fill="#4A4FCF">false consensus.</text>
+  </g>
+  <path d="M676 400 H712" fill="none" stroke="#5A6B7B" stroke-width="2.2" marker-end="url(#ar)"/>
+
+  <!-- 3 Verdict -->
+  <g filter="url(#sh)">
+    <rect x="712" y="250" width="300" height="300" rx="14" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="712" y="250" width="300" height="52" rx="14" fill="#FCEFE0"/><rect x="712" y="286" width="300" height="16" fill="#FCEFE0"/>
+    <circle cx="740" cy="276" r="13" fill="#E8820C"/><text x="740" y="280" text-anchor="middle" class="step">3</text>
+    <rect x="762" y="262" width="28" height="28" rx="7" fill="#E8820C"/><use href="#i-gavel" x="764" y="264" width="24" height="24"/>
+    <text class="ct" x="798" y="282">Verdict</text>
+    <g class="q">
+      <text x="734" y="328"><tspan class="qk">scale:</tspan></text>
+      <text x="750" y="348" fill="#1F8E4A">defensible</text>
+      <text x="750" y="366" fill="#B98900">defensible_with_conditions</text>
+      <text x="750" y="384" fill="#DD344C">indefensible</text>
+      <text x="734" y="412"><tspan class="qk">must_state:</tspan></text>
+      <text x="750" y="432" fill="#334155">against_whom_it_fails</text>
+      <text x="750" y="450" fill="#334155">indefensible_elements</text>
+      <text x="750" y="468" fill="#334155">remediation</text>
+    </g>
+    <text class="cs" x="734" y="500">a graded call &#8212; with who it</text>
+    <text class="cs" x="734" y="516">fails, what's fatal, and how</text>
+    <text class="cs" x="734" y="532">to fix it.</text>
+  </g>
+  <path d="M1012 400 H1048" fill="none" stroke="#5A6B7B" stroke-width="2.2" marker-end="url(#ar)"/>
+
+  <!-- 4 Whiteboard -->
+  <g filter="url(#sh)">
+    <rect x="1048" y="250" width="252" height="300" rx="14" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="1048" y="250" width="252" height="52" rx="14" fill="#E6F7F2"/><rect x="1048" y="286" width="252" height="16" fill="#E6F7F2"/>
+    <circle cx="1076" cy="276" r="13" fill="#01A88D"/><text x="1076" y="280" text-anchor="middle" class="step">4</text>
+    <rect x="1098" y="262" width="28" height="28" rx="7" fill="#01A88D"/><use href="#i-board" x="1100" y="264" width="24" height="24"/>
+    <text class="ct" x="1134" y="282">Whiteboard</text>
+    <g class="q">
+      <text x="1070" y="330"><tspan class="qk">enabled:</tspan> <tspan class="qv">true</tspan></text>
+      <text x="1070" y="356"><tspan class="qk">infer_affinity:</tspan> <tspan class="qv">true</tspan></text>
+    </g>
+    <text class="cs" x="1070" y="392">a shared visual map the</text>
+    <text class="cs" x="1070" y="408">panel builds as it reasons.</text>
+    <text class="cs" x="1070" y="440" fill="#018069">architect / design personas</text>
+    <text class="cs" x="1070" y="456" fill="#018069">draw on it; narrative</text>
+    <text class="cs" x="1070" y="472" fill="#018069">personas don't.</text>
+  </g>
+
+  <!-- verdict -> gate -->
+  <path d="M862 550 V584" fill="none" stroke="#5A6B7B" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- ======= QUALITY GATE ======= -->
+  <g filter="url(#sh)">
+    <rect x="470" y="584" width="784" height="92" rx="14" fill="#fff" stroke="#F2CDD3"/>
+    <rect x="490" y="606" width="40" height="40" rx="9" fill="#DD344C"/><use href="#i-gate" x="494" y="610" width="32" height="32"/>
+    <text class="ct" x="542" y="618">Quality gate</text>
+    <text class="cs q" x="542" y="637" fill="#C0304A">quality.gate.block_below: defensible_with_conditions</text>
+    <text class="cs" x="542" y="658">the run only delivers if the verdict clears the bar</text>
+    <!-- outcomes -->
+    <g>
+      <rect x="900" y="602" width="150" height="26" rx="13" fill="#EAF6EC" stroke="#B6E0C0"/><text x="975" y="619" text-anchor="middle" font-size="11" font-weight="700" fill="#1F8E4A">&#8805; bar &#8594; deliver</text>
+      <rect x="900" y="636" width="150" height="26" rx="13" fill="#FDECEE" stroke="#F3C0C7"/><text x="975" y="653" text-anchor="middle" font-size="11" font-weight="700" fill="#C0304A">&#60; bar &#8594; halt</text>
+    </g>
+    <path d="M1050 615 H1092" fill="none" stroke="#1F8E4A" stroke-width="2" marker-end="url(#arg)"/>
+    <path d="M1050 649 H1092" fill="none" stroke="#DD344C" stroke-width="2" marker-end="url(#arx)"/>
+    <text x="1100" y="619" font-size="11" font-weight="700" fill="#1F8E4A">report</text>
+    <text x="1100" y="653" font-size="11" font-weight="700" fill="#C0304A">blocked</text>
+  </g>
+
+  <text x="40" y="700" class="foot">Example: the <tspan font-weight="700">architecture-review-board</tspan> ecosystem &#8212; a senior panel pressure-tests an AWS design and returns go / go-with-conditions / no-go.</text>
+</svg>

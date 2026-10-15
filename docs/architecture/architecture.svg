@@ -1,0 +1,257 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 980" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" role="img" aria-label="Tessera platform architecture on AWS">
+  <defs>
+    <style>
+      .ttl   { font-size:13.5px; font-weight:700; fill:#15232F; }
+      .sub   { font-size:10.5px; fill:#64748B; }
+      .ttl2  { font-size:11px; font-weight:700; fill:#15232F; }
+      .sub2  { font-size:9px; fill:#64748B; }
+      .grpt  { font-size:12.5px; font-weight:700; letter-spacing:.3px; }
+      .num   { font-size:11px; font-weight:700; fill:#fff; }
+      .lbl   { font-size:10.5px; font-weight:600; fill:#5A6B7B; }
+      .leg   { font-size:11px; fill:#3E4C59; }
+      .foot  { font-size:11px; fill:#8A99A8; }
+    </style>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2.2" flood-color="#1B2733" flood-opacity="0.14"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#5A6B7B"/>
+    </marker>
+    <marker id="arrowd" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#9AA7B4"/>
+    </marker>
+
+    <!-- category glyphs (white line icons) -->
+    <g id="g-base" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <symbol id="sym-user" viewBox="0 0 32 32"><rect x="6" y="7" width="20" height="14" rx="2" fill="none" stroke="#fff" stroke-width="2"/><path d="M12 25h8M16 21v4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="sym-globe" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2"><circle cx="16" cy="16" r="9"/><ellipse cx="16" cy="16" rx="4" ry="9"/><path d="M7 16h18"/></g></symbol>
+    <symbol id="sym-apigw" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12h11l-3-3M19 12l-3 3"/><path d="M24 20H13l3-3M13 20l3 3"/></g></symbol>
+    <symbol id="sym-lambda" viewBox="0 0 32 32"><text x="16" y="24" font-size="20" font-weight="700" fill="#fff" text-anchor="middle" font-family="Georgia,serif">&#955;</text></symbol>
+    <symbol id="sym-sfn" viewBox="0 0 32 32"><g fill="#fff" stroke="#fff" stroke-width="2"><circle cx="9" cy="10" r="2.6"/><circle cx="23" cy="10" r="2.6"/><circle cx="16" cy="23" r="2.6"/><path d="M11.5 10.5h9M10 12l5 8M22 12l-5 8" fill="none"/></g></symbol>
+    <symbol id="sym-s3" viewBox="0 0 32 32"><path d="M9 9h14l-1.8 15.5a2 2 0 0 1-2 1.5h-6.4a2 2 0 0 1-2-1.5Z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="sym-db" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2"><ellipse cx="16" cy="9" rx="9" ry="3"/><path d="M7 9v14c0 1.7 18 1.7 18 0V9"/><path d="M7 16c0 1.7 18 1.7 18 0"/></g></symbol>
+    <symbol id="sym-shield" viewBox="0 0 32 32"><path d="M16 5l9 4v6c0 6-4 9.3-9 11-5-1.7-9-5-9-11V9Z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="sym-shieldcheck" viewBox="0 0 32 32"><path d="M16 5l9 4v6c0 6-4 9.3-9 11-5-1.7-9-5-9-11V9Z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M12 15.5l3 3 5.5-5.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="sym-key" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="5"/><path d="M15.5 16.5L24 25M21 22h3v-3"/></g></symbol>
+    <symbol id="sym-lock" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><rect x="8" y="14" width="16" height="11" rx="2"/><path d="M11 14v-3a5 5 0 0 1 10 0v3"/></g></symbol>
+    <symbol id="sym-eb" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16h7M14 16l6-7h5M14 16l6 7h5"/><circle cx="7" cy="16" r="1.6" fill="#fff"/></g></symbol>
+    <symbol id="sym-sqs" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><rect x="6" y="9" width="13" height="10" rx="2"/><rect x="13" y="14" width="13" height="10" rx="2"/></g></symbol>
+    <symbol id="sym-runtime" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><rect x="7" y="8" width="18" height="16" rx="2"/><path d="M14 13l6 3-6 3Z" fill="#fff" stroke="none"/></g></symbol>
+    <symbol id="sym-gateway" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 24v-8a8 8 0 0 1 16 0v8"/><path d="M7 24h18"/></g></symbol>
+    <symbol id="sym-memory" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><rect x="9" y="9" width="14" height="14" rx="2"/><path d="M13 6v3M19 6v3M13 23v3M19 23v3M6 13h3M6 19h3M23 13h3M23 19h3"/></g></symbol>
+    <symbol id="sym-hex" viewBox="0 0 32 32"><path d="M16 5l9.5 5.5v11L16 27l-9.5-5.5v-11Z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="2.2" fill="#fff"/></symbol>
+  </defs>
+
+  <!-- canvas -->
+  <rect x="8" y="8" width="1344" height="964" rx="18" fill="#FBFCFD" stroke="#E6EBF0"/>
+
+  <!-- header -->
+  <text x="40" y="46" font-size="26" font-weight="800" fill="#0F1B2D">Tessera &#8212; Platform Architecture</text>
+  <text x="40" y="70" class="sub" font-size="13">Config-driven multi-agent workflows on AWS &#183; Amazon Bedrock AgentCore + AWS Step Functions &#183; live generative UI</text>
+
+  <!-- ======================= GROUP BOXES ======================= -->
+  <!-- Security & Identity -->
+  <rect x="40" y="176" width="250" height="334" rx="14" fill="#FFF5F6" stroke="#F0BEC6" stroke-dasharray="5 4"/>
+  <text x="56" y="200" class="grpt" fill="#C0304A">SECURITY &#38; IDENTITY</text>
+
+  <!-- Eventing & Integration -->
+  <rect x="40" y="548" width="250" height="258" rx="14" fill="#FFF2F9" stroke="#F3BEDC" stroke-dasharray="5 4"/>
+  <text x="56" y="572" class="grpt" fill="#C01574">EVENTING &#38; INTEGRATION</text>
+
+  <!-- Data & State -->
+  <rect x="1070" y="176" width="250" height="424" rx="14" fill="#F3F7FC" stroke="#CBDDEC" stroke-dasharray="5 4"/>
+  <text x="1086" y="200" class="grpt" fill="#3E6A8E">DATA &#38; STATE</text>
+
+  <!-- AgentCore -->
+  <rect x="440" y="556" width="494" height="204" rx="14" fill="#ECFBF6" stroke="#A4E6D6" stroke-dasharray="5 4"/>
+  <text x="458" y="580" class="grpt" fill="#018069">AMAZON BEDROCK AGENTCORE</text>
+
+  <!-- ======================= FLOW ARROWS (solid) ======================= -->
+  <g fill="none" stroke="#5A6B7B" stroke-width="2" marker-end="url(#arrow)">
+    <path d="M680 152 V176"/>                           <!-- 1 browser->cf -->
+    <path d="M680 236 V250 M680 250 H570 V260"/>        <!-- 2a cf->ws -->
+    <path d="M680 250 H790 V260"/>                       <!-- 2b cf->rest -->
+    <path d="M570 320 V352"/>                            <!-- 3a ws->sfn -->
+    <path d="M790 320 V352"/>                            <!-- 3b rest->lambdas -->
+    <path d="M570 412 V444"/>                            <!-- 4 sfn->invoker -->
+    <path d="M570 504 V574 H686 V592"/>                  <!-- 5 invoker->runtime -->
+  </g>
+  <!-- AgentCore internal distribution bus -->
+  <g fill="none" stroke="#2FA58E" stroke-width="2">
+    <path d="M686 644 V662"/>
+    <path d="M510 662 H864"/>
+  </g>
+  <g fill="none" stroke="#2FA58E" stroke-width="2" marker-end="url(#arrow)">
+    <path d="M510 662 V682"/>
+    <path d="M628 662 V682"/>
+    <path d="M746 662 V682"/>
+    <path d="M864 662 V682"/>
+  </g>
+
+  <!-- ======================= ASSOCIATION ARROWS (dashed) ======================= -->
+  <g fill="none" stroke="#9AA7B4" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arrowd)">
+    <path d="M890 382 H1070"/>                                   <!-- lambdas <-> data -->
+    <path d="M470 288 H300 V248 H274"/>                          <!-- api -> cognito authz -->
+  </g>
+  <text x="930" y="374" class="lbl">read / write</text>
+  <text x="300" y="238" class="lbl">JWT auth &#183; Cedar authz</text>
+
+  <!-- ======================= STEP NUMBER BADGES ======================= -->
+  <g>
+    <circle cx="696" cy="166" r="9" fill="#01A88D"/><text x="696" y="170" class="num" text-anchor="middle">1</text>
+    <circle cx="700" cy="252" r="9" fill="#01A88D"/><text x="700" y="256" class="num" text-anchor="middle">2</text>
+    <circle cx="586" cy="336" r="9" fill="#01A88D"/><text x="586" y="340" class="num" text-anchor="middle">3</text>
+    <circle cx="586" cy="428" r="9" fill="#01A88D"/><text x="586" y="432" class="num" text-anchor="middle">4</text>
+    <circle cx="586" cy="540" r="9" fill="#01A88D"/><text x="586" y="544" class="num" text-anchor="middle">5</text>
+  </g>
+
+  <!-- ======================= NODES ======================= -->
+  <!-- Browser -->
+  <g transform="translate(580,92)">
+    <rect class="chip" width="200" height="60" rx="11" fill="#fff" stroke="#E2E8F0" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#4B5563"/><use href="#sym-user" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">Browser</text><text class="sub" x="52" y="45">Next.js single-page app</text>
+  </g>
+  <!-- CloudFront -->
+  <g transform="translate(580,176)">
+    <rect class="chip" width="200" height="60" rx="11" fill="#fff" stroke="#E2E8F0" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#8C4FFF"/><use href="#sym-globe" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">Amazon CloudFront</text><text class="sub" x="52" y="45">+ WAF &#183; static frontend (S3)</text>
+  </g>
+  <!-- WebSocket API -->
+  <g transform="translate(470,260)">
+    <rect class="chip" width="200" height="60" rx="11" fill="#fff" stroke="#E2E8F0" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#8C4FFF"/><use href="#sym-apigw" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">API Gateway</text><text class="sub" x="52" y="45">WebSocket &#183; live run stream</text>
+  </g>
+  <!-- REST API -->
+  <g transform="translate(690,260)">
+    <rect class="chip" width="200" height="60" rx="11" fill="#fff" stroke="#E2E8F0" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#8C4FFF"/><use href="#sym-apigw" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">API Gateway</text><text class="sub" x="52" y="45">REST &#183; control plane (JWT)</text>
+  </g>
+  <!-- Step Functions -->
+  <g transform="translate(470,352)">
+    <rect class="chip" width="200" height="60" rx="11" fill="#fff" stroke="#E2E8F0" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#E7157B"/><use href="#sym-sfn" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">Step Functions</text><text class="sub" x="52" y="45">per-ecosystem agent DAG</text>
+  </g>
+  <!-- Control-plane Lambdas -->
+  <g transform="translate(690,352)">
+    <rect class="chip" width="200" height="60" rx="11" fill="#fff" stroke="#E2E8F0" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#ED7100"/><use href="#sym-lambda" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">AWS Lambda</text><text class="sub" x="52" y="45">save/list/get &#183; builder &#183; gate</text>
+  </g>
+  <!-- agent-invoker -->
+  <g transform="translate(470,444)">
+    <rect class="chip" width="200" height="60" rx="11" fill="#fff" stroke="#E2E8F0" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#ED7100"/><use href="#sym-lambda" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">AWS Lambda</text><text class="sub" x="52" y="45">agent-invoker</text>
+  </g>
+
+  <!-- AgentCore Runtime bar -->
+  <g transform="translate(456,592)">
+    <rect class="chip" width="460" height="52" rx="11" fill="#fff" stroke="#CDEDE4" filter="url(#sh)"/>
+    <rect x="14" y="11" width="30" height="30" rx="7" fill="#01A88D"/><use href="#sym-runtime" x="14" y="11" width="30" height="30"/>
+    <text class="ttl" x="54" y="27">AgentCore Runtime</text><text class="sub" x="54" y="42">one container &#183; invoked for every agent &#183; Cognito M2M JWT</text>
+  </g>
+  <!-- AgentCore sub chips -->
+  <g transform="translate(456,682)">
+    <rect class="chip" width="108" height="58" rx="10" fill="#fff" stroke="#CDEDE4" filter="url(#sh)"/>
+    <rect x="10" y="9" width="26" height="26" rx="6" fill="#01A88D"/><use href="#sym-gateway" x="10" y="9" width="26" height="26"/>
+    <text class="ttl2" x="42" y="23">Gateway</text><text class="sub2" x="42" y="37">MCP tools</text>
+  </g>
+  <g transform="translate(574,682)">
+    <rect class="chip" width="108" height="58" rx="10" fill="#fff" stroke="#CDEDE4" filter="url(#sh)"/>
+    <rect x="10" y="9" width="26" height="26" rx="6" fill="#01A88D"/><use href="#sym-memory" x="10" y="9" width="26" height="26"/>
+    <text class="ttl2" x="42" y="23">Memory</text><text class="sub2" x="42" y="37">shared</text>
+  </g>
+  <g transform="translate(692,682)">
+    <rect class="chip" width="108" height="58" rx="10" fill="#fff" stroke="#CDEDE4" filter="url(#sh)"/>
+    <rect x="10" y="9" width="26" height="26" rx="6" fill="#01A88D"/><use href="#sym-shieldcheck" x="10" y="9" width="26" height="26"/>
+    <text class="ttl2" x="42" y="23">Guardrail</text><text class="sub2" x="42" y="37">grounding</text>
+  </g>
+  <g transform="translate(810,682)">
+    <rect class="chip" width="108" height="58" rx="10" fill="#fff" stroke="#CDEDE4" filter="url(#sh)"/>
+    <rect x="10" y="9" width="26" height="26" rx="6" fill="#01A88D"/><use href="#sym-hex" x="10" y="9" width="26" height="26"/>
+    <text class="ttl2" x="42" y="23">Bedrock</text><text class="sub2" x="42" y="37">models</text>
+  </g>
+
+  <!-- Security chips -->
+  <g transform="translate(56,218)">
+    <rect class="chip" width="218" height="60" rx="11" fill="#fff" stroke="#F2CDD3" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#DD344C"/><use href="#sym-user" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">Amazon Cognito</text><text class="sub" x="52" y="45">user pool &#183; M2M client</text>
+  </g>
+  <g transform="translate(56,290)">
+    <rect class="chip" width="218" height="60" rx="11" fill="#fff" stroke="#F2CDD3" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#DD344C"/><use href="#sym-shieldcheck" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">Verified Permissions</text><text class="sub" x="52" y="45">Cedar policy store</text>
+  </g>
+  <g transform="translate(56,362)">
+    <rect class="chip" width="218" height="60" rx="11" fill="#fff" stroke="#F2CDD3" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#DD344C"/><use href="#sym-key" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">AWS KMS</text><text class="sub" x="52" y="45">encryption keys</text>
+  </g>
+  <g transform="translate(56,434)">
+    <rect class="chip" width="218" height="60" rx="11" fill="#fff" stroke="#F2CDD3" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#DD344C"/><use href="#sym-lock" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">Secrets Manager</text><text class="sub" x="52" y="45">web-search key &#183; vault</text>
+  </g>
+
+  <!-- Eventing chips -->
+  <g transform="translate(56,590)">
+    <rect class="chip" width="218" height="58" rx="11" fill="#fff" stroke="#F3C7E0" filter="url(#sh)"/>
+    <rect x="12" y="14" width="30" height="30" rx="7" fill="#E7157B"/><use href="#sym-sfn" x="12" y="14" width="30" height="30"/>
+    <text class="ttl" x="52" y="28">Step Functions</text><text class="sub" x="52" y="44">catalog build / ingest</text>
+  </g>
+  <g transform="translate(56,662)">
+    <rect class="chip" width="218" height="58" rx="11" fill="#fff" stroke="#F3C7E0" filter="url(#sh)"/>
+    <rect x="12" y="14" width="30" height="30" rx="7" fill="#E7157B"/><use href="#sym-eb" x="12" y="14" width="30" height="30"/>
+    <text class="ttl" x="52" y="28">EventBridge</text><text class="sub" x="52" y="44">re-grounding bus</text>
+  </g>
+  <g transform="translate(56,734)">
+    <rect class="chip" width="218" height="58" rx="11" fill="#fff" stroke="#F3C7E0" filter="url(#sh)"/>
+    <rect x="12" y="14" width="30" height="30" rx="7" fill="#E7157B"/><use href="#sym-sqs" x="12" y="14" width="30" height="30"/>
+    <text class="ttl" x="52" y="28">Amazon SQS</text><text class="sub" x="52" y="44">Lambda DLQ</text>
+  </g>
+
+  <!-- Data chips -->
+  <g transform="translate(1086,218)">
+    <rect class="chip" width="218" height="60" rx="11" fill="#fff" stroke="#CBDDEC" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#7AA116"/><use href="#sym-s3" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">Amazon S3</text><text class="sub" x="52" y="45">ecosystems (YAML + ASL)</text>
+  </g>
+  <g transform="translate(1086,290)">
+    <rect class="chip" width="218" height="60" rx="11" fill="#fff" stroke="#CBDDEC" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#7AA116"/><use href="#sym-s3" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">Amazon S3</text><text class="sub" x="52" y="45">run artifacts &#183; exports</text>
+  </g>
+  <g transform="translate(1086,362)">
+    <rect class="chip" width="218" height="60" rx="11" fill="#fff" stroke="#CBDDEC" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#7AA116"/><use href="#sym-s3" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">Amazon S3</text><text class="sub" x="52" y="45">frontend &#183; access logs</text>
+  </g>
+  <g transform="translate(1086,434)">
+    <rect class="chip" width="218" height="60" rx="11" fill="#fff" stroke="#CBDDEC" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#4053D6"/><use href="#sym-db" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">DynamoDB</text><text class="sub" x="52" y="45">WebSocket connections</text>
+  </g>
+  <g transform="translate(1086,506)">
+    <rect class="chip" width="218" height="60" rx="11" fill="#fff" stroke="#CBDDEC" filter="url(#sh)"/>
+    <rect x="12" y="15" width="30" height="30" rx="7" fill="#4053D6"/><use href="#sym-db" x="12" y="15" width="30" height="30"/>
+    <text class="ttl" x="52" y="29">DynamoDB</text><text class="sub" x="52" y="45">attention inbox &#183; catalog</text>
+  </g>
+
+  <!-- ======================= LEGEND ======================= -->
+  <g transform="translate(40,905)">
+    <rect x="0" y="0" width="16" height="16" rx="4" fill="#ED7100"/><text x="22" y="12" class="leg">Compute</text>
+    <rect x="150" y="0" width="16" height="16" rx="4" fill="#7AA116"/><text x="172" y="12" class="leg">Storage</text>
+    <rect x="290" y="0" width="16" height="16" rx="4" fill="#4053D6"/><text x="312" y="12" class="leg">Database</text>
+    <rect x="430" y="0" width="16" height="16" rx="4" fill="#8C4FFF"/><text x="452" y="12" class="leg">Networking &#38; Content Delivery</text>
+    <rect x="700" y="0" width="16" height="16" rx="4" fill="#DD344C"/><text x="722" y="12" class="leg">Security &#38; Identity</text>
+    <rect x="900" y="0" width="16" height="16" rx="4" fill="#E7157B"/><text x="922" y="12" class="leg">App Integration</text>
+    <rect x="1080" y="0" width="16" height="16" rx="4" fill="#01A88D"/><text x="1102" y="12" class="leg">Bedrock / ML</text>
+  </g>
+  <text x="40" y="950" class="foot">Every resource is named <tspan font-style="italic">${project}-${environment}-*</tspan> &#183; AWS account resolved at runtime &#183; zero static secrets &#183; control-plane Lambdas run in VPC private subnets.</text>
+</svg>

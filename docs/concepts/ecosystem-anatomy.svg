@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 760" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" role="img" aria-label="Anatomy of a Tessera ecosystem: YAML compiled to a Step Functions agent DAG">
+  <defs>
+    <style>
+      .h1{font-size:26px;font-weight:800;fill:#0F1B2D}
+      .sb{font-size:13px;fill:#64748B}
+      .kic{font-size:11px;font-weight:700;letter-spacing:.4px}
+      .code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+      .key{fill:#6366F1;font-weight:600}
+      .val{fill:#334155}
+      .cmt{fill:#94A3B8}
+      .ct{font-size:13.5px;font-weight:700;fill:#15232F}
+      .cs{font-size:10.5px;fill:#5B6B7A}
+      .vlab{font-size:10.5px;font-weight:700;fill:#64748B}
+      .foot{font-size:11px;fill:#8A99A8}
+      .pill{font-size:9.5px;font-weight:700;fill:#fff}
+    </style>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.5" stdDeviation="2.2" flood-color="#1B2733" flood-opacity="0.14"/></filter>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#5A6B7B"/></marker>
+    <marker id="ard" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#E8820C"/></marker>
+    <symbol id="i-gear" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><circle cx="16" cy="16" r="4"/><path d="M16 6v3M16 23v3M6 16h3M23 16h3M9 9l2 2M21 21l2 2M23 9l-2 2M11 21l-2 2"/></g></symbol>
+    <symbol id="i-agent" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><rect x="8" y="11" width="16" height="12" rx="3"/><path d="M16 11V7M16 7a2 2 0 1 0 0-.1" stroke-linecap="round"/><circle cx="13" cy="17" r="1.4" fill="#fff" stroke="none"/><circle cx="19" cy="17" r="1.4" fill="#fff" stroke="none"/></g></symbol>
+    <symbol id="i-flag" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M9 26V7M9 8h13l-3 4 3 4H9"/></g></symbol>
+  </defs>
+
+  <rect x="8" y="8" width="1304" height="744" rx="18" fill="#FBFCFD" stroke="#E6EBF0"/>
+  <text x="40" y="46" class="h1">Anatomy of an ecosystem</text>
+  <text x="40" y="70" class="sb">One YAML file declares the whole workflow. At save time the compiler turns it into an AWS Step Functions agent DAG &#8212; swarms run in parallel, <tspan font-family="ui-monospace,monospace">depends_on</tspan> sets the order, and two platform agents are injected for you.</text>
+
+  <!-- ============ LEFT: YAML card ============ -->
+  <g filter="url(#sh)">
+    <rect x="40" y="104" width="470" height="610" rx="14" fill="#FFFFFF" stroke="#E2E8F0"/>
+    <rect x="40" y="104" width="470" height="34" rx="14" fill="#EEF0FB"/>
+    <rect x="40" y="124" width="470" height="14" fill="#EEF0FB"/>
+    <circle cx="60" cy="121" r="4.5" fill="#E7157B"/><circle cx="76" cy="121" r="4.5" fill="#E8820C"/><circle cx="92" cy="121" r="4.5" fill="#4C9A2A"/>
+    <text x="256" y="125" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12" font-weight="700" fill="#5A5FCF">architecture-review-board.yaml</text>
+  </g>
+
+  <!-- gutter block markers -->
+  <g>
+    <rect x="48" y="162" width="7" height="7" rx="2" fill="#475569"/>
+    <rect x="48" y="250" width="7" height="7" rx="2" fill="#01A88D"/>
+    <rect x="48" y="294" width="7" height="7" rx="2" fill="#6366F1"/>
+    <rect x="48" y="338" width="7" height="7" rx="2" fill="#DD344C"/>
+    <rect x="48" y="426" width="7" height="7" rx="2" fill="#8C4FFF"/>
+    <rect x="48" y="470" width="7" height="7" rx="2" fill="#E8820C"/>
+    <rect x="48" y="602" width="7" height="7" rx="2" fill="#E7157B"/>
+    <rect x="48" y="690" width="7" height="7" rx="2" fill="#475569"/>
+  </g>
+
+  <g class="code">
+    <text x="70" y="170"><tspan class="key">ecosystem:</tspan></text>
+    <text x="70" y="192"><tspan class="val">  name: </tspan><tspan class="val">architecture-review-board</tspan></text>
+    <text x="70" y="214"><tspan class="val">  description: </tspan><tspan class="cmt">| convene a review board&#8230;</tspan></text>
+    <text x="70" y="236"><tspan class="val">  version: </tspan><tspan class="val">"1.0"</tspan></text>
+    <text x="70" y="258"><tspan class="key">inputs: </tspan><tspan class="val">[decision, context]</tspan>  <tspan class="cmt"># launch UI</tspan></text>
+    <text x="70" y="302"><tspan class="key">strategy: </tspan><tspan class="val">orchestrated</tspan>  <tspan class="cmt"># | choreography | quorum</tspan></text>
+    <text x="70" y="324"><tspan class="key">report: </tspan><tspan class="val">true</tspan>          <tspan class="cmt"># auto-injects report_agent</tspan></text>
+    <text x="70" y="346"><tspan class="key">quality:</tspan></text>
+    <text x="70" y="368"><tspan class="val">  challenger: </tspan><tspan class="val">true</tspan>  <tspan class="cmt"># auto-injects challenger</tspan></text>
+    <text x="70" y="390"><tspan class="val">  grounding: </tspan><tspan class="val">true</tspan></text>
+    <text x="70" y="434"><tspan class="key">memory:</tspan></text>
+    <text x="70" y="456"><tspan class="val">  shared_namespaces: </tspan><tspan class="val">[findings]</tspan></text>
+    <text x="70" y="478"><tspan class="key">agents:</tspan></text>
+    <text x="70" y="500"><tspan class="val">  - id: </tspan><tspan class="val">reliability</tspan>  <tspan class="cmt">swarm: research</tspan></text>
+    <text x="70" y="522"><tspan class="val">  - id: </tspan><tspan class="val">security</tspan>     <tspan class="cmt">swarm: research</tspan></text>
+    <text x="70" y="544"><tspan class="val">  - id: </tspan><tspan class="val">synthesizer</tspan>  <tspan class="cmt">swarm: synthesis</tspan></text>
+    <text x="70" y="566"><tspan class="val">      depends_on: </tspan><tspan class="val">[reliability, security]</tspan></text>
+    <text x="70" y="588"><tspan class="val">      output_kind: </tspan><tspan class="val">synthesizer</tspan></text>
+    <text x="70" y="610"><tspan class="key">swarms:</tspan></text>
+    <text x="70" y="632"><tspan class="val">  research:  </tspan><tspan class="val">[reliability, security]</tspan></text>
+    <text x="70" y="654"><tspan class="val">  synthesis: </tspan><tspan class="val">[synthesizer]</tspan></text>
+    <text x="70" y="676"><tspan class="key">parallel_swarms: </tspan><tspan class="val">[research, synthesis]</tspan></text>
+    <text x="70" y="698"><tspan class="key">outcome: </tspan><tspan class="val">{ kind: report }</tspan></text>
+  </g>
+
+  <!-- ============ COMPILER ============ -->
+  <g filter="url(#sh)">
+    <rect x="548" y="368" width="168" height="92" rx="14" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="612" y="382" width="40" height="40" rx="9" fill="#8A5A2B"/><use href="#i-gear" x="616" y="386" width="32" height="32"/>
+    <text class="ct" x="632" y="440" text-anchor="middle">Compiler</text>
+    <text class="cs" x="632" y="454" text-anchor="middle">save-ecosystem &#183; yaml &#8594; ASL</text>
+  </g>
+  <path d="M510 414 H548" fill="none" stroke="#5A6B7B" stroke-width="2.2" marker-end="url(#ar)"/>
+  <path d="M716 414 H760" fill="none" stroke="#5A6B7B" stroke-width="2.2" marker-end="url(#ar)"/>
+  <text x="738" y="406" class="vlab" text-anchor="middle">compile</text>
+
+  <!-- ============ RIGHT: Step Functions DAG ============ -->
+  <rect x="760" y="104" width="520" height="610" rx="14" fill="#FEF4F9" stroke="#F6C9E0" stroke-dasharray="5 4"/>
+  <text x="780" y="128" class="kic" fill="#C01574">STEP FUNCTIONS &#8212; compiled agent DAG</text>
+
+  <!-- entry -->
+  <g filter="url(#sh)"><rect x="968" y="146" width="104" height="34" rx="10" fill="#15232F"/><text x="1020" y="168" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">entry point</text></g>
+  <path d="M1020 180 V206" fill="none" stroke="#5A6B7B" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- research swarm -->
+  <rect x="784" y="206" width="472" height="118" rx="13" fill="#FFF8EF" stroke="#F6D29B" stroke-dasharray="5 4"/>
+  <text x="800" y="227" class="kic" fill="#B5700A">SWARM: research &#183; parallel</text>
+  <g filter="url(#sh)">
+    <rect x="800" y="238" width="212" height="72" rx="12" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="814" y="254" width="36" height="36" rx="8" fill="#E8820C"/><use href="#i-agent" x="817" y="257" width="30" height="30"/>
+    <text class="ct" x="860" y="268">reliability</text><text class="cs" x="860" y="285">analyst &#183; web_search, memory</text><text class="cs" x="860" y="299">output_kind: analyst</text>
+  </g>
+  <g filter="url(#sh)">
+    <rect x="1028" y="238" width="212" height="72" rx="12" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="1042" y="254" width="36" height="36" rx="8" fill="#E8820C"/><use href="#i-agent" x="1045" y="257" width="30" height="30"/>
+    <text class="ct" x="1088" y="268">security</text><text class="cs" x="1088" y="285">analyst &#183; web_search, memory</text><text class="cs" x="1088" y="299">output_kind: analyst</text>
+  </g>
+
+  <!-- depends_on edges to synthesizer -->
+  <path d="M906 310 V336 Q906 352 1020 352 L1020 372" fill="none" stroke="#E8820C" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ard)"/>
+  <path d="M1134 310 V336 Q1134 352 1020 352" fill="none" stroke="#E8820C" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="1020" y="346" class="vlab" fill="#B5700A" text-anchor="middle">depends_on</text>
+
+  <!-- synthesis swarm -->
+  <rect x="862" y="372" width="316" height="104" rx="13" fill="#ECFBF6" stroke="#A4E6D6" stroke-dasharray="5 4"/>
+  <text x="878" y="393" class="kic" fill="#018069">SWARM: synthesis</text>
+  <g filter="url(#sh)">
+    <rect x="878" y="402" width="284" height="62" rx="12" fill="#fff" stroke="#E2E8F0"/>
+    <rect x="892" y="416" width="34" height="34" rx="8" fill="#01A88D"/><use href="#i-agent" x="895" y="419" width="28" height="28"/>
+    <text class="ct" x="936" y="430">synthesizer</text><text class="cs" x="936" y="446">reconciles findings &#183; code_interpreter</text><text class="cs" x="936" y="459">output_kind: synthesizer &#183; cites [per &#8230;]</text>
+  </g>
+  <path d="M1020 476 V500" fill="none" stroke="#5A6B7B" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- challenger (auto) -->
+  <g filter="url(#sh)">
+    <rect x="878" y="500" width="284" height="60" rx="12" fill="#fff" stroke="#F2CDD3"/>
+    <rect x="892" y="514" width="32" height="32" rx="8" fill="#DD344C"/><use href="#i-agent" x="895" y="517" width="26" height="26"/>
+    <text class="ct" x="934" y="526">challenger_agent</text><text class="cs" x="934" y="542">independent adversarial review</text><text class="cs" x="934" y="554">output_kind: challenger</text>
+    <rect x="1070" y="508" width="80" height="17" rx="8.5" fill="#DD344C"/><text x="1110" y="520" text-anchor="middle" class="pill">AUTO-INJECTED</text>
+  </g>
+  <path d="M1020 560 V584" fill="none" stroke="#5A6B7B" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- report (auto) -->
+  <g filter="url(#sh)">
+    <rect x="878" y="584" width="284" height="60" rx="12" fill="#fff" stroke="#DCE2EA"/>
+    <rect x="892" y="598" width="32" height="32" rx="8" fill="#475569"/><use href="#i-flag" x="895" y="601" width="26" height="26"/>
+    <text class="ct" x="934" y="610">report_agent</text><text class="cs" x="934" y="626">assembles the final deliverable</text><text class="cs" x="934" y="638">output_kind: reporter</text>
+    <rect x="1070" y="592" width="80" height="17" rx="8.5" fill="#475569"/><text x="1110" y="604" text-anchor="middle" class="pill">AUTO-INJECTED</text>
+  </g>
+  <path d="M1020 644 V668" fill="none" stroke="#5A6B7B" stroke-width="2" marker-end="url(#ar)"/>
+  <g filter="url(#sh)"><rect x="984" y="668" width="72" height="32" rx="10" fill="#15232F"/><text x="1020" y="689" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">end</text></g>
+
+  <text x="40" y="740" class="foot">You write the specialists and how they depend on each other. <tspan font-weight="700" fill="#DD344C">challenger_agent</tspan> and <tspan font-weight="700" fill="#475569">report_agent</tspan> are added by the compiler when <tspan font-family="ui-monospace,monospace">quality.challenger</tspan> / <tspan font-family="ui-monospace,monospace">report</tspan> are true (both default on).</text>
+</svg>

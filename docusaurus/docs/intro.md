@@ -5,19 +5,21 @@ slug: /intro
 
 # Introduction
 
-**Tessera** is a composable platform for building **multi-agent workflows** — called
-**ecosystems** — through configuration rather than code. You describe *what* agents should
-do and how their work fits together in YAML; Tessera compiles that into a runnable
-pipeline, executes it on AWS, and streams a generative UI back to a web frontend.
+**Multi-agent AI workflows on AWS, declared in YAML** — compiled to AWS Step Functions,
+run on Amazon Bedrock AgentCore, and streamed as live generative UI.
 
-Ecosystems are **domain-agnostic** — the same engine powers a personal-finance advisor, a
-commodity-trading desk, an enterprise risk board, an AI-governance conformity assessment, a
-security incident war-room, a consultant's meeting prep, and even a trip planner. What ties
-them together is *how* they run: agents grounded in a curated catalog, coordinated as a
-dependency graph, checked by built-in quality gates, and optionally measured by an
-evaluation harness. That machinery makes Tessera especially strong for **regulated,
-high-stakes decision work where the reasoning has to hold up** — while staying general
-enough for anything you can express as collaborating agents.
+**Tessera** lets you build and run **multi-agent workflows** — called **ecosystems** —
+through configuration rather than code. You describe *what* agents should do and how their
+work fits together in YAML; Tessera compiles that into a runnable pipeline, executes it on
+AWS, and streams a generative UI back to a web frontend.
+
+Ecosystems are **domain-agnostic** — the same engine powers a property due-diligence
+report, a commodity-trading desk, an enterprise risk board, an AI-governance assessment, a
+security incident war-room, and even a trip planner. What ties them together is *how* they
+run: agents grounded in a curated catalog, coordinated as a dependency graph, checked by
+built-in quality gates, and optionally measured by an evaluation harness. That machinery
+makes Tessera especially strong for **regulated, high-stakes work where outputs must hold
+up** — while staying general enough for anything you can express as collaborating agents.
 
 ## Why Tessera?
 
@@ -33,6 +35,21 @@ enough for anything you can express as collaborating agents.
   for regression and model-risk sign-off, make outputs reviewable.
 - **Runs on AWS** — Amazon Bedrock AgentCore for the agent runtime, Step Functions for
   orchestration, and a static web UI behind CloudFront.
+
+### Tessera vs. code-first frameworks
+
+Code-first agent frameworks give you primitives and leave the hard parts — grounding,
+quality, UI, deployment — to you. Tessera is opinionated about exactly those parts.
+
+| | **Tessera** | Code-first frameworks<br/>(LangGraph · CrewAI · AutoGen) |
+|---|---|---|
+| Define a workflow | YAML config | Write & maintain Python |
+| Grounding | Versioned **catalog** + internal/external grounding checks | Build it yourself |
+| Quality | Built-in challenger, **quorum** deliberation, format/citation/grounding **gates** | Build it yourself |
+| UI | **Live generative UI** streamed to a web app | None / build your own |
+| Deployment | **Terraform** to your AWS account (dev/staging/prod) | Bring your own infra |
+| Secrets | **Zero static secrets** (AgentCore vault / Secrets Manager) | Varies |
+| Evaluation | Opt-in **eval harness** (regression + model-risk sign-off) | Build it yourself |
 
 ## Key concepts
 

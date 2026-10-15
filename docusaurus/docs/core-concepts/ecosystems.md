@@ -15,8 +15,8 @@ machine from the agent dependency graph.
 
 ```yaml
 ecosystem:
-  name: Personal Finance Advisor
-  description: Ingests financial documents and a mission, produces an advisory report.
+  name: Property Buyer Report
+  description: Takes a property address, researches it, produces a due-diligence report.
   version: "1.0"
 
 strategy: orchestrated      # orchestrated | choreography
@@ -26,16 +26,12 @@ quality:
   grounding: true           # internal + external grounding checks
 
 inputs:
-  - id: bank_statements
-    type: file
-    label: Bank Statements
-    required: true
-  - id: mission
-    type: select
-    label: Advisory Mission
+  - id: address
+    type: text
+    label: Property Address
     required: true
 
-entry_point: intake_agent
+entry_point: research_agent
 
 memory:
   strategies: [semantic]    # add 'episodic' for chronological recall
@@ -45,26 +41,26 @@ memory:
       read: [all]
 
 agents:
-  - id: intake_agent
-    name: Intake
+  - id: research_agent
+    name: Property Research
     swarm: research
-    tools: [memory_write, current_time]
+    tools: [web_search, memory_write, current_time]
     output_kind: analyst
     prompt: |
-      Parse the supplied documents and extract structured facts...
+      Research the property from public sources and extract structured facts...
 
-  - id: advisory_synth
-    name: Advisory Synthesizer
+  - id: report_synth
+    name: Report Synthesizer
     swarm: synthesis
-    depends_on: [intake_agent]
+    depends_on: [research_agent]
     tools: [memory_read, code_interpreter, generateUI]
     output_kind: synthesizer
     prompt: |
-      Reconcile the upstream findings into a single advisory report...
+      Reconcile the upstream findings into a single buyer report...
 
 swarms:
-  research:  { agents: [intake_agent], strategy: graph }
-  synthesis: { agents: [advisory_synth], strategy: graph }
+  research:  { agents: [research_agent], strategy: graph }
+  synthesis: { agents: [report_synth], strategy: graph }
 parallel_swarms: [research, synthesis]
 
 triggers:

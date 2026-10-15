@@ -1,0 +1,75 @@
+---
+sidebar_position: 2
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+# Architecture Review Board
+
+A guided walkthrough of a complete Tessera ecosystem, start to finish. The
+**Architecture Review Board** ecosystem convenes a panel of senior reviewers that
+pressure-tests a proposed AWS solution architecture from security, reliability,
+cost, data/privacy, and operations angles — letting the submitter defend points,
+preserving dissent, and returning a defensible **go / go-with-conditions / no-go**
+verdict.
+
+Unlike a standard orchestrated workflow, this ecosystem uses Tessera's **quorum**
+model: reviewers are empanelled from a catalog of personas, deliberate over
+multiple rounds, and sketch a shared whiteboard as they reason.
+
+The four short clips below follow the full loop: **build** the ecosystem in the
+visual Builder, **run** it, **watch** the live deliberation, and **review** the
+verdict. Each video is click-to-play.
+
+## 1. Build the ecosystem
+
+Compose the ecosystem in the visual Builder — set the quorum empanelment, the
+dimensions the panel must cover, and the verdict scale, then save and deploy. No
+code; the Builder compiles it into a runnable review. For the full walkthrough, see
+[Build an ecosystem](../guides/build-an-ecosystem.md).
+
+<video controls muted playsinline preload="metadata" width="100%" style={{maxWidth: '960px', borderRadius: '8px'}}>
+  <source src={useBaseUrl('/demo/architecture-review-board/01-ArchitectureReviewBoard-Build_Ecosystem.mp4')} type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
+
+## 2. Run it
+
+Open the saved ecosystem, paste the proposed architecture (or attach the design
+PDF) and any context, and convene the board.
+
+<video controls muted playsinline preload="metadata" width="100%" style={{maxWidth: '960px', borderRadius: '8px'}}>
+  <source src={useBaseUrl('/demo/architecture-review-board/02-ArchitectureReviewBoard-Run_Ecosystem.mp4')} type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
+
+## 3. Watch the live deliberation
+
+The review streams in real time: the chair runs the room, reviewers raise findings
+across their dimensions, the submitter can defend points, and the panel sketches a
+shared whiteboard as the discussion develops.
+
+<video controls muted playsinline preload="metadata" width="100%" style={{maxWidth: '960px', borderRadius: '8px'}}>
+  <source src={useBaseUrl('/demo/architecture-review-board/03-ArchitectureReviewBoard-Review_Run.mp4')} type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
+
+## 4. Review the verdict
+
+When deliberation concludes, the board returns a defensible verdict —
+**defensible**, **defensible with conditions**, or **indefensible** — stating what
+it fails against, the indefensible elements, and the remediation. Dissent is
+preserved rather than averaged away. For how to read a run and iterate on it, see
+[Run and review](../guides/run-and-review.md).
+
+<video controls muted playsinline preload="metadata" width="100%" style={{maxWidth: '960px', borderRadius: '8px'}}>
+  <source src={useBaseUrl('/demo/architecture-review-board/04-ArchitectureReviewBoard-Review_Report.mp4')} type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
+
+## Try it yourself
+
+1. Deploy and seed the platform ([Installation](../getting-started/installation.md)).
+2. Open the UI and build or pick this ecosystem.
+3. Provide the proposed architecture and context, convene the board — then watch
+   the deliberation and review the verdict.

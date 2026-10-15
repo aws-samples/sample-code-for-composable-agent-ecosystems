@@ -15,7 +15,7 @@ const baseUrl = process.env.DOCS_BASE_URL || '/';
 
 const config: Config = {
   title: 'Tessera',
-  tagline: 'A composable platform for building multi-agent workflows through configuration, not code',
+  tagline: 'Multi-agent AI workflows on AWS, declared in YAML',
   favicon: 'img/favicon.svg',
 
   url,

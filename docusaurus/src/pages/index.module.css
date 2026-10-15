@@ -132,3 +132,67 @@
   .heroTitle { font-size: 2.4rem; }
   .heroTagline { font-size: 1.1rem; }
 }
+
+/* Hero logo (animated SVG) above the title */
+.heroLogo {
+  display: block;
+  margin: 0 auto 1rem;
+  width: 96px;
+  height: 96px;
+}
+
+/* "Watch an ecosystem run" showcase band */
+.showcase {
+  padding: 1rem 0 4rem;
+  text-align: center;
+}
+.showcaseImg {
+  display: block;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+.showcaseCaption {
+  margin-top: 1rem;
+  font-weight: 600;
+}
+
+/* "Why Tessera" comparison */
+.why {
+  padding: 2rem 0 4rem;
+}
+.tableWrap {
+  max-width: 920px;
+  margin: 0 auto;
+  overflow-x: auto;
+}
+.compareTable {
+  width: 100%;
+  border-collapse: collapse;
+  display: table;
+}
+.compareTable th,
+.compareTable td {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  text-align: left;
+  vertical-align: top;
+}
+.compareTable thead th {
+  background: var(--ifm-color-emphasis-100);
+  font-weight: 700;
+}
+.tesseraCell {
+  background: rgba(45, 212, 191, 0.08);
+  font-weight: 600;
+}
+.codeFirstCell {
+  color: var(--ifm-color-emphasis-700);
+}
+
+@media (max-width: 768px) {
+  .heroLogo { width: 72px; height: 72px; }
+}
