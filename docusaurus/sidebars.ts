@@ -43,6 +43,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'demos/buyer-side-property-report',
         'demos/architecture-review-board',
+        'demos/accelerated-genai-security-assessment',
       ],
     },
     {

@@ -137,7 +137,7 @@ The ecosystems below are **just samples** that ship in [`app/content/ecosystems/
 |---|---|
 | `property-buyer-report` | Due-diligence report for a home buyer from an address (the demo above). |
 | `architecture-review-board` | A senior panel pressure-tests an AWS design → go / go-with-conditions / no-go (**quorum**). |
-| `aws-ai-security-assessment-playbook` | Fail-closed AI security assessment grounded in OWASP, CSA MAESTRO & AGENTSEC controls. |
+| `accelerated-genai-security-assessment` | Fail-closed GenAI security assessment grounded in the AWS Agentic AI Lens, OWASP, CSA MAESTRO & MITRE ATLAS. |
 | `enterprise-risk-board` | Board-grade interrogation of a proposed decision with an accountable executive persona. |
 | `ai-governance-conformity` | Jurisdiction-aware AI-governance conformity assessment. |
 | `incident-war-room` | Live security-incident response simulation across coordinating specialists. |

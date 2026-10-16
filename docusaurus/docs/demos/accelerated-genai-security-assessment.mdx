@@ -1,0 +1,83 @@
+---
+sidebar_position: 3
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+# Accelerated GenAI Security Assessment
+
+A guided walkthrough of a complete Tessera ecosystem, start to finish. The
+**Accelerated GenAI Security Assessment** ecosystem reviews an agentic AI workload on
+AWS and produces a defensible security assessment — anchored on the **AWS Well-Architected
+Agentic AI Lens** (Security pillar, AGENTSEC01–09), cross-mapped to the **OWASP** agentic
+threat taxonomy (ASI01–10 + LLM01–10) and the **CSA MAESTRO** layered model, verified
+against **MITRE ATLAS**, and grounded in the durable `cyber-security-risk` catalog. It
+**fails closed** if that framework grounding is absent.
+
+It runs in **two phases**:
+
+1. **Assessment playbook** — a design-level review of the target's architecture that
+   produces the assessment *kit*: a scoped questionnaire, test procedures, a tooling guide,
+   findings/report templates, an execution playbook, a local code-review SOP, and a design
+   workshop deck. Findings here are **hypotheses** to confirm in phase 2.
+2. **Findings reconciliation & report** — consumes the evidence gathered by executing
+   phase 1 (filled questionnaire, findings register, SAST/SCA SARIF, CSPM ASFF), reconciles
+   it, scores risk, audits coverage, and emits a self-contained **HTML report** and
+   stakeholder **read-out deck**, plus editable **Word** and **PowerPoint** renditions —
+   with a humanizer and a final quality gate before emission.
+
+The four short clips below follow the full loop: **build** the ecosystem in the visual
+Builder, **run** it, **watch** the live run, and **review** the report. Each video is
+click-to-play.
+
+## 1. Build the ecosystem
+
+Compose the ecosystem in the visual Builder — the two-phase structure, the agents that map
+the AWS Agentic AI Lens and OWASP/MAESTRO/ATLAS frameworks, and the kit + report artifacts
+— then save and deploy. No code; the Builder compiles the agent graph into a runnable
+workflow. For the full walkthrough, see [Build an ecosystem](../guides/build-an-ecosystem.md).
+
+<video controls muted playsinline preload="metadata" width="100%" style={{maxWidth: '960px', borderRadius: '8px'}}>
+  <source src={useBaseUrl('/demo/accelerated-genai-security-assessment/01-AgentSec-Build_Ecosystem.mp4')} type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
+
+## 2. Run it
+
+Open the saved ecosystem, attach the target's architecture documentation (and, for phase 2,
+the gathered evidence), and launch a run.
+
+<video controls muted playsinline preload="metadata" width="100%" style={{maxWidth: '960px', borderRadius: '8px'}}>
+  <source src={useBaseUrl('/demo/accelerated-genai-security-assessment/02-AgentSec-Run_Ecosystem.mp4')} type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
+
+## 3. Watch the live run
+
+The run streams in real time: specialist agents map the AWS AI attack surface and agentic
+threats, cross-walk the AGENTSEC controls, and assemble the assessment kit — with the DAG
+map showing progress across both phases.
+
+<video controls muted playsinline preload="metadata" width="100%" style={{maxWidth: '960px', borderRadius: '8px'}}>
+  <source src={useBaseUrl('/demo/accelerated-genai-security-assessment/03-AgentSec-Review_Run.mp4')} type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
+
+## 4. Review the report
+
+When the run finishes, review the final assessment — the self-contained HTML report and
+stakeholder read-out deck, with findings reconciled against the gathered evidence, risk
+scored, and framework coverage audited. Downloadable artifacts include the editable Word
+and PowerPoint renditions and the full kit/report bundles. For how to read a run and iterate
+on it, see [Run and review](../guides/run-and-review.md).
+
+<video controls muted playsinline preload="metadata" width="100%" style={{maxWidth: '960px', borderRadius: '8px'}}>
+  <source src={useBaseUrl('/demo/accelerated-genai-security-assessment/04-AgentSec-Review_Report.mp4')} type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
+
+## Try it yourself
+
+1. Deploy and seed the platform ([Installation](../getting-started/installation.md)).
+2. Open the UI and build or pick this ecosystem.
+3. Attach the target architecture, launch — then watch the run and review the report.
